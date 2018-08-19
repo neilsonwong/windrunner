@@ -21,7 +21,13 @@ async function ls(rel){
 
 	if (fileDetails.isDir){
 		console.log("listing dir " + file)
-		return listDir(file);
+		try {
+			return (await listDir(file));
+		}
+		catch(e) {
+			console.log(e);
+			return [];
+		}
 	}
 	else {
 		//not a dir, return the ls deets
@@ -44,14 +50,26 @@ const fDeets = function(file) {
 const listDir = function(dir){
 	return new Promise((res, rej) => {
 		fs.readdir(dir, async function(err, items) {
+			//remove hidden files
 			items = items.filter(item => !(/(^|\/)\.[^\/\.]/g.test(item)));
 			if (err){
 				rej(err);
 			}
-			res(await Promise.all(items.map(async (item) => {
+			let details = await Promise.all(items.map(async (item) => {
 				let file = path.join(dir, item);
-				return fDeets(file);
-			})));
+				let deets = undefined;
+				//handle errors here
+				try {
+					deets = await fDeets(file);
+				}
+				catch(e){
+					console.log(e)
+				}
+				return deets;
+			}));
+
+			//filter out empties
+			res(details.fileter(x => (x !== undefined)));
 		});
 	});
 };

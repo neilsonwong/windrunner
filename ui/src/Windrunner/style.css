@@ -1,0 +1,13 @@
+.folder-view, .file-view {
+	display: inline-block;
+	width: 30%;
+	min-width: 300px;
+	height: 30px;
+	margin: 2px;
+
+	cursor: pointer;
+}
+
+.folder-view {
+	background-color: #f5f5dc;
+}

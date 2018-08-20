@@ -1,8 +1,6 @@
 import React, { Component } from 'react';
 import { BrowserRouter, Route } from 'react-router-dom';
 
-import logo from './logo.svg';
-import './App.css';
 import Windrunner from './Windrunner';
 
 class App extends Component {
@@ -10,7 +8,7 @@ class App extends Component {
     return (
       <BrowserRouter>
         <div>
-          <Route path="/" component={Windrunner} />
+          <Route component={Windrunner} />
         </div>
       </BrowserRouter>
     );

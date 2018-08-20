@@ -1,24 +1,34 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
-// import './style.css';
-const listingUrl = 'http://localhost:8000/';
+import './style.css';
+
+const listingUrl = 'http://192.168.0.159:8000/';
 const agentUrl = 'http://localhost:8080/';
 const openFileUrl = agentUrl + 'play';
 
-export default class FolderView extends React.Component {
+export default class DirectoryView extends React.Component {
   constructor(props){
     super(props);
 
     this.state = {
       files: []
     };
-
-    this.path = props.path;
-    this.webBasePath = props.webBasePath;
   }
 
   componentDidMount() {
-    fetch(ls(this.path))
+    this.updateDataView()
+  }
+
+  componentDidUpdate(prevProps) {
+    if (this.props.path !== prevProps.path){
+      this.updateDataView()
+    }
+  }
+
+  updateDataView(){
+    console.log('updating view for ' + this.props.path)
+    fetch(ls(this.props.path))
       .then(response => response.json())
       .then(data => {
         if (Array.isArray(data)){
@@ -35,26 +45,34 @@ export default class FolderView extends React.Component {
 
     let files = this.state.files.map((file) => {
       //{"path":"/Users/neilson/Movies/.DS_Store","isDir":false,"size":24580,"birthTime":"2014-08-22T05:31:27.000Z"}
-      return (
-        <FileView file={file} key={ 'file-view-' + file.name }/>
-      );
+      return this.renderFile(file);
     });
 
     return (
-      <div className="folder-view">
+      <div className="directory-view">
         {files}
       </div>
     );
   }
-}
 
-function FileView(props){
-  let file = props.file;
-  return (
-    <div className="file-view" onClick={(evt) => Open(file)} >
-      <span>{file.name}</span>
-    </div>
-  );
+  renderFile(file) {
+    if (file.isDir) {
+      return (
+        <div className="folder-view" onClick={(evt) => {
+          this.updateDataView();
+        }} key={'file-'+file.rel} >
+           <Link to={file.rel} >{file.rel}</Link>
+        </div>
+      );
+    }
+    else {
+      return (
+        <div className="file-view" onClick={(evt) => Open(file)} key={'file-'+file.rel} >
+          <span>{file.name}</span>
+        </div>
+      );
+    }
+  }
 }
 
 function Open(file){

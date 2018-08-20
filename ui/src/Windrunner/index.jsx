@@ -1,29 +1,22 @@
 import React from 'react';
 import Top from './Top';
-import FolderView from './FolderView';
+import DirectoryView from './DirectoryView';
 
 // import './style.css';
 
-export default class WindRunner extends React.Component {
-  constructor(props){
-    super(props);
-    this.directory = this.props.location.pathname;
+export default function WindRunner(props){
+  let directory = props.location.pathname;
 
-    //this.state.path is obtained from url and ripping out the preceding string
-    let dirPath = this.directory.substring(this.props.match.url.length);
-    
-    this.state = {
-      path: dirPath
-    };
-  }
+  //this.state.path is obtained from url and ripping out the preceding string
+  let dirPath = directory.substring(props.match.url.length);
 
-  render(){
-    console.log('rendering windrunner for ' + this.state.path)
-    return (
-      <div className="WindRunner">
-        <Top path={this.state.path} webBasePath={this.url} />
-        <FolderView path={this.state.path} webBasePath={this.url} />
-      </div>
-    );
-  }
+  console.log('rendering windrunner for ' + directory)
+  console.log(dirPath)
+
+  return (
+    <div className="WindRunner">
+      <Top path={dirPath} />
+      <DirectoryView path={dirPath} />
+    </div>
+  );
 }

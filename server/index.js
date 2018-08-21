@@ -6,6 +6,8 @@ const ls = require('./fileUtils').ls;
 
 const app = express();
 
+process.title = process.argv[2];
+
 app.use(cors());
 
 app.get('/', (req, res) => {  

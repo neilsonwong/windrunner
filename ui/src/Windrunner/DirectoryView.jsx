@@ -57,11 +57,16 @@ export default class DirectoryView extends React.Component {
 
   renderFile(file) {
     if (file.isDir) {
+      let repLetter = file.name[0];
       return (
-        <div className="folder-view" onClick={(evt) => {
-          this.updateDataView();
-        }} key={'file-'+file.rel} >
-           <Link to={file.rel} >{file.rel}</Link>
+        <div className="folder-view" key={'file-'+file.rel} >
+          <Link to={file.rel} >
+            <div className="folder-view-thumbnail">
+              <div className="folder-icon"></div>
+              {repLetter}
+            </div>
+            <span>{file.name}</span>
+          </Link>
         </div>
       );
     }

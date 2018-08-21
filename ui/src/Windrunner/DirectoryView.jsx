@@ -1,8 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-import './style.css';
-
 const listingUrl = 'http://192.168.0.159:8000/';
 const agentUrl = 'http://localhost:8080/';
 const openFileUrl = agentUrl + 'play';

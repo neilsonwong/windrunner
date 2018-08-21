@@ -2,7 +2,7 @@ import React from 'react';
 import Top from './Top';
 import DirectoryView from './DirectoryView';
 
-// import './style.css';
+import './style.css';
 
 export default function WindRunner(props){
   let directory = props.location.pathname;
@@ -14,7 +14,7 @@ export default function WindRunner(props){
   console.log(dirPath)
 
   return (
-    <div className="WindRunner">
+    <div className="windrunner">
       <Top path={dirPath} />
       <DirectoryView path={dirPath} />
     </div>

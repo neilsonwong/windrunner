@@ -1,3 +1,26 @@
+.windrunner {
+	position: absolute;
+}
+
+.windrunner::after {
+	content: "";
+	background: url("/knnw.jpg");
+	/*opacity: 0.9;*/
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	z-index: -1;   
+}
+
+
+.directory-view {
+	display: flex;
+    flex-flow: wrap;
+    justify-content: center;
+}
+
 .folder-view, .file-view {
 	display: inline-block;
 	width: 250px;
@@ -14,15 +37,14 @@
 	width: 245px;
 	height: 195px;
 	border-radius: 15px;
-    box-shadow: 3px 3px 3px #cccccc;
+    /*box-shadow: 3px 3px 3px rgba(255, 255, 255, 0.2);*/
 	margin: auto;
 
 	/* style the text */
 	font-size: 5em;
 	text-align: center;
     line-height: 200px;
-    color: #000000;
-    /*text-shadow: 0 0 1em #ccc, 0 0 0.2em #ccc;*/
+    color: #333333;
 
     transition-duration: 0.1s
 }
@@ -30,10 +52,17 @@
 .folder-view:hover .folder-view-thumbnail {
 	width: 250px;
 	height: 200px;
+	color: #000000;
+    box-shadow: 0px 0px 30px rgba(255, 255, 255, 0.5);
+    /*text-shadow: 0 0 5px #333;*/
 }
 
 .folder-view:hover span {
 	background-color: #000000;
+}
+
+.folder-view:hover .folder-icon {
+	opacity: 1;
 }
 
 .folder-icon {
@@ -45,6 +74,7 @@
 	top: 5px;
 	opacity: 0.3;
 	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACQAAAAkCAYAAADhAJiYAAAAZElEQVRYhe3WsRGAIBAF0e2QlqwScrSPM7ABULkh2J35+QsuODCz/ApQgRjcsRp0TWBSULOY5ai3oGWoL6CZVZ573QYUwLkbKAQJEiRIkCBBgjYE9URMHwEVoCVgGoMvrJn92Q0+52HmkeSvPAAAAABJRU5ErkJggg==);
+    transition-duration: 0.1s
 }
 
 .folder-view a {
@@ -58,38 +88,38 @@
 	border-radius: 5px;
 	margin: 5px auto;
 
-	background-color: #666666;
+	background-color: #444444;
 	color: #ffffff;
 }
 
 /* give the folder colors some life */
 .folder-view:nth-child(10n+1) .folder-view-thumbnail {
-    background-color: rgba(235, 116, 60, 0.75);
+    background-color: rgba(235, 116, 60, 1);
 }
 .folder-view:nth-child(10n+2) .folder-view-thumbnail {
-    background-color: rgba(84, 166, 216, 0.75);
+    background-color: rgba(84, 166, 216, 1);
 }
 .folder-view:nth-child(10n+3) .folder-view-thumbnail {
-    background-color: rgba(146, 146, 146, 0.75);;
+    background-color: rgba(146, 146, 146, 1);;
 }
 .folder-view:nth-child(10n+4) .folder-view-thumbnail {
-    background-color: rgba(37, 83, 169, 0.75);
+    background-color: rgba(37, 83, 169, 1);
 }
 .folder-view:nth-child(10n+5) .folder-view-thumbnail {
-    background-color: rgba(246, 205, 56, 0.75);
+    background-color: rgba(246, 205, 56, 1);
 }
 .folder-view:nth-child(10n+6) .folder-view-thumbnail {
-    background-color: rgba(200, 34, 44, 0.75);
+    background-color: rgba(200, 34, 44, 1);
 }
 .folder-view:nth-child(10n+7) .folder-view-thumbnail {
-    background-color: rgba(92, 56, 141, 0.75);
+    background-color: rgba(92, 56, 141, 1);
 }
 .folder-view:nth-child(10n+8) .folder-view-thumbnail {
-    background-color: rgba(130, 167, 59, 0.75);
+    background-color: rgba(130, 167, 59, 1);
 }
 .folder-view:nth-child(10n+9) .folder-view-thumbnail {
-    background-color: rgba(194, 78, 127, 0.75);
+    background-color: rgba(194, 78, 127, 1);
 }
 .folder-view:nth-child(10n+10) .folder-view-thumbnail {
-    background-color: rgba(236, 0, 140, 0.75);
+    background-color: rgba(236, 0, 140, 1);
 }

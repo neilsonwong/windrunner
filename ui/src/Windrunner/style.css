@@ -19,7 +19,6 @@ body {
 	z-index: -1;   
 }
 
-
 .directory-view {
 	display: flex;
     flex-flow: wrap;
@@ -54,6 +53,28 @@ body {
     transition-duration: 0.1s
 }
 
+.video-thumbnail {
+	/* style the folder thumbnail */
+	position: relative;
+	display: block;
+	width: 240px;
+	height: 135px;
+	/*border-radius: 15px;*/
+    /*box-shadow: 3px 3px 3px rgba(255, 255, 255, 0.2);*/
+	margin: auto;
+	margin-bottom: 10px;
+    transition-duration: 0.1s
+}
+
+.file-view > *{
+    cursor: pointer;
+}
+
+.file-view:hover .video-thumbnail {
+	color: #000000;
+    box-shadow: 0px 0px 30px rgba(255, 255, 255, 0.5);
+}
+
 .folder-view:hover .folder-view-thumbnail {
 	width: 250px;
 	height: 200px;
@@ -62,6 +83,7 @@ body {
     /*text-shadow: 0 0 5px #333;*/
 }
 
+.file-view:hover span,
 .folder-view:hover span {
 	background-color: #000000;
 }
@@ -87,8 +109,10 @@ body {
 }
 
 /* links to folders */
+.file-view span,
 .folder-view span {
 	display: inline-block;
+	max-width: 250px;
 	padding: 5px;
 	border-radius: 5px;
 	margin: 5px auto;

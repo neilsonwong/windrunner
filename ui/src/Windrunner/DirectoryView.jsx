@@ -1,7 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-const listingUrl = 'http://192.168.0.159:8000/';
+// const listingUrl = 'http://192.168.0.159:8000/';
+const listingUrl = 'http://localhost:8000/';
 const agentUrl = 'http://localhost:8080/';
 const openFileUrl = agentUrl + 'play';
 
@@ -54,6 +55,8 @@ export default class DirectoryView extends React.Component {
   }
 
   renderFile(file) {
+    let filename = file.name.replace(/_/g, ' ');
+
     if (file.isDir) {
       let repLetter = file.name[0];
       return (
@@ -63,15 +66,21 @@ export default class DirectoryView extends React.Component {
               <div className="folder-icon"></div>
               {repLetter}
             </div>
-            <span>{file.name}</span>
+            <span>{filename}</span>
           </Link>
         </div>
       );
     }
     else {
+      console.log(file.hash);
+      let bgimg = {
+        'backgroundImage': `url("${listingUrl}thumb/${encodeURIComponent(file.path)}")`
+      };
+
       return (
         <div className="file-view" onClick={(evt) => Open(file)} key={'file-'+file.rel} >
-          <span>{file.name}</span>
+          <div className="video-thumbnail" style={bgimg} ></div>
+          <span>{filename}</span>
         </div>
       );
     }

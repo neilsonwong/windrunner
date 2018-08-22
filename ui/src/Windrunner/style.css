@@ -1,3 +1,7 @@
+body {
+	background-color: black;
+}
+
 .windrunner {
 	position: absolute;
 }
@@ -5,7 +9,8 @@
 .windrunner::after {
 	content: "";
 	background: url("/knnw.jpg");
-	/*opacity: 0.9;*/
+	/*filter: grayscale(100%);*/
+	opacity: 0.4;
 	position: fixed;
 	top: 0;
 	left: 0;

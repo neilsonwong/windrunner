@@ -1,3 +1,6 @@
 {
-	"SHARE_PATH": "/Users/neilson/rpi"
+	"SHARE_PATH": "/run/user/1000/gvfs/smb-share:server=raspberrypi,share=share",
+	"SECRET": "raspberry",
+	"THUMBNAIL_DIR": "/home/rin/Projects/windrunner/server/thumbnails",
+	"ENCRYPTION_KEY": "raspberry"
 }

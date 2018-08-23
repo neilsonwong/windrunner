@@ -11,7 +11,8 @@ export default class DirectoryView extends React.Component {
     super(props);
 
     this.state = {
-      files: []
+      files: [],
+      error: false
     };
   }
 
@@ -25,37 +26,51 @@ export default class DirectoryView extends React.Component {
     }
   }
 
-  updateDataView(){
+  async updateDataView(){
     console.log('updating view for ' + this.props.path)
-    fetch(ls(this.props.path))
-      .then(response => response.json())
-      .then(data => {
-        if (Array.isArray(data)){
-          this.setState({ files: data });
-        }
-        else {
-          console.log('invalid data received');
-        }
-      });
+    try {
+      let data = await fetchData(ls(this.props.path));
+
+      if (Array.isArray(data)){
+        this.setState({ files: data, error: false  });
+      }
+      else {
+        console.log('invalid data received');
+      }
+    }
+    catch (e){
+      console.log(e);
+      //unable to fetch show message
+      this.setState({ error: true });
+    }
   }
 
   render(){
-    console.log('rendering folder view with ' + this.state.files.length + ' files');
+    if (this.state.error){
+      return (
+        <div className="error">
+          <h2>There was an issue connecting to the file server. { listingUrl }</h2>
+        </div>
+      );
+    }
+    else {
+      let files = this.state.files.map((file) => {
+        return this.renderFile(file);
+      });
 
-    let files = this.state.files.map((file) => {
-      //{"path":"/Users/neilson/Movies/.DS_Store","isDir":false,"size":24580,"birthTime":"2014-08-22T05:31:27.000Z"}
-      return this.renderFile(file);
-    });
-
-    return (
-      <div className="directory-view">
-        {files}
-      </div>
-    );
+      return (
+        <div className="directory-view">
+          {files}
+        </div>
+      );
+    }
   }
 
   renderFile(file) {
-    let filename = file.name.replace(/_/g, ' ');
+    //massage filenames to be nicer
+    let filename = file.name.replace(/_/g, ' ').replace(/\[[a-zA-Z0-9\-]+\]/g, '').replace(/(\.[avimk4]+$)/g, '');
+    let size = formatBytes(file.size);
+    let date = file.birthTime.substring(0, 10);
 
     if (file.isDir) {
       let repLetter = file.name[0];
@@ -66,25 +81,36 @@ export default class DirectoryView extends React.Component {
               <div className="folder-icon"></div>
               {repLetter}
             </div>
-            <span>{filename}</span>
+            <span className="file-name">{filename}</span>
           </Link>
         </div>
       );
     }
     else {
-      console.log(file.hash);
       let bgimg = {
-        'backgroundImage': `url("${listingUrl}thumb/${encodeURIComponent(file.path)}")`
+        'backgroundImage': `url("${listingUrl}thumb/${encodeURIComponent(file.path)}")`,
+        'backgroundSize': 'cover',
+        'backgroundPosition': 'center'
       };
 
       return (
         <div className="file-view" onClick={(evt) => Open(file)} key={'file-'+file.rel} >
-          <div className="video-thumbnail" style={bgimg} ></div>
-          <span>{filename}</span>
+          <div className="video-thumbnail" style={bgimg} >
+            <div className="video-details">
+              <span className="video-size">{size}</span>
+              <span className="video-date">{date}</span>
+            </div>
+          </div>
+          <span className="file-name">{filename}</span>
         </div>
       );
     }
   }
+}
+
+function fetchData(uri){
+  return fetch(uri)
+    .then(response => response.json())
 }
 
 function Open(file){
@@ -102,3 +128,5 @@ function Open(file){
 function ls(dir) {
   return listingUrl + 'ls/' + dir;
 }
+
+function formatBytes(a,b){if(0==a)return"0 Bytes";var c=1024,d=b||2,e=["Bytes","KB","MB","GB","TB","PB","EB","ZB","YB"],f=Math.floor(Math.log(a)/Math.log(c));return parseFloat((a/Math.pow(c,f)).toFixed(d))+" "+e[f]}

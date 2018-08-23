@@ -2,6 +2,14 @@ body {
 	background-color: black;
 }
 
+.error {
+	position: fixed;
+	left: 0;
+	right: 0;
+	color: red;
+	text-align: center;
+}
+
 .windrunner {
 	position: absolute;
 }
@@ -27,64 +35,79 @@ body {
 
 .folder-view, .file-view {
 	display: inline-block;
-	width: 250px;
-	height: 250px;
+	width: 320px;
+	height: 225px;
 	padding: 20px;
 	text-align: center;
 	vertical-align: text-top;
 }
 
 .folder-view-thumbnail {
-	/* style the folder thumbnail */
-	position: relative;
-	display: block;
-	width: 245px;
-	height: 195px;
-	border-radius: 15px;
-    /*box-shadow: 3px 3px 3px rgba(255, 255, 255, 0.2);*/
-	margin: auto;
-
 	/* style the text */
 	font-size: 5em;
 	text-align: center;
     line-height: 200px;
     color: #333333;
-
-    transition-duration: 0.1s
 }
 
+.folder-view-thumbnail,
 .video-thumbnail {
 	/* style the folder thumbnail */
 	position: relative;
 	display: block;
-	width: 240px;
-	height: 135px;
-	/*border-radius: 15px;*/
-    /*box-shadow: 3px 3px 3px rgba(255, 255, 255, 0.2);*/
+	width: 300px;
+	height: 180px;
+	border-radius: 15px;
 	margin: auto;
 	margin-bottom: 10px;
-    transition-duration: 0.1s
+    transition-duration: 0.1s;
+
+    /* default bg for no thumbnail */
+    background-color: aliceBlue;
+}
+
+
+.video-details {
+	opacity: 0;
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	display: flex;
+    justify-content: space-between;
+    /*text-shadow: 0px 0px 0.1em white;*/
+	background-color: rgba(255, 255, 255, 0.7);
+	border-radius: 0px 0px 15px 15px;
+    transition-duration: 0.1s;
+}
+
+.video-details > span {
+	padding: 5px 10px;
+}
+
+.video-size {
+	font-size:;
 }
 
 .file-view > *{
     cursor: pointer;
 }
 
-.file-view:hover .video-thumbnail {
-	color: #000000;
-    box-shadow: 0px 0px 30px rgba(255, 255, 255, 0.5);
+
+.file-view:hover .video-details {
+	opacity: 1;
 }
 
+.file-view:hover .video-thumbnail,
 .folder-view:hover .folder-view-thumbnail {
-	width: 250px;
+	width: 320px;
 	height: 200px;
 	color: #000000;
     box-shadow: 0px 0px 30px rgba(255, 255, 255, 0.5);
-    /*text-shadow: 0 0 5px #333;*/
 }
 
-.file-view:hover span,
-.folder-view:hover span {
+.file-view:hover .file-name,
+.folder-view:hover .file-name {
 	background-color: #000000;
 }
 
@@ -109,10 +132,10 @@ body {
 }
 
 /* links to folders */
-.file-view span,
-.folder-view span {
+.file-view .file-name,
+.folder-view .file-name {
 	display: inline-block;
-	max-width: 250px;
+	max-width: 320px;
 	padding: 5px;
 	border-radius: 5px;
 	margin: 5px auto;

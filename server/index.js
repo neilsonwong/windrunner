@@ -44,7 +44,8 @@ app.use('/thumb/:filePath', function (req, res, next) {
       makeThumbnail(req.params.filePath, filename);
 
       //send a generic back for now
-      res.sendFile('video.png', { root: __dirname });
+      // res.sendFile('video.png', { root: __dirname });
+      res.send("OK");
     }
   });
 });

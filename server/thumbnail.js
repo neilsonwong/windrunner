@@ -49,7 +49,7 @@ async function makeThumbnail(filePath, filename){
 
 function generateThumbnail(input, output){
   return new Promise((res, rej) => {
-   let child = execFile('ffmpeg', ['-ss', '00:05:00', '-t', '1', '-i', input, '-s', '240x135', '-f', 'mjpeg', output], (error, stdout, stderr) => {
+   let child = execFile('ffmpeg', ['-ss', '00:05:00', '-t', '1', '-i', input, '-s', '320x180', '-f', 'mjpeg', output], (error, stdout, stderr) => {
       if (error) {
         rej(stderr);  
       }

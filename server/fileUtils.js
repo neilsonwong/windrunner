@@ -31,7 +31,7 @@ async function ls(rel){
 	}
 	else {
 		//not a dir, return the ls deets
-		console.log("listing file " + file)
+		// console.log("listing file " + file)
 		return [fileDetails];
 	}
 }
@@ -42,6 +42,7 @@ const fDeets = function(file) {
 			if (err) {
 				return rej(err);
 			}
+			// console.log("making file for " + file);
 			res(new File(file, stats));
 		});
 	});
@@ -55,12 +56,13 @@ const listDir = function(dir){
 			if (err){
 				rej(err);
 			}
-			let details = await Promise.all(items.map(async (item) => {
+			// console.log('items filtered')
+			let details = await Promise.all(items.map((item) => {
 				let file = path.join(dir, item);
 				let deets = undefined;
 				//handle errors here
 				try {
-					deets = await fDeets(file);
+					deets = fDeets(file);
 				}
 				catch(e){
 					console.log(e)
@@ -68,8 +70,13 @@ const listDir = function(dir){
 				return deets;
 			}));
 
+			// console.log('filter out errors');
+
 			//filter out empties
-			res(details.filter(x => (x !== undefined)));
+			let finals = details.filter(x => (x !== undefined));
+
+			// console.log('donezo');
+			res(finals);
 		});
 	});
 };

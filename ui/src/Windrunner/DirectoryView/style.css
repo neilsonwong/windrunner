@@ -1,0 +1,13 @@
+.directory-view {
+	display: flex;
+    flex-flow: wrap;
+    justify-content: center;
+}
+
+.error {
+	position: fixed;
+	left: 0;
+	right: 0;
+	color: red;
+	text-align: center;
+}

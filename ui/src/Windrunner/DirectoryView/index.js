@@ -1,10 +1,10 @@
 import React from 'react';
 
-import LoadingDialog from './LoadingDialog';
-import FolderView from './FolderView';
-import FileView from './FileView';
+import LoadingDialog from '../LoadingDialog';
+import FolderView from '../FolderView';
+import FileView from '../FileView';
 
-import * as config from './config';
+import * as config from '../config';
 
 export default class DirectoryView extends React.Component {
   constructor(props){

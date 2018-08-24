@@ -1,15 +1,15 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-export default function Top(props) {
-    return (
-      <div className="windrunner-top-bar">
-        <PathBubbles path={props.path} />
-        <div className="search">
-          <span>search</span>
-        </div>
+export default function TopBar(props) {
+  return (
+    <div className="windrunner-top-bar">
+      <PathBubbles path={props.path} />
+      <div className="search">
+        <span>search</span>
       </div>
-    );
+    </div>
+  );
 }
 
 function PathBubbles(props) {

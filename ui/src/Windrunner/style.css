@@ -2,14 +2,6 @@ body {
 	background-color: black;
 }
 
-.error {
-	position: fixed;
-	left: 0;
-	right: 0;
-	color: red;
-	text-align: center;
-}
-
 .windrunner {
 	position: absolute;
 }
@@ -24,10 +16,4 @@ body {
 	right: 0;
 	bottom: 0;
 	z-index: -1;   
-}
-
-.directory-view {
-	display: flex;
-    flex-flow: wrap;
-    justify-content: center;
 }

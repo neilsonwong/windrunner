@@ -1,11 +1,15 @@
 TODO:
 
-add ui boxes
+<!-- add ui boxes -->
+launch debounce?
+<!-- list dir loading time slow? -->
+gen thumbnail queue
+
 search function
 
 strip down react project 
 
-configuration files
+configuration files (partially done)
 Combine server and UI to be allowed to be hosted together
 
 review + clean up code

@@ -1,0 +1,20 @@
+.loading {
+	position: fixed;
+	left: 0;
+	right: 0;
+}
+
+.loading h2 {
+	display: block;
+	color: #ffffff;
+	font-size: 2em;
+	text-align: center;
+}
+
+.loading-animation {
+	display: block;
+	background-image: url("/hgss_walk.gif");
+	width: 500px;
+	height: 357px;
+	margin: auto;
+}

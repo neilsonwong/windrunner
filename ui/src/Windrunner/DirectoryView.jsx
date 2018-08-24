@@ -1,10 +1,10 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 
-// const listingUrl = 'http://192.168.0.159:8000/';
-const listingUrl = 'http://localhost:8000/';
-const agentUrl = 'http://localhost:8080/';
-const openFileUrl = agentUrl + 'play';
+import LoadingDialog from './LoadingDialog';
+import FolderView from './FolderView';
+import FileView from './FileView';
+
+import * as config from './config';
 
 export default class DirectoryView extends React.Component {
   constructor(props){
@@ -12,16 +12,19 @@ export default class DirectoryView extends React.Component {
 
     this.state = {
       files: [],
-      error: false
+      error: false,
+      loading: true 
     };
   }
 
   componentDidMount() {
-    this.updateDataView()
+    this.setLoading();
+    this.updateDataView();
   }
 
   componentDidUpdate(prevProps) {
     if (this.props.path !== prevProps.path){
+      this.setLoading();
       this.updateDataView()
     }
   }
@@ -32,7 +35,7 @@ export default class DirectoryView extends React.Component {
       let data = await fetchData(ls(this.props.path));
 
       if (Array.isArray(data)){
-        this.setState({ files: data, error: false  });
+        this.setState({ files: data, error: false, loading: false });
       }
       else {
         console.log('invalid data received');
@@ -41,17 +44,20 @@ export default class DirectoryView extends React.Component {
     catch (e){
       console.log(e);
       //unable to fetch show message
-      this.setState({ error: true });
+      this.setState({ error: true, loading: false });
     }
+  }
+
+  setLoading(){
+    this.setState({ loading: true });
   }
 
   render(){
     if (this.state.error){
-      return (
-        <div className="error">
-          <h2>There was an issue connecting to the file server. { listingUrl }</h2>
-        </div>
-      );
+      return (<ConnectError />);
+    }
+    else if (this.state.loading){
+      return (<LoadingDialog />);
     }
     else {
       let files = this.state.files.map((file) => {
@@ -69,43 +75,22 @@ export default class DirectoryView extends React.Component {
   renderFile(file) {
     //massage filenames to be nicer
     let filename = file.name.replace(/_/g, ' ').replace(/\[[a-zA-Z0-9\-]+\]/g, '').replace(/(\.[avimk4]+$)/g, '');
-    let size = formatBytes(file.size);
-    let date = file.birthTime.substring(0, 10);
 
     if (file.isDir) {
-      let repLetter = file.name[0];
-      return (
-        <div className="folder-view" key={'file-'+file.rel} >
-          <Link to={file.rel} >
-            <div className="folder-view-thumbnail">
-              <div className="folder-icon"></div>
-              {repLetter}
-            </div>
-            <span className="file-name">{filename}</span>
-          </Link>
-        </div>
-      );
+      return (<FolderView filename={filename} onClick={(evt) => this.setLoading()} to={file.rel} key={'file-' + file.rel} />);
     }
     else {
-      let bgimg = {
-        'backgroundImage': `url("${listingUrl}thumb/${encodeURIComponent(file.path)}")`,
-        'backgroundSize': 'cover',
-        'backgroundPosition': 'center'
-      };
-
-      return (
-        <div className="file-view" onClick={(evt) => Open(file)} key={'file-'+file.rel} >
-          <div className="video-thumbnail" style={bgimg} >
-            <div className="video-details">
-              <span className="video-size">{size}</span>
-              <span className="video-date">{date}</span>
-            </div>
-          </div>
-          <span className="file-name">{filename}</span>
-        </div>
-      );
+      return (<FileView filename={filename} file={file} key={'file-' + file.rel} />);
     }
   }
+}
+
+function ConnectError(props){
+  return (
+    <div className="error">
+      <h2>There was an issue connecting to the file server. { config.listingUrl }</h2>
+    </div>
+  );
 }
 
 function fetchData(uri){
@@ -113,20 +98,6 @@ function fetchData(uri){
     .then(response => response.json())
 }
 
-function Open(file){
-  console.log("opening file " + file);
-  console.log("sending file " + file.rel);
-  let formData = new FormData();
-  formData.append('file', file.rel);
-
-  fetch(openFileUrl, {
-    body: formData,
-    method: "post"
-  });
-}
-
 function ls(dir) {
-  return listingUrl + 'ls/' + dir;
+  return config.listingUrl + 'ls/' + dir;
 }
-
-function formatBytes(a,b){if(0==a)return"0 Bytes";var c=1024,d=b||2,e=["Bytes","KB","MB","GB","TB","PB","EB","ZB","YB"],f=Math.floor(Math.log(a)/Math.log(c));return parseFloat((a/Math.pow(c,f)).toFixed(d))+" "+e[f]}

@@ -5,6 +5,7 @@ import './style.css';
 import * as config from '../config';
 
 const openFileUrl = config.agentUrl + 'play';
+let debounceTime = 0;
 
 export default function FolderView(props){
   let file = props.file;
@@ -31,14 +32,22 @@ export default function FolderView(props){
 }
 
 function Open(file){
-  let formData = new FormData();
-  console.log(file.rel)
-  formData.append('file', file.rel);
+  let current = Date.now()
+  if ((debounceTime + 3000) < current){
+    debounceTime = current;
 
-  fetch(openFileUrl, {
-    body: formData,
-    method: "post"
-  });
+    let formData = new FormData();
+    console.log(file.rel)
+    formData.append('file', file.rel);
+
+    fetch(openFileUrl, {
+      body: formData,
+      method: "post"
+    });
+  }
+  else {
+    console.log('too fast');
+  }
 }
 
 function formatBytes(a,b){if(0===a)return"0 Bytes";var c=1024,d=b||2,e=["Bytes","KB","MB","GB","TB","PB","EB","ZB","YB"],f=Math.floor(Math.log(a)/Math.log(c));return parseFloat((a/Math.pow(c,f)).toFixed(d))+" "+e[f]}

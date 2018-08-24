@@ -53,23 +53,26 @@ export default class DirectoryView extends React.Component {
   }
 
   render(){
+    let inner;
     if (this.state.error){
-      return (<ConnectError />);
+      inner = (<ConnectError />);
     }
     else if (this.state.loading){
-      return (<LoadingDialog />);
+      inner = (<LoadingDialog />);
     }
     else {
       let files = this.state.files.map((file) => {
         return this.renderFile(file);
       });
 
-      return (
-        <div className="directory-view">
-          {files}
-        </div>
-      );
+      inner = files;
     }
+
+    return (
+      <div className="directory-view">
+        {inner}
+      </div>
+    );
   }
 
   renderFile(file) {

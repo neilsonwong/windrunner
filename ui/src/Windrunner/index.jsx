@@ -15,7 +15,7 @@ export default function WindRunner(props){
 
   return (
     <div className="windrunner">
-      <TopBar path={dirPath} />
+      <TopBar path={dirPath} onSearch={() => console.log('search')}/>
       <DirectoryView path={dirPath} />
     </div>
   );

@@ -5,26 +5,15 @@ import './style.css';
 export default class TopBar extends React.Component {
   constructor(props){
     super(props);
-    this.state = {
-      searching: ''
-    }
-  }
-
-  searchMode(searching){
-    this.setState({
-      searching: searching ? ' searching' : ''
-    });
   }
 
   render(){
     return (
-      <div className={ 'windrunner-top-bar' + this.state.searching } >
+      <div className="windrunner-top-bar" >
         <PathBubbles path={this.props.path} />
         <div className="top-bar-search">
-          <input type="text" placeholder="Search" 
-            onFocus={ (evt) => this.searchMode(true) } 
-            onBlur={ (evt) => this.searchMode(false) } 
-          />
+          <input type="text" />
+          <button className="search-button" onClick={this.props.onSearch} >search</button>
         </div>
       </div>
     );

@@ -3,7 +3,7 @@ body {
 }
 
 .windrunner {
-	position: absolute;
+	position: relative;
 }
 
 .windrunner::after {

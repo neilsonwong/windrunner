@@ -1,4 +1,5 @@
 import React from 'react';
+import MessageDialog from '../MessageDialog';
 import './style.css';
 
 export default class LoadingDialog extends React.Component {
@@ -28,10 +29,10 @@ export default class LoadingDialog extends React.Component {
 
   render(){
     return (
-      <div className="loading">
+      <MessageDialog className="loading">
         <div className="loading-animation"></div>
         <h2>loading{this.state.dots}</h2>
-      </div>
+      </MessageDialog>
     );
   }
 }

@@ -1,10 +1,12 @@
 import React from 'react';
 
 import LoadingDialog from '../LoadingDialog';
+import MessageDialog from '../MessageDialog';
 import FolderView from '../FolderView';
 import FileView from '../FileView';
 
 import * as config from '../config';
+import './style.css';
 
 export default class DirectoryView extends React.Component {
   constructor(props){
@@ -90,9 +92,9 @@ export default class DirectoryView extends React.Component {
 
 function ConnectError(props){
   return (
-    <div className="error">
+    <MessageDialog className="error">
       <h2>There was an issue connecting to the file server. { config.listingUrl }</h2>
-    </div>
+    </MessageDialog>
   );
 }
 

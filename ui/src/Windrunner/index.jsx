@@ -1,5 +1,5 @@
 import React from 'react';
-import Top from './Top';
+import TopBar from './TopBar';
 import DirectoryView from './DirectoryView';
 
 import './style.css';
@@ -15,7 +15,7 @@ export default function WindRunner(props){
 
   return (
     <div className="windrunner">
-      <Top path={dirPath} />
+      <TopBar path={dirPath} />
       <DirectoryView path={dirPath} />
     </div>
   );

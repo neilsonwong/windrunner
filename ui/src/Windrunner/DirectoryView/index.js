@@ -4,6 +4,7 @@ import LoadingDialog from '../LoadingDialog';
 import MessageDialog from '../MessageDialog';
 import FolderView from '../FolderView';
 import FileView from '../FileView';
+import naturalSort from './naturalSort';
 
 import * as config from '../config';
 import './style.css';
@@ -43,7 +44,18 @@ export default class DirectoryView extends React.Component {
           let verdict = file.isDir || this.isVideo.test(file.name);
           // console.log(`${file.name}: ${testy}`);
           return verdict;
+        }).map((file) => {
+          //massage filenames to be nicer
+          file.displayName = file.name.replace(/_/g, ' ').replace(/\[[a-zA-Z0-9\-]+\]/g, '').replace(/(\.[avimk4]+$)/g, '').trim();
+          return file;
+        })
+        .sort((a, b) => {
+          // return (a.displayName > b.displayName ? 1 : -1);
+          return naturalSort(a.displayName, b.displayName);
         });
+
+        console.log(filtered);
+
         this.setState({ files: filtered, error: false, loading: false });
       }
       else {
@@ -85,14 +97,11 @@ export default class DirectoryView extends React.Component {
   }
 
   renderFile(file) {
-    //massage filenames to be nicer
-    let filename = file.name.replace(/_/g, ' ').replace(/\[[a-zA-Z0-9\-]+\]/g, '').replace(/(\.[avimk4]+$)/g, '');
-
     if (file.isDir) {
-      return (<FolderView filename={filename} onClick={(evt) => this.setLoading()} to={file.rel} key={'file-' + file.rel} />);
+      return (<FolderView filename={file.displayName} onClick={(evt) => this.setLoading()} to={file.rel} key={'file-' + file.rel} />);
     }
     else {
-      return (<FileView filename={filename} file={file} key={'file-' + file.rel} />);
+      return (<FileView filename={file.displayName} file={file} key={'file-' + file.rel} />);
     }
   }
 }

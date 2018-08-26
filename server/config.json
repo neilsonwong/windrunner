@@ -1,5 +1,5 @@
 {
-	"SHARE_PATH": "/run/user/1000/gvfs/smb-share:server=raspberrypi,share=share",
-	"THUMBNAIL_DIR": "/home/rin/Projects/windrunner/server/thumbnails",
+	"SHARE_PATH": "/media/Seagate",
+	"THUMBNAIL_DIR": "/home/pi/Projects/windrunner/server/thumbnails",
 	"THUMBNAIL_WORKERS": 5
 }

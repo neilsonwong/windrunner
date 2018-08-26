@@ -8,7 +8,7 @@ import (
 
 const sharename = "//RASPBERRYPI/share"
 
-func main() {
+func Windunner() {
 	//ensure mount is successful
 	MountSmb(sharename)
 

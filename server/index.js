@@ -8,7 +8,7 @@ const fs = require('fs');
 const config = require('./config');
 
 const ls = require('./fileUtils').ls;
-const makeThumbnail = require('./thumbnail').makeThumbnail;
+const addToThumbnailQueue = require('./thumbnail').addToThumbnailQueue;
 
 const app = express();
 
@@ -37,11 +37,12 @@ app.use('/thumb/:filePath', function (req, res, next) {
   //check if file exists
   fs.access(imgPath, fs.constants.R_OK, (err) => {
     if (!err){
+      // console.log('sending ' + imgPath)
       res.sendFile(imgPath);
     }
     else {
       //thumbnail not generated, fire call to make it
-      makeThumbnail(req.params.filePath, filename);
+      addToThumbnailQueue(req.params.filePath, filename);
 
       //send a generic back for now
       // res.sendFile('video.png', { root: __dirname });

@@ -17,6 +17,8 @@ export default class DirectoryView extends React.Component {
       error: false,
       loading: true 
     };
+
+    this.isVideo = new RegExp(/(\.[avimk4]+$)/);
   }
 
   componentDidMount() {
@@ -37,7 +39,12 @@ export default class DirectoryView extends React.Component {
       let data = await fetchData(ls(this.props.path));
 
       if (Array.isArray(data)){
-        this.setState({ files: data, error: false, loading: false });
+        let filtered = data.filter((file) => {
+          let verdict = file.isDir || this.isVideo.test(file.name);
+          // console.log(`${file.name}: ${testy}`);
+          return verdict;
+        });
+        this.setState({ files: filtered, error: false, loading: false });
       }
       else {
         console.log('invalid data received');

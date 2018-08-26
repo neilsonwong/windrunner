@@ -37,7 +37,7 @@ function PathBubbles(props) {
       cumulativePath += "/" + pathComponents[i];
 
       bubbles.push((
-        <div className="spacer">></div>
+        <div className="spacer" key={'spacer-'+i}>></div>
       ));
       bubbles.push((
         <Link className="bread-crumb" to={ cumulativePath } key={'path-component-' + i} >{pathComponents[i]}</Link>

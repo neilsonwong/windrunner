@@ -1,0 +1,13 @@
+[Unit]
+Description=Windrunner Agent
+Documentation=https://github.com/neilsonwong/windrunner
+
+[Service]
+Type=simple
+ExecStart=/opt/Windrunner/agent
+StandardOutput=null
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+Alias=windrunnerAgent.service

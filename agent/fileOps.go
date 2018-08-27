@@ -15,6 +15,7 @@ func Open(sharename string, file string){
 	relPath := mountedFilePath(mountPoint, file) 
 
 	cmd := getOpenCmd(relPath)
+	log.Printf("Opening file %s", relPath)
 
 	if err := cmd.Run(); err != nil { 
 		log.Printf("Error Opening file %s: %s", relPath, err)

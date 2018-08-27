@@ -1,4 +1,5 @@
 {
+	"PORT": 8000,
 	"SHARE_PATH": "/media/Seagate",
 	"THUMBNAIL_DIR": "/home/pi/Projects/windrunner/server/thumbnails",
 	"THUMBNAIL_WORKERS": 5

@@ -4,13 +4,22 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
+const https = require('https');
 
 const config = require('./config');
 
 const ls = require('./fileUtils').ls;
 const addToThumbnailQueue = require('./thumbnail').addToThumbnailQueue;
 
-const app = express();
+const options = {
+  key: fs.readFileSync('./certs/raspberrypi.key'),
+  cert: fs.readFileSync('./certs/raspberrypi.cert'),
+  requestCert: false,
+  rejectUnauthorized: false
+};
+
+let app = express();
+let server = https.createServer(options, app);
 
 process.title = process.argv[2];
 
@@ -51,6 +60,6 @@ app.use('/thumb/:filePath', function (req, res, next) {
   });
 });
 
-app.listen(8000, function () {  
-  console.log('Example app listening on port 8000!');  
+server.listen(config.PORT, function () {  
+  console.log('windrunner listing server running on ' + config.PORT);  
 });

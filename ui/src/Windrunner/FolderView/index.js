@@ -6,7 +6,7 @@ export default function FolderView(props){
   let repLetter = props.filename[0];
   return (
     <div className="folder-view">
-      <Link to={props.to} onClick={props.onClick}>
+      <Link to={props.to}>
         <div className="folder-view-thumbnail">
           <div className="folder-icon"></div>
           {repLetter}

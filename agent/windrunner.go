@@ -8,12 +8,15 @@ import (
 	"io/ioutil"
 )
 
-const sharename = "//RASPBERRYPI/share"
-
 func Windunner() {
-	//ensure mount is successful
-	MountSmb(sharename)
+	config := LoadConfig()
+	log.Println("config: share located at " + config.Sharename)
+	log.Println("config: listing server at " + config.ListingServer)
 
+	//ensure mount is successful
+	MountSmb(config.Sharename)
+
+	//setup http server
 	h := http.NewServeMux()
 
 	//setup the play function
@@ -22,13 +25,12 @@ func Windunner() {
 
 		switch req.Method {
 			case "POST":
-				handlePlay(resw, req)
+				handlePlay(resw, req, config.Sharename)
 			case "GET":
 			case "PUT":
 			case "DELETE":
 			default:
 				fmt.Fprintf(resw, "could not find the resource")
-
 		}
 	});
 
@@ -36,17 +38,18 @@ func Windunner() {
 		fmt.Fprintf(resw, "Hello, this is a gopher reporting in")
 	})
 
-	hl := proxy(h)
+	//setup proxy to fire to listing server
+	hl := proxy(h, config.ListingServer)
 
 	err := http.ListenAndServe(":8080", hl)
 	log.Fatal(err)
 }
 
-func handlePlay(resw http.ResponseWriter, req *http.Request) {
+func handlePlay(resw http.ResponseWriter, req *http.Request, sharename string) {
 	//Open(`//RASPBERRYPI/share/anime/Air/[Doki] Air - 01v2 (1280x720 h264 BD FLAC) [E13ADA79].mkv`)
 	file := req.FormValue("file")
 
-	fmt.Println(file)
+	log.Println(file)
 
 	//perhaps cut the share out of filename in future? not sure
 	Open(sharename, file)
@@ -57,18 +60,19 @@ func enableCors(w *http.ResponseWriter) {
 	(*w).Header().Set("Access-Control-Allow-Origin", "*")
 }
 
-func proxy(h http.Handler) http.Handler {
+func proxy(h http.Handler, listingServer string) http.Handler {
 	return http.HandlerFunc(func(resw http.ResponseWriter, r *http.Request) {
 		//r.URL is what i want to proxy to the local server
 		urlString := r.URL.String()
 		if strings.HasPrefix(urlString, "/ls") || strings.HasPrefix(urlString, "/thumb") || strings.HasPrefix(urlString, "/find") {
 			enableCors(&resw)
 			//handle the proxy request
-			resp, err := proxyRequest(urlString)
+			fullUrl := listingServer + urlString
+			resp, err := proxyRequest(fullUrl)
 			if err == nil {
 				resw.Write(resp)
 			} else {
-				fmt.Fprintf(resw, "problem proxying to http://192.168.0.159:8000")
+				fmt.Fprintf(resw, "problem proxying to " + listingServer)
 			}
 			return
 		}
@@ -78,19 +82,18 @@ func proxy(h http.Handler) http.Handler {
 }
 
 //it was so close, but https still does not like the sneaky server redirect
-func redir(w http.ResponseWriter, req *http.Request) {
-	fmt.Println("redirecting to " + "http://192.168.0.159:8000"+req.RequestURI)
-	http.Redirect(w, req, "http://192.168.0.159:8000"+req.RequestURI, http.StatusMovedPermanently)
-}
+// func redir(w http.ResponseWriter, req *http.Request) {
+// 	log.Println("redirecting to " + "http://192.168.0.159:8000" + req.RequestURI)
+// 	http.Redirect(w, req, "http://192.168.0.159:8000" + req.RequestURI, http.StatusMovedPermanently)
+// }
 
 func proxyRequest(url string) ([]byte, error) {
-	fmt.Println("proxying to http://192.168.0.159:8000" + url)
-	resp, err := http.Get("http://127.0.0.1:8000" + url)
+	log.Println("proxying to " + url)
+	resp, err := http.Get(url)
 	if err != nil {
 		// handle error
 	}
 
 	defer resp.Body.Close()
 	return ioutil.ReadAll(resp.Body)
-
 }

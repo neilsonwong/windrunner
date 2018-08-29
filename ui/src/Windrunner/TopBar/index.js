@@ -1,10 +1,14 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, Redirect } from 'react-router-dom';
 import './style.css';
 
 export default class TopBar extends React.Component {
   constructor(props){
     super(props);
+    this.state = {
+      search: null
+    };
+    this.handleSearch = this.handleSearch.bind(this);
   }
 
   render(){
@@ -12,11 +16,22 @@ export default class TopBar extends React.Component {
       <div className="windrunner-top-bar" >
         <PathBubbles path={this.props.path} />
         <div className="top-bar-search">
-          <input type="text" />
-          <button className="search-button" onClick={this.props.onSearch} >search</button>
+          <input type="text" ref={q => this.searchBox = q } />
+          <button className="search-button" onClick={ this.handleSearch } >search</button>
         </div>
       </div>
     );
+  }
+
+  //we assume searchFunction just needs to be called and passed in the querystring
+  handleSearch(){
+    if (this.searchBox.value !== ''){
+      console.log("searching for " + this.searchBox.value);
+      this.props.onSearch(this.searchBox.value);
+    }
+    else {
+      return;
+    }
   }
 }
 

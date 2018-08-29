@@ -1,4 +1,6 @@
 import React from 'react';
+import { browserHistory } from 'react-router-dom';
+
 import TopBar from './TopBar';
 import DirectoryView from './DirectoryView';
 import naturalSort from './DirectoryView/naturalSort';
@@ -21,6 +23,7 @@ export default class WindRunner extends React.Component {
       error: false,
       loading: true 
     };
+    this.fireSearch = this.fireSearch.bind(this);
   }
 
   componentDidMount() {
@@ -48,10 +51,15 @@ export default class WindRunner extends React.Component {
 
     return (
       <div className="windrunner">
-        <TopBar path={this.getPath()} onSearch={() => console.log('search')}/>
+        <TopBar path={this.getPath()} onSearch={ this.fireSearch } />
         <DirectoryView files={this.state.files} error={this.state.error} loading={this.state.loading} />
       </div>
     );
+  }
+
+  fireSearch(query){
+    let searchUrl = '/search?q=' + encodeURIComponent(query);
+    this.props.history.push(searchUrl);
   }
 
   async updateFilelist(){
@@ -60,7 +68,8 @@ export default class WindRunner extends React.Component {
     if (url.indexOf('/search') === 0){
       //search is a special reserved url for searches
       let query = this.props.location.search;
-      this.search(query);
+      let q = new URLSearchParams(query).get('q');
+      this.search(q);
     }
     else {
       this.browse();
@@ -68,8 +77,7 @@ export default class WindRunner extends React.Component {
 
   }
 
-  async search(query){
-    let q = new URLSearchParams(query).get('q');
+  async search(q){
     console.log(`searching for ${q}`);
     try {
       let data = await fetchData(find(q));
@@ -124,7 +132,7 @@ function ls(dir) {
 }
 
 function find(query){
-  return config.listingUrl + 'find/' + query;
+  return config.listingUrl + 'find?q=' + query;
 }
 
 function massageData(data){
@@ -143,6 +151,6 @@ function filterTrash(file){
 
 function addPrettyFilename(file){
   //massage filenames to be nicer
-  file.displayName = file.name.replace(/_/g, ' ').replace(/\[[a-zA-Z0-9\-]+\]/g, '').replace(/(\.[avimk4]+$)/g, '').trim();
+  file.displayName = file.name.replace(/_/g, ' ').replace(/(\[[a-zA-Z0-9\- ~,\.]+\]|\([a-zA-Z0-9\- ~,\.]+\))/g, '').replace(/(\.[avimk4]+$)/g, '').trim();
   return file;
 }

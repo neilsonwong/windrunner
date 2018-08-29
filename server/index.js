@@ -4,22 +4,15 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
-const https = require('https');
 
 const config = require('./config');
 
 const ls = require('./fileUtils').ls;
+const find = require('./fileUtils').find;
+
 const addToThumbnailQueue = require('./thumbnail').addToThumbnailQueue;
 
-const options = {
-  key: fs.readFileSync('./certs/raspberrypi.key'),
-  cert: fs.readFileSync('./certs/raspberrypi.cert'),
-  requestCert: false,
-  rejectUnauthorized: false
-};
-
 let app = express();
-let server = https.createServer(options, app);
 
 process.title = process.argv[2];
 
@@ -36,6 +29,16 @@ app.get('/ls/:path(*)?', async (req, res) => {
     path = "";
   }
   let files = await ls(path); 
+  res.send(JSON.stringify(files));
+});
+
+app.get('/find', async (req, res) => {
+  let q = req.query.q;
+  if (!q){
+    q = "";
+  }
+  console.log('attempting to find ' + q)
+  let files = await find(q);
   res.send(JSON.stringify(files));
 });
 
@@ -60,6 +63,6 @@ app.use('/thumb/:filePath', function (req, res, next) {
   });
 });
 
-server.listen(config.PORT, function () {  
+app.listen(config.PORT, function () {  
   console.log('windrunner listing server running on ' + config.PORT);  
 });

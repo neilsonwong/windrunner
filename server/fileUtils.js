@@ -3,6 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 const File = require('./File');
+const exec = require('child_process').exec;
 
 const SHARE_PATH = require('./config').SHARE_PATH;
 
@@ -33,6 +34,39 @@ async function ls(rel){
 		//not a dir, return the ls deets
 		// console.log("listing file " + file)
 		return [fileDetails];
+	}
+}
+
+//find files in a dir
+async function find(q){
+	if (q === ''){
+		console.log("no query passed");
+		return [];
+	}
+	try {
+		//find all absolute file paths
+		let results = await search(q);
+		results = results.split('\n').filter((filename) => (filename.length > 0));
+
+		//make files for all of them
+		let details = await Promise.all(results.map((item) => {
+			let deets = undefined;
+			//handle errors here
+			try {
+				deets = fDeets(item);
+			}
+			catch(e){
+				console.log('fdeet error');
+				console.log(e)
+			}
+			return deets;
+		}));
+
+		//filter out empties
+		return details.filter(x => (x !== undefined));
+	}
+	catch(e){
+		console.log(e);
 	}
 }
 
@@ -81,6 +115,27 @@ const listDir = function(dir){
 	});
 };
 
+function search(q){
+	let cmd = `find ${SHARE_PATH} -iname "*${q}*"`;
+	return new Promise((res, rej) => {
+		exec(cmd, { maxBuffer: Infinity }, (err, stdout, stderr) => {
+			if (err !== null){
+				console.log("error occurred");
+				rej(err);
+			}
+			else if (stderr){
+				console.log("std error occurred");
+				rej(stderr);
+			}
+			else {
+				console.log(stdout);
+				res(stdout);
+			}
+		});
+	});
+}
+
 module.exports = {
-	ls: ls
+	ls: ls,
+	find: find
 };

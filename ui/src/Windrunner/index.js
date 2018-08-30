@@ -1,9 +1,10 @@
 import React from 'react';
-import { browserHistory } from 'react-router-dom';
 
 import TopBar from './TopBar';
 import DirectoryView from './DirectoryView';
-import naturalSort from './DirectoryView/naturalSort';
+import Intro from './Intro';
+
+import naturalSort from './naturalSort';
 
 import * as config from './config';
 
@@ -48,6 +49,10 @@ export default class WindRunner extends React.Component {
 
   render(){
     console.log('rendering windrunner for ' + this.props.location.pathname)
+
+    if(!localStorage.getItem('windrunner-user')) {
+      return (<Intro />);
+    }
 
     return (
       <div className="windrunner">

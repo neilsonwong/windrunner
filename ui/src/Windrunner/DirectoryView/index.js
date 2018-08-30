@@ -4,7 +4,6 @@ import LoadingDialog from '../LoadingDialog';
 import MessageDialog from '../MessageDialog';
 import FolderView from '../FolderView';
 import FileView from '../FileView';
-import naturalSort from './naturalSort';
 
 import * as config from '../config';
 import './style.css';

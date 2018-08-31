@@ -8,10 +8,10 @@ sudo chown $USER:$USER /opt/Windrunner
 mkdir -p ~/.local/share/systemd/user
 
 # copy executable
-cp agent /opt/Windrunner/agent
+cp ../bin/agent_linux /opt/Windrunner/agent
 
 # copy config
-cp config.json /opt/Windrunner/config.json
+cp ../config.json /opt/Windrunner/config.json
 
 #add service
 cp windrunnerAgent.service ~/.local/share/systemd/user/

@@ -5,7 +5,13 @@
 		<key>Label</key>
 		<string>windrunner.agent</string>
 		<key>Program</key>
-		<string>/Users/neilson/Projects/windrunner/agent/agent_osx</string>
+		<string>/Users/neilson/Projects/windrunner/agent/bin/agent_osx</string>
+		<key>StandardOutPath</key>
+		<string>/Users/neilson/Projects/windrunner/agent/stdout.log</string>
+		<key>StandardErrorPath</key>
+		<string>/Users/neilson/Projects/windrunner/agent/stderr.log</string>
+		<key>WorkingDirectory</key>
+		<string>/Users/neilson/Projects/windrunner/agent</string>
 		<key>RunAtLoad</key>
 		<true/>
 	</dict>

@@ -4,8 +4,10 @@ Documentation=https://github.com/neilsonwong/windrunner
 
 [Service]
 Type=simple
+WorkingDirectory=/opt/Windrunner
 ExecStart=/opt/Windrunner/agent
-StandardOutput=null
+StandardOutput=file:/opt/Windrunner/log
+StandardError=file:/opt/Windrunner/errors
 Restart=on-failure
 
 [Install]

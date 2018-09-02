@@ -11,7 +11,9 @@
 
 # create installation directory
 sudo mkdir -p /opt/Windrunner
-sudo chown $USER:$USER /opt/Windrunner
+
+#all users part of staff and not themselves :O
+sudo chown $USER:staff /opt/Windrunner
 
 rm -rf /opt/Windrunner/*
 

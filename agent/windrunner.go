@@ -5,14 +5,18 @@ import (
 	"log"
 	"net/http"
 	"strings"
+	"strconv"
 	"io/ioutil"
 )
 
 var config Config = LoadConfig()
 
 func Windunner() {
+	port := strconv.Itoa(config.ServerPort)
 	log.Println("config: share located at " + config.Sharename)
 	log.Println("config: listing server at " + config.ListingServer)
+	log.Println("config: osx mount point at " + config.OsxMountPoint)
+	log.Println("config: agent hosted on port " + port)
 
 	//ensure mount is successful
 	MountSmb(config.Sharename, false)
@@ -42,7 +46,7 @@ func Windunner() {
 	//setup proxy to fire to listing server
 	hl := proxy(h, config.ListingServer)
 
-	err := http.ListenAndServe(":" + config.serverPort, hl)
+	err := http.ListenAndServe(":" + port, hl)
 	log.Fatal(err)
 }
 

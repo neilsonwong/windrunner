@@ -59,7 +59,6 @@ cleanup windrunner_darwin_amd64.zip
 setup
 cp bin/windows/agent.exe build/agent.exe
 cp install/install.bat build/
-cp install/windrunnerAgent.plist build/
 cp ./config.json build/
 cleanup windrunner_windows.zip
 
@@ -67,6 +66,5 @@ cleanup windrunner_windows.zip
 setup
 cp bin/windows/agent64.exe build/agent.exe
 cp install/install.bat build/
-cp install/windrunnerAgent.plist build/
 cp ./config.json build/
 cleanup windrunner_windows_amd64.zip

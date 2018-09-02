@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-var osxMountPoint string = config.osxMountPoint
+var osxMountPoint string = config.OsxMountPoint
 
 func Open(sharename string, file string){
 	mountPoint := GetMountPoint(sharename)
@@ -113,6 +113,7 @@ func getMountCmd(sharename string) *exec.Cmd {
 		log.Printf("%s was not accessible on windows network, please check", sharename)
 		return exec.Command("failed")
 	case "darwin":
+		log.Printf("%s", osxMountPoint)
 		return exec.Command("sh", "-c", "mount -t smbfs " + osxAnonSmbPath(sharename) + " " + osxMountPoint)
 	default:
 		log.Fatalf("%s not supported.", os)

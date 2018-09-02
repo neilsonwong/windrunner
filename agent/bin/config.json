@@ -1,0 +1,4 @@
+{
+	"SHARE_PATH": "//RASPBERRYPI/share",
+	"LISTING_SERVER": "http://192.168.0.159:8000"
+}

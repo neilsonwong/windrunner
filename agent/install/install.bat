@@ -10,8 +10,8 @@ set SCRIPT="%TEMP%\%RANDOM%-%RANDOM%-%RANDOM%-%RANDOM%.vbs"
 echo Set oWS = WScript.CreateObject("WScript.Shell") >> %SCRIPT%
 echo sLinkFile = "%USERPROFILE%\Start Menu\Programs\Startup\windrunnerAgent.lnk" >> %SCRIPT%
 echo Set oLink = oWS.CreateShortcut(sLinkFile) >> %SCRIPT%
-echo oLink.TargetPath = "%CD%\..\bin\agent.exe" >> %SCRIPT%
-echo oLink.WorkingDirectory  = "%CD%\..\bin" >> %SCRIPT%
+echo oLink.TargetPath = "%CD%\agent.exe" >> %SCRIPT%
+echo oLink.WorkingDirectory  = "%CD%" >> %SCRIPT%
 echo oLink.Save >> %SCRIPT%
 
 cscript /nologo %SCRIPT%

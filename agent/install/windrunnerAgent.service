@@ -11,5 +11,5 @@ StandardError=file:/opt/Windrunner/errors
 Restart=on-failure
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=default.target
 Alias=windrunnerAgent.service

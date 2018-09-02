@@ -8,13 +8,14 @@ import (
 	"io/ioutil"
 )
 
+var config Config = LoadConfig()
+
 func Windunner() {
-	config := LoadConfig()
 	log.Println("config: share located at " + config.Sharename)
 	log.Println("config: listing server at " + config.ListingServer)
 
 	//ensure mount is successful
-	MountSmb(config.Sharename)
+	MountSmb(config.Sharename, false)
 
 	//setup http server
 	h := http.NewServeMux()
@@ -41,7 +42,7 @@ func Windunner() {
 	//setup proxy to fire to listing server
 	hl := proxy(h, config.ListingServer)
 
-	err := http.ListenAndServe(":8080", hl)
+	err := http.ListenAndServe(":" + config.serverPort, hl)
 	log.Fatal(err)
 }
 
@@ -51,9 +52,16 @@ func handlePlay(resw http.ResponseWriter, req *http.Request, sharename string) {
 
 	log.Println(file)
 
-	//perhaps cut the share out of filename in future? not sure
-	Open(sharename, file)
-	fmt.Fprintf(resw, "opened " + file)
+	//ensure that share is mounted
+	err := MountSmb(sharename, true)
+
+	if err != nil {
+		fmt.Fprintf(resw, "unable to mount " + sharename)
+	} else {
+		//perhaps cut the share out of filename in future? not sure
+		Open(sharename, file)
+		fmt.Fprintf(resw, "opened " + file)
+	}
 }
 
 func enableCors(w *http.ResponseWriter) {
@@ -92,6 +100,8 @@ func proxyRequest(url string) ([]byte, error) {
 	resp, err := http.Get(url)
 	if err != nil {
 		// handle error
+		log.Printf("%s", err)
+		return []byte{}, err
 	}
 
 	defer resp.Body.Close()

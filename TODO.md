@@ -11,8 +11,8 @@ TODO:
 package executables and install scripts into 1 directory
 strip down react project 
 
-agent don't crash when mounting
-agent don't panic when querying weird urls
+<!-- agent don't crash when mounting -->
+<!-- agent don't panic when querying weird urls -->
 if error auto refresh in 10s
 
 configuration files (partially done)

@@ -9,6 +9,8 @@ import (
 type Config struct {
 	Sharename string `json:"SHARE_PATH"`
 	ListingServer string `json:"LISTING_SERVER"`
+	osxMountPoint string `json:"OSX_MOUNT"`
+	serverPort string `json:"SERVER_PORT"`
 }
 
 func LoadConfig() Config {

@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-const osxMountPoint = "~/rpi"
+var osxMountPoint string = config.osxMountPoint
 
 func Open(sharename string, file string){
 	mountPoint := GetMountPoint(sharename)
@@ -23,16 +23,20 @@ func Open(sharename string, file string){
 }
 
 //linux does not use mount points, remove it for now
-func MountSmb(sharename string) error {
-	if isMounted(sharename) {
+func MountSmb(sharename string, silent bool) error {
+	if isMounted(sharename, silent) {
 		return nil
 	} else {
 		cmd := getMountCmd(sharename)
 		if err := cmd.Run(); err != nil { 
-			log.Fatalf("Error mounting %s: %s", sharename, err)
+			if silent == false {
+				log.Printf("Error mounting %s: %s", sharename, err)
+			}
 			return err
 		} else {
-			log.Printf("Successfully mounted %s", sharename)
+			if silent == false {
+				log.Printf("Successfully mounted %s", sharename)
+			}
 			return nil
 		}
 	}
@@ -53,14 +57,18 @@ func GetMountPoint(sharename string) string {
 	}
 }
 
-func isMounted(sharename string) bool {
+func isMounted(sharename string, silent bool) bool {
 	cmd := getCheckMountCmd(sharename)
 	out, err := cmd.Output()
 	if err != nil { 
-		log.Printf("Error from mount check: %s", err)
+		if silent == false {
+			log.Printf("Error from mount check: %s", err)
+		}
 		return false
 	} else {
-		log.Printf("%s is mounted.\n%s", sharename, out)
+		if silent == false {
+			log.Printf("%s is mounted.\n%s", sharename, out)
+		}
 		return true
 	}
 }
@@ -102,7 +110,7 @@ func getMountCmd(sharename string) *exec.Cmd {
 	case "linux":
 		return exec.Command("gio", "mount", "-a", "smb:" + sharename)
 	case "windows":
-		log.Fatalf("%s was not accessible on windows network, please check", sharename)
+		log.Printf("%s was not accessible on windows network, please check", sharename)
 		return exec.Command("failed")
 	case "darwin":
 		return exec.Command("sh", "-c", "mount -t smbfs " + osxAnonSmbPath(sharename) + " " + osxMountPoint)

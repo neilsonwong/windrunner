@@ -4,6 +4,8 @@
 sudo mkdir /opt/Windrunner
 sudo chown $USER:$USER /opt/Windrunner
 
+rm -rf /opt/Windrunner/*
+
 # create service directory
 mkdir -p ~/.local/share/systemd/user
 

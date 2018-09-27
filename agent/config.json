@@ -1,5 +1,6 @@
 {
-	"SHARE_PATH": "//RASPBERRYPI/share",
+	"SHARE_SERVER": "raspberrypi",
+	"SHARE_FOLDER": "seagate",
 	"LISTING_SERVER": "http://192.168.0.159:8000",
 	"OSX_MOUNT": "~/rpi",
 	"SERVER_PORT": 8080

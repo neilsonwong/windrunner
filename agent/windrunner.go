@@ -13,13 +13,16 @@ var config Config = LoadConfig()
 
 func Windunner() {
 	port := strconv.Itoa(config.ServerPort)
-	log.Println("config: share located at " + config.Sharename)
+
+	sharename := "//" + config.ShareServer + "/" + config.ShareFolder
+	log.Println("config: share located at " + sharename)
 	log.Println("config: listing server at " + config.ListingServer)
 	log.Println("config: osx mount point at " + config.OsxMountPoint)
 	log.Println("config: agent hosted on port " + port)
 
+
 	//ensure mount is successful
-	MountSmb(config.Sharename, false)
+	MountSmb(config.ShareServer, config.ShareFolder, false)
 
 	//setup http server
 	h := http.NewServeMux()
@@ -30,7 +33,7 @@ func Windunner() {
 
 		switch req.Method {
 			case "POST":
-				handlePlay(resw, req, config.Sharename)
+				handlePlay(resw, req, config.ShareServer, config.ShareFolder)
 			case "GET":
 			case "PUT":
 			case "DELETE":
@@ -50,20 +53,21 @@ func Windunner() {
 	log.Fatal(err)
 }
 
-func handlePlay(resw http.ResponseWriter, req *http.Request, sharename string) {
+func handlePlay(resw http.ResponseWriter, req *http.Request, shareServer string, shareFolder string) {
 	//Open(`//RASPBERRYPI/share/anime/Air/[Doki] Air - 01v2 (1280x720 h264 BD FLAC) [E13ADA79].mkv`)
 	file := req.FormValue("file")
 
 	log.Println(file)
 
 	//ensure that share is mounted
-	err := MountSmb(sharename, true)
+	err := MountSmb(shareServer, shareFolder, true)
+	sharename := "//" + config.ShareServer + "/" + config.ShareFolder
 
 	if err != nil {
 		fmt.Fprintf(resw, "unable to mount " + sharename)
 	} else {
 		//perhaps cut the share out of filename in future? not sure
-		Open(sharename, file)
+		Open(shareServer, shareFolder, file)
 		fmt.Fprintf(resw, "opened " + file)
 	}
 }

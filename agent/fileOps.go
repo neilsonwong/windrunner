@@ -10,8 +10,8 @@ import (
 
 var osxMountPoint string = config.OsxMountPoint
 
-func Open(sharename string, file string){
-	mountPoint := GetMountPoint(sharename)
+func Open(shareServer string, shareFolder string, file string){
+	mountPoint := GetMountPoint(shareServer, shareFolder)
 	relPath := mountedFilePath(mountPoint, file) 
 
 	cmd := getOpenCmd(relPath)
@@ -23,7 +23,8 @@ func Open(sharename string, file string){
 }
 
 //linux does not use mount points, remove it for now
-func MountSmb(sharename string, silent bool) error {
+func MountSmb(shareServer string, shareFolder string, silent bool) error {
+	sharename := "//" + config.ShareServer + "/" + config.ShareFolder
 	if isMounted(sharename, silent) {
 		return nil
 	} else {
@@ -42,13 +43,13 @@ func MountSmb(sharename string, silent bool) error {
 	}
 }
 
-func GetMountPoint(sharename string) string {
+func GetMountPoint(shareServer string, shareFolder string,) string {
 	switch os := runtime.GOOS; os {
 	case "linux":
 		//bit hacked for now but lel
-		return "/run/user/1000/gvfs/smb-share:server=raspberrypi,share=share/"
+		return "/run/user/1000/gvfs/smb-share:server=" + shareServer + ",share=" + shareFolder + "/"
 	case "windows":
-		return sharename
+		return "//" + config.ShareServer + "/" + shareFolder
 	case "darwin":
 		return osxMountPoint
 	default:

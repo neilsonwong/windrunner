@@ -7,7 +7,8 @@ import (
 )
 
 type Config struct {
-	Sharename string `json:"SHARE_PATH"`
+	ShareServer string `json:"SHARE_SERVER"`
+	ShareFolder string `json:"SHARE_FOLDER"`
 	ListingServer string `json:"LISTING_SERVER"`
 	OsxMountPoint string `json:"OSX_MOUNT"`
 	ServerPort int `json:"SERVER_PORT"`

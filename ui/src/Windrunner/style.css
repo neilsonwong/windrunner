@@ -9,6 +9,7 @@ body {
 .windrunner::after {
 	content: "";
 	background: url("/knnw.jpg");
+	background-size: cover;
 	opacity: 0.4;
 	position: fixed;
 	top: 0;

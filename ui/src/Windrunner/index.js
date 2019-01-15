@@ -10,7 +10,7 @@ import * as config from './config';
 
 import './style.css';
 
-const isVideo = new RegExp(/(\.[avimk4]+$)/);
+const isVideo = new RegExp(/(\.(avi|mkv|ogm|mp4|flv|ogg|wmv|rm|mpeg|mpg)$)/);
 
 //WindRunner will handle all of the error + loading screens
 //also responsibility of loading file data will be WindRunner

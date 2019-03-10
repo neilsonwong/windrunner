@@ -33,7 +33,7 @@ export default function DirectoryView(props){
 
 function renderFile(file) {
   if (file.isDir) {
-    return (<FolderView filename={file.displayName} to={file.rel} key={'file-' + file.rel} />);
+    return (<FolderView filename={file.displayName} to={file.rel} path={file.path} pinned={file.pinned} key={'file-' + file.rel} />);
   }
   else {
     return (<FileView filename={file.displayName} file={file} key={'file-' + file.rel} />);

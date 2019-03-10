@@ -2,8 +2,9 @@
 
 const fs = require('fs');
 const path = require('path');
-const File = require('./File');
 const exec = require('child_process').exec;
+const analyze = require('./fileOps').analyze;
+const pins = require('./pins');
 
 const SHARE_PATH = require('./config').SHARE_PATH;
 
@@ -13,7 +14,7 @@ async function ls(rel){
 	let fileDetails = null;
 
 	try {
-		fileDetails = await fDeets(file);
+		fileDetails = await analyze(file);
 	}
 	catch(e) {
 		console.log(e);
@@ -53,7 +54,7 @@ async function find(q){
 			let deets = undefined;
 			//handle errors here
 			try {
-				deets = fDeets(item);
+				deets = analyze(item);
 			}
 			catch(e){
 				console.log('fdeet error');
@@ -70,18 +71,6 @@ async function find(q){
 	}
 }
 
-const fDeets = function(file) {
-	return new Promise((res, rej) => {
-		fs.stat(file, (err, stats) => {
-			if (err) {
-				return rej(err);
-			}
-			// console.log("making file for " + file);
-			res(new File(file, stats));
-		});
-	});
-}
-
 const listDir = function(dir){
 	return new Promise((res, rej) => {
 		fs.readdir(dir, async function(err, items) {
@@ -96,7 +85,7 @@ const listDir = function(dir){
 				let deets = undefined;
 				//handle errors here
 				try {
-					deets = fDeets(file);
+					deets = analyze(file);
 				}
 				catch(e){
 					console.log(e)
@@ -135,7 +124,26 @@ function search(q){
 	});
 }
 
+async function pinned(){
+	let pinned = await pins.get();
+
+    //change pinCache into Files
+    let pinList = await Promise.all(pinned.map(async function(pinPath) {
+      try {
+        let pin = await analyze(pinPath);
+        console.log(pin);
+        return pin;
+      }
+      catch(e) {
+        return null;
+      }
+    }));
+
+    return pinList.filter(e => (e !== null));
+}
+
 module.exports = {
 	ls: ls,
-	find: find
+	find: find,
+	pinned: pinned
 };

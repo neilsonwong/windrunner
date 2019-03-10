@@ -2,6 +2,7 @@
 
 const express = require('express');
 const cors = require('cors');
+const bodyParser = require('body-parser');
 const path = require('path');
 const fs = require('fs');
 
@@ -9,6 +10,8 @@ const config = require('./config');
 
 const ls = require('./fileUtils').ls;
 const find = require('./fileUtils').find;
+const pinned = require('./fileUtils').pinned;
+const pins = require('./pins');
 
 const addToThumbnailQueue = require('./thumbnail').addToThumbnailQueue;
 
@@ -17,6 +20,8 @@ let app = express();
 process.title = process.argv[2];
 
 app.use(cors());
+// app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.text());
 
 app.get('/', (req, res) => {  
   res.send('Hello this is Sylvanas!');
@@ -61,6 +66,39 @@ app.use('/thumb/:filePath', function (req, res, next) {
       res.send("OK");
     }
   });
+});
+
+app.get('/pins', async (req, res) => {
+  let files = await pinned();
+  res.send(JSON.stringify(files));
+});
+
+app.post('/pins/add', async (req, res) => {
+  let pin = req.body;
+  console.log(`trying to pin ${pin}`)
+  if (!pin){
+    res.sendStatus(204);
+  }
+  else {
+    //add pin
+    let results = await pins.add(pin);
+    console.log(results);
+    res.sendStatus(201);
+  }
+});
+
+app.post('/pins/del', async (req, res) => {
+  let pin = req.body;
+  console.log(`trying to unpin ${pin}`)
+  if (!pin){
+    res.sendStatus(204);
+  }
+  else {
+    //remove pin
+    await pins.del(pin);
+    console.log(results);
+    res.sendStatus(200);
+  }
 });
 
 app.listen(config.PORT, function () {  

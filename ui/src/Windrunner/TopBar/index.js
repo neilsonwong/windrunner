@@ -42,12 +42,15 @@ function PathBubbles(props) {
   let bubbles = [];
   let cumulativePath = '';
 
-  //push the home path
+  //push the home path and the Fav path
   bubbles.push((
-    <Link className="bread-crumb bread-crumb-root" to={'/'} key={'path-component-o'} >home</Link>
+    <Link className="bread-crumb bread-crumb-root pinned-root" to={'/fav'} key={'path-component-star'} >Pinned</Link>
   ));
-  
-  if (origPath.length > 0) {
+  bubbles.push((
+    <Link className="bread-crumb bread-crumb-root" to={'/'} key={'path-component-home'} >home</Link>
+  ));
+
+  if (origPath.length > 0 && origPath !== 'fav') {
     for (let i = 0; i < pathComponents.length; ++i){
       cumulativePath += "/" + pathComponents[i];
 

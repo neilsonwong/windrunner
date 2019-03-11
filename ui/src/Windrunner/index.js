@@ -76,10 +76,12 @@ export default class WindRunner extends React.Component {
       let q = new URLSearchParams(query).get('q');
       this.search(q);
     }
+    else if (url.indexOf('/fav') === 0){
+      this.fav();
+    }
     else {
       this.browse();
     }
-
   }
 
   async search(q){
@@ -101,6 +103,19 @@ export default class WindRunner extends React.Component {
     console.log('updating view for ' + path)
     try {
       let data = await fetchData(ls(path));
+      this.updateDataView(data);
+    }
+    catch (e){
+      console.log(e);
+
+      //unable to fetch; show message
+      this.setState({ error: true, loading: false });
+    }
+  }
+
+  async fav(){
+    try {
+      let data = await fetchData(pins());
       this.updateDataView(data);
     }
     catch (e){
@@ -138,6 +153,10 @@ function ls(dir) {
 
 function find(query){
   return config.listingUrl + 'find?q=' + query;
+}
+
+function pins(){
+  return config.listingUrl + 'pins';
 }
 
 function massageData(data){

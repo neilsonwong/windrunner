@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"bytes"
 	"net/http"
 	"strings"
 	"strconv"
@@ -74,17 +75,30 @@ func handlePlay(resw http.ResponseWriter, req *http.Request, shareServer string,
 
 func enableCors(w *http.ResponseWriter) {
 	(*w).Header().Set("Access-Control-Allow-Origin", "*")
+	(*w).Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+	(*w).Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
 }
 
 func proxy(h http.Handler, listingServer string) http.Handler {
 	return http.HandlerFunc(func(resw http.ResponseWriter, r *http.Request) {
 		//r.URL is what i want to proxy to the local server
 		urlString := r.URL.String()
-		if strings.HasPrefix(urlString, "/ls") || strings.HasPrefix(urlString, "/thumb") || strings.HasPrefix(urlString, "/find") {
+		if strings.HasPrefix(urlString, "/ls") || strings.HasPrefix(urlString, "/thumb") || strings.HasPrefix(urlString, "/find") || strings.HasSuffix(urlString, "/pins") {
 			enableCors(&resw)
 			//handle the proxy request
 			fullUrl := listingServer + urlString
 			resp, err := proxyRequest(fullUrl)
+			if err == nil {
+				resw.Write(resp)
+			} else {
+				fmt.Fprintf(resw, "problem proxying to " + listingServer)
+			}
+			return
+		} else if (strings.HasPrefix(urlString, "/pins/")) {
+			enableCors(&resw)
+			//handle the proxy request
+			fullUrl := listingServer + urlString
+			resp, err := proxyPost(fullUrl, r)
 			if err == nil {
 				resw.Write(resp)
 			} else {
@@ -106,6 +120,25 @@ func proxy(h http.Handler, listingServer string) http.Handler {
 func proxyRequest(url string) ([]byte, error) {
 	log.Println("proxying to " + url)
 	resp, err := http.Get(url)
+	if err != nil {
+		// handle error
+		log.Printf("%s", err)
+		return []byte{}, err
+	}
+
+	defer resp.Body.Close()
+	return ioutil.ReadAll(resp.Body)
+}
+
+func proxyPost(url string, r *http.Request) ([]byte, error) {
+	reqBody := r.Body
+	reqBodyBytes, _ := ioutil.ReadAll(reqBody)
+	contentType := http.DetectContentType(reqBodyBytes)
+
+	log.Println("proxying post to " + url)
+	log.Println(contentType)
+	log.Println(string(reqBodyBytes[:]))
+	resp, err := http.Post(url, contentType, bytes.NewReader(reqBodyBytes))
 	if err != nil {
 		// handle error
 		log.Printf("%s", err)

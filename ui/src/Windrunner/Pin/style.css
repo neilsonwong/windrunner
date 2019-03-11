@@ -1,0 +1,21 @@
+.pin-icon {
+	position: absolute;
+	display: block;
+	height: 36px;
+	width: 36px;
+	right: 35px;
+	top: 25px;
+	opacity: 0.2;
+	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACQAAAAkCAYAAADhAJiYAAABgUlEQVRYhe3Xv0tVYRwH4AcrDKHF0CB0uks055qrm0RDhJuIi7TYolSCf4FhNAoqTbpFm7SFi4NbQYRcnBK8hMMlKeU23PfgRa4H7znv8QjdD3yWy/u+32c4vy7d/KcZCb02WQu9FunHcejdki1gHo3QuZIterDvDLQffistT1owScfLBH1uA9oqC1Npg0laKQP0PgW0fNWYPtRTQPWwJnce4zlm8AZLmg+8j/iCr/iJvymYpH9wgG/Yxies4y0W8AITYeaFeYTaJYbFai3MTE0F1SvAVHVw8Q9gt0DMbpjRUfo0nymxMVtyXPA38CEiZiWcmTuLETALMSCtmcRpBsiJ5u1dSA4zgA6LwjzMgEn6oAjQdA7QVBGg9Ryg1SJAezlAP2Jj7qcMq2IstJqyLuofgGdtBtTxGr0t63rxCr/brH8aE/Tu3OGbGEpZP4yNc3uWYoKSF+13jHawbzTsaWAnFuYOfmEWNzPsv4WXOMLtGKB7GIxwzqAMnxzddNNp/gFAb0saMME/fwAAAABJRU5ErkJggg==);
+	transition-duration: 0.1s;
+	z-index: 99;
+	cursor: pointer;
+}
+
+.pin-icon.pinned {
+	opacity: 0.8;
+}
+
+.pin-icon:hover {
+	opacity: 1;
+}

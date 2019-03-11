@@ -83,7 +83,7 @@ func proxy(h http.Handler, listingServer string) http.Handler {
 	return http.HandlerFunc(func(resw http.ResponseWriter, r *http.Request) {
 		//r.URL is what i want to proxy to the local server
 		urlString := r.URL.String()
-		if strings.HasPrefix(urlString, "/ls") || strings.HasPrefix(urlString, "/thumb") || strings.HasPrefix(urlString, "/find") {
+		if strings.HasPrefix(urlString, "/ls") || strings.HasPrefix(urlString, "/thumb") || strings.HasPrefix(urlString, "/find") || strings.HasSuffix(urlString, "/pins") {
 			enableCors(&resw)
 			//handle the proxy request
 			fullUrl := listingServer + urlString
@@ -94,7 +94,7 @@ func proxy(h http.Handler, listingServer string) http.Handler {
 				fmt.Fprintf(resw, "problem proxying to " + listingServer)
 			}
 			return
-		} else if (strings.HasPrefix(urlString, "/pins")) {
+		} else if (strings.HasPrefix(urlString, "/pins/")) {
 			enableCors(&resw)
 			//handle the proxy request
 			fullUrl := listingServer + urlString

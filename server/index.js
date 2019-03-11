@@ -95,7 +95,7 @@ app.post('/pins/del', async (req, res) => {
   }
   else {
     //remove pin
-    await pins.del(pin);
+    let results = await pins.del(pin);
     console.log(results);
     res.sendStatus(200);
   }

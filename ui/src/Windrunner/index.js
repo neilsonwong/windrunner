@@ -175,6 +175,6 @@ function filterTrash(file){
 
 function addPrettyFilename(file){
   //massage filenames to be nicer
-  file.displayName = file.name.replace(/_/g, ' ').replace(/(\[[a-zA-Z0-9\- ~,\.\-]+\]|\([a-zA-Z0-9\- ~,\.]+\))/g, '').replace(/(\.[avimk4]+$)/g, '').trim();
+  file.displayName = file.name.replace(/_/g, ' ').replace(/(\[[a-zA-Z0-9\- ~,\.\-&]+\]|\([a-zA-Z0-9\- ~,\.]+\))/g, '').replace(/(\.[avimk4]+$)/g, '').trim();
   return file;
 }

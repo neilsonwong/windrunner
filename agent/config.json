@@ -1,4 +1,5 @@
 {
+	"VERSON": "1.0",
 	"SHARE_SERVER": "honoka",
 	"SHARE_FOLDER": "seagate",
 	"LISTING_SERVER": "http://192.168.0.118:8000",

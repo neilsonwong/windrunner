@@ -9,7 +9,7 @@ WINDRUNNER_ROOT=$PWD
 # ------------------------------------------------------------------------------
 # extract the zip in the update dir
 # ------------------------------------------------------------------------------
-unzip "$WINDRUNNER_ROOT/updates/*.zip"
+unzip -o "$WINDRUNNER_ROOT/updates/*.zip" -d "$WINDRUNNER_ROOT/updates/"
 
 # ------------------------------------------------------------------------------
 # stop windrunner agent
@@ -36,4 +36,4 @@ rm -rf "$WINDRUNNER_ROOT/updates/*"
 # ------------------------------------------------------------------------------
 #start windrunner agent
 # ------------------------------------------------------------------------------
-systemctl --user start windrunnerAgent.service
+systemctl --user restart windrunnerAgent.service

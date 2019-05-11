@@ -20,6 +20,7 @@ rm -rf /opt/Windrunner/*
 # copy binaries and configs into install dir
 cp ./agent /opt/Windrunner/
 cp ./config.json /opt/Windrunner/
+cp ./update_darwin.sh /opt/Windrunner/
 
 # copy into launchAgents
 # use cp command as bash one might be aliased to not replace existing plist

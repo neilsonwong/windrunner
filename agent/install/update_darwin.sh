@@ -9,7 +9,7 @@ WINDRUNNER_ROOT=$PWD
 # ------------------------------------------------------------------------------
 # extract the zip in the update dir
 # ------------------------------------------------------------------------------
-unzip "$WINDRUNNER_ROOT/update/*.zip"
+unzip -o "$WINDRUNNER_ROOT/updates/*.zip" -d "$WINDRUNNER_ROOT/updates/"
 
 # ------------------------------------------------------------------------------
 # stop windrunner agent
@@ -31,7 +31,7 @@ cp "$WINDRUNNER_ROOT/update/config.json" "$WINDRUNNER_ROOT/config.json"
 # ------------------------------------------------------------------------------
 # clear out update dir
 # ------------------------------------------------------------------------------
-rm -rf /opt/Windrunner/updates/*
+rm -rf "$WINDRUNNER_ROOT/updates/*"
 
 # ------------------------------------------------------------------------------
 #start windrunner agent

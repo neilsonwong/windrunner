@@ -8,12 +8,20 @@ import (
 	"strings"
 	"strconv"
 	"io/ioutil"
+	"os"
 )
 
 var config Config = LoadConfig()
 
 func Windunner() {
 	port := strconv.Itoa(config.ServerPort)
+
+	// check for updates
+	updateReq := CheckForUpdate(config.Version)
+	if updateReq == true {
+		log.Println("shutting down for update");
+		os.Exit(0)
+	}
 
 	sharename := "//" + config.ShareServer + "/" + config.ShareFolder
 	log.Println("config: share located at " + sharename)

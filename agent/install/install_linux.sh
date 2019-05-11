@@ -15,6 +15,9 @@ cp ./agent /opt/Windrunner/agent
 # copy config
 cp ./config.json /opt/Windrunner/config.json
 
+# copy update script
+cp ./update_linux.sh /opt/Windrunner/
+
 #add service
 cp ./windrunnerAgent.service ~/.local/share/systemd/user/
 

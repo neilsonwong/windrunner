@@ -3,6 +3,8 @@
 
 # zips the appropriate install files and binaries
 
+VERSION="1.0.0"
+
 # build everything
 ./buildAll.sh
 
@@ -10,6 +12,7 @@ function setup {
 	# create build folder
 	rm -rf build
 	mkdir build
+	mkdir -p packages
 }
 
 function cleanup {
@@ -20,51 +23,44 @@ function cleanup {
 	rm -rf build
 }
 
+function package {
+	echo "packaging $1 $2"
+
+	OS=$1
+	ARCH=$2
+	EXT="sh"
+	EXE=""
+
+	if [ $OS = "windows" ]; then
+		EXT="bat"
+		EXE=".exe"
+	fi
+
+	setup
+	cp "bin/$OS/agent$EXE" "build/agent$EXE"
+	cp "install/install_$OS.$EXT" "build/"
+	cp "install/update_$OS.$EXT" "build/"
+	cp "./config.json" "build/"
+
+	# linux and osx use true services, so copy the files
+	if [ $OS = "linux" ]; then
+		cp "install/windrunnerAgent.service" "build/"
+	fi
+
+	if [ $OS = "darwin" ]; then
+		cp "install/windrunnerAgent.plist" "build/"
+	fi
+
+	cleanup "windrunner$VERSION"_"$OS-$ARCH.zip"
+}
+
 # clear packages folder
 rm -rf packages/*
 
-#package linux 32
-setup
-cp bin/linux/agent build/agent
-cp install/install_linux.sh build/
-cp install/windrunnerAgent.service build/
-cp ./config.json build/
-cleanup windrunner_linux.zip
-
-#package linux 64
-setup
-cp bin/linux/agent64 build/agent
-cp install/install_linux.sh build/
-cp install/windrunnerAgent.service build/
-cp ./config.json build/
-cleanup windrunner_linux_amd64.zip
-
-#package darwin 32
-setup
-cp bin/darwin/agent build/agent
-cp install/install_darwin.sh build/
-cp install/windrunnerAgent.plist build/
-cp ./config.json build/
-cleanup windrunner_darwin.zip
-
-#package darwin 64
-setup
-cp bin/darwin/agent64 build/agent
-cp install/install_darwin.sh build/
-cp install/windrunnerAgent.plist build/
-cp ./config.json build/
-cleanup windrunner_darwin_amd64.zip
-
-#package windows 32
-setup
-cp bin/windows/agent.exe build/agent.exe
-cp install/install.bat build/
-cp ./config.json build/
-cleanup windrunner_windows.zip
-
-#package windows 64
-setup
-cp bin/windows/agent64.exe build/agent.exe
-cp install/install.bat build/
-cp ./config.json build/
-cleanup windrunner_windows_amd64.zip
+for OSTYPE in "linux" "windows" "darwin"
+do
+	for ARCHITECTURE in "386" "amd64"
+	do
+		package $OSTYPE $ARCHITECTURE
+	done
+done

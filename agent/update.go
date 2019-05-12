@@ -119,16 +119,23 @@ func downloadUpdate(updateUrl string) error {
 }
 
 func startUpdater() {
-	updateScript := "update_" + GOOS + ".sh"
+	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
+    if err != nil {
+        log.Println(err)
+        return
+    }
+
+	updateScript := dir + "/update_" + GOOS + ".sh"
+
 	if GOOS == "windows" {
 		updateScript = "update_" + GOOS + ".bat"
 
-		log.Println("executing " + "./" + updateScript)
-		cmd := exec.Command("cmd.exe", "/C", "./" + updateScript)
+		log.Println("executing " + updateScript)
+		cmd := exec.Command("cmd.exe", "/C", updateScript)
 		cmd.Start()
 	} else {
-		log.Println("executing " + "./" + updateScript)
-		cmd := exec.Command("/bin/bash", "-c", "./" + updateScript)
+		log.Println("executing " + updateScript)
+		cmd := exec.Command("/bin/bash", updateScript)
 		cmd.Start()
 	}
 }

@@ -30,6 +30,7 @@ func LoadConfig() Config {
 		log.Printf("parsing config file", err.Error())
 	}
 
+	log.Printf("loaded a config with VERSION: " + config.Version)
 	//check if we need to merge configs
 	config = mergeConfigs(config)
 
@@ -67,6 +68,7 @@ func mergeConfigs(config Config) Config {
 
 	// update json file
 	if updated == true {
+		log.Printf("deleting old config file")
 		os.Remove("./config.json.old")
 	}
 
@@ -74,6 +76,7 @@ func mergeConfigs(config Config) Config {
 }
 
 func writeNewConfig(config Config) bool {
+	log.Printf("writing new config file")
 	file, _ := json.MarshalIndent(config, "", "    ")
 	err := ioutil.WriteFile("config.json", file, 0755)
 

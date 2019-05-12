@@ -3,7 +3,7 @@
 
 # zips the appropriate install files and binaries
 
-VERSION="1.1.1"
+VERSION="1.1.2"
 
 # build everything
 ./buildAll.sh

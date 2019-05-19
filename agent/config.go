@@ -66,10 +66,14 @@ func mergeConfigs(config Config) Config {
 	// update json file
 	updated := writeNewConfig(config)
 
-	// update json file
+	// delete old json file
 	if updated == true {
 		log.Printf("deleting old config file")
-		os.Remove("./config.json.old")
+		configFile.Close()
+		delErr := os.Remove("./config.json.old")
+		if delErr != nil {
+			log.Printf("error deleting old config file", delErr.Error())
+		}
 	}
 
 	return config

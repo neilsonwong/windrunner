@@ -9,10 +9,22 @@ set WINDRUNNER_ROOT=%cd%
 @echo off
 setlocal
 cd /d %WINDRUNNER_ROOT%
-Call :UnZipFile "%WINDRUNNER_ROOT%\update\" "%WINDRUNNER_ROOT%\update\windrunner_windows_amd64.zip"
+for /R %%i in (*.zip) DO (
+	set filename=%%i
+	echo %%i
+	goto Main
+)
+echo "No Update Files Found"
+timeout 3 >nul
+exit
+
+:Main
+echo "Processing %filename%"
+Call :UnZipFile "%WINDRUNNER_ROOT%\updates\" "%filename%"
 exit /b
 
 :UnZipFile <ExtractTo> <newzipfile>
+echo "extracting %2 to %1"
 set vbs="%temp%\_.vbs"
 if exist %vbs% del /f /q %vbs%
 >%vbs%  echo Set fso = CreateObject("Scripting.FileSystemObject")
@@ -36,7 +48,7 @@ wmic process get ProcessID,ExecutablePath 2>NUL | find /I /N "%WINDRUNNER_ROOT%\
 if "%ERRORLEVEL%"=="0" (
 	echo "Windrunner is still running"
 	exit 1
-	)
+)
 
 :: -----------------------------------------------------------------------------
 :: copy binaries and configs
@@ -46,16 +58,18 @@ del "%WINDRUNNER_ROOT%\agent.exe"
 echo "backup config.json"
 rename "%WINDRUNNER_ROOT%\config.json" "config.json.old"
 echo "copy new updated files from update dir"
-xcopy "%WINDRUNNER_ROOT%\update\agent.exe" "%WINDRUNNER_ROOT%\agent.exe"
-xcopy "%WINDRUNNER_ROOT%\update\config.json" "%WINDRUNNER_ROOT%\config.json"
+copy "%WINDRUNNER_ROOT%\updates\agent.exe" "%WINDRUNNER_ROOT%\agent.exe"
+copy "%WINDRUNNER_ROOT%\updates\config.json" "%WINDRUNNER_ROOT%\config.json"
 
 :: -----------------------------------------------------------------------------
 :: clear update dir
 :: -----------------------------------------------------------------------------
 echo "clean update dir"
-rd /s /q "%WINDRUNNER_ROOT%\update"
+rd /s /q "%WINDRUNNER_ROOT%\updates"
 
 :: -----------------------------------------------------------------------------
 :: restart windrunner
 :: -----------------------------------------------------------------------------
+timeout 3 >nul
+start "" "%WINDRUNNER_ROOT%\agent.exe"
 echo "done in %WINDRUNNER_ROOT%"

@@ -1,6 +1,11 @@
 :: update script for windrunner
 
 :: -----------------------------------------------------------------------------
+:: touch the updated file
+:: -----------------------------------------------------------------------------
+echo.> updated.txt
+
+:: -----------------------------------------------------------------------------
 :: extract windrunner update into updates directory
 :: -----------------------------------------------------------------------------
 :: %~dp0 refers to the full path to the batch file's directory (static)

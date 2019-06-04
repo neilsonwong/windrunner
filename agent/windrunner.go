@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"io/ioutil"
 	"os"
+	"runtime"
 )
 
 var config Config = LoadConfig()
@@ -19,8 +20,11 @@ func Windunner() {
 	// check for updates
 	updateReq := CheckForUpdate(config.Version)
 	if updateReq == true {
-		log.Println("shutting down for update");
-		os.Exit(0)
+		//if osx don't quit, let script do it	
+		if runtime.GOOS != "darwin" {
+			log.Println("shutting down for update");
+			os.Exit(0)
+		}
 	}
 
 	sharename := "//" + config.ShareServer + "/" + config.ShareFolder
@@ -28,7 +32,6 @@ func Windunner() {
 	log.Println("config: listing server at " + config.ListingServer)
 	log.Println("config: osx mount point at " + config.OsxMountPoint)
 	log.Println("config: agent hosted on port " + port)
-
 
 	//ensure mount is successful
 	MountSmb(config.ShareServer, config.ShareFolder, false)

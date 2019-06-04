@@ -135,7 +135,8 @@ func startUpdater() {
 		cmd.Start()
 	} else {
 		log.Println("executing " + updateScript)
-		cmd := exec.Command("/bin/bash", updateScript)
+		//cmd := exec.Command("/bin/bash", updateScript)
+		cmd := exec.Command("/bin/bash", "-c", updateScript)
 		cmd.Start()
 	}
 }

@@ -11,6 +11,7 @@ import * as config from './config';
 import './style.css';
 
 const isVideo = new RegExp(/(\.(avi|mkv|ogm|mp4|flv|ogg|wmv|rm|mpeg|mpg)$)/);
+const recentCutoff = Date.now() - 60*60*24*18*1000;
 
 //WindRunner will handle all of the error + loading screens
 //also responsibility of loading file data will be WindRunner
@@ -164,6 +165,12 @@ function massageData(data){
     .filter(filterTrash)
     .map(addPrettyFilename)
     .sort((a, b) => {
+      if (recentCutoff > Date.parse(a.birthTime) && recentCutoff < Date.parse(b.birthTime)) {
+        return 1;
+      }
+      else if (recentCutoff > Date.parse(b.birthTime) && recentCutoff < Date.parse(a.birthTime)) {
+        return -1;
+      }
       return naturalSort(a.displayName, b.displayName);
     });
 }

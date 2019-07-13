@@ -1,7 +1,7 @@
 'use strict';
 
-const fs = require('fs');
 const config = require('./config');
+const FileCache = require('./fileCache');
 const analyze = require('./fileOps').analyze;
 
 let pinCache = undefined;
@@ -10,11 +10,7 @@ async function getPinList() {
   try {
     let pinned;
     if (pinCache === undefined){
-      let pinData = await readPinned();
-      pinned = JSON.parse(pinData);
-
-      //update pinCache
-      pinCache = pinned;
+      pinCache = await FileCache.get("pins");
     }
     else {
       pinned = pinCache;
@@ -36,7 +32,7 @@ async function addPin(newPin) {
   else {
     //add the new pin
     pinCache.push(newPin);
-    await writePinned();
+    await FileCache.set("pins", pinCache);
     return true;
   }
 }
@@ -45,36 +41,12 @@ async function removePin(deadPin) {
   let pinIndex = pinCache.indexOf(deadPin);
   if (pinIndex !== -1){
     pinCache.splice(pinIndex, 1);
-    await writePinned();
+    await FileCache.set("pins", pinCache);
     return true;
   }
   else {
     return false;
   }
-}
-
-function readPinned(){
-  return new Promise((res, rej) => {
-    fs.readFile(config.PIN_FILE, (err, data) => {
-      if (err) {
-        rej(err);
-      }
-      res(data);
-    });
-  });
-}
-
-function writePinned(){
-  return new Promise((res, rej) => {
-    fs.writeFile(config.PIN_FILE, JSON.stringify(pinCache), 'utf8', (err) => {
-      if (err) {
-        rej(err);
-      }
-      else {
-        res();
-      }
-    });
-  });
 }
 
 function isPinned(path){

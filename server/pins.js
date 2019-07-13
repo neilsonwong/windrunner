@@ -4,27 +4,12 @@ const config = require('./config');
 const FileCache = require('./fileCache');
 const analyze = require('./fileOps').analyze;
 
-let pinCache = undefined;
-
 async function getPinList() {
-  try {
-    let pinned;
-    if (pinCache === undefined){
-      pinCache = await FileCache.get("pins");
-    }
-    else {
-      pinned = pinCache;
-    }
-
-    return pinned;
-  }
-  catch (e) {
-    console.log("Error retrieving pinned files");
-    return [];
-  }
+  return FileCache.get("pins");
 }
 
 async function addPin(newPin) {
+  let pinCache = FileCache.get("pins");
   let pinIndex = pinCache.indexOf(newPin);
   if (pinIndex !== -1){
     return false;
@@ -38,6 +23,7 @@ async function addPin(newPin) {
 }
 
 async function removePin(deadPin) {
+  let pinCache = FileCache.get("pins");
   let pinIndex = pinCache.indexOf(deadPin);
   if (pinIndex !== -1){
     pinCache.splice(pinIndex, 1);
@@ -50,6 +36,7 @@ async function removePin(deadPin) {
 }
 
 function isPinned(path){
+  let pinCache = FileCache.get("pins");
   if (pinCache === undefined) {
     return false;
   }
@@ -57,8 +44,7 @@ function isPinned(path){
 }
 
 async function init(){
-  await getPinList();
-  console.log('pins are loaded');
+  await FileCache.loadCache("pins");
 }
 
 init();

@@ -14,25 +14,26 @@ class FileCache {
   async loadCache(cacheName) {
     //load cache from file
     try {
-      let cacheData = await loadCacheFromFile(cacheName);
+      let cacheData = await this.loadCacheFromFile(cacheName);
       this.cache[cacheName] = JSON.parse(cacheData);
       console.log(`cache ${cacheName} is loaded`);
     }
     catch (e) {
-      console.log('Error retrieving cache ${cacheName}');
+      console.log(`Error retrieving cache ${cacheName}`);
+      console.log(e);
     }
   }
 
-  async get(cacheName) {
+  get(cacheName) {
     if (this.cache[cacheName] === undefined) {
-      await loadCache(cacheName);
+      throw `${cacheName} has not been loaded`;
     }
     return this.cache[cacheName];
   }
 
   async set(cacheName, val) {
     this.cache[cacheName] = val;
-    await writeCacheToFile(cacheName);
+    await this.writeCacheToFile(cacheName);
   }
 
   loadCacheFromFile(cacheName) {
@@ -64,3 +65,4 @@ class FileCache {
 }
 
 module.exports = new FileCache();
+

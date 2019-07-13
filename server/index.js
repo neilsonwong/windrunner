@@ -12,6 +12,7 @@ const ls = require('./fileUtils').ls;
 const find = require('./fileUtils').find;
 const pinned = require('./fileUtils').pinned;
 const pins = require('./pins');
+const smb = require('./sambaOps');
 
 const addToThumbnailQueue = require('./thumbnail').addToThumbnailQueue;
 
@@ -100,6 +101,29 @@ app.post('/pins/del', async (req, res) => {
     res.sendStatus(200);
   }
 });
+
+app.get('/record', async (req, res) => {
+  //check if we need to record
+  console.log('start recording watched');
+  smb.watch();
+  res.sendStatus(200);
+});
+
+/*
+app.post('/mark/:filePath', async (req, res) => {
+  let watched = req.body;
+  console.log(`trying to unpin ${pin}`)
+  if (!pin){
+    res.sendStatus(204);
+  }
+  else {
+    //remove pin
+    let results = await pins.del(pin);
+    console.log(results);
+    res.sendStatus(200);
+  }
+});
+*/
 
 app.listen(config.PORT, function () {  
   console.log('windrunner listing server running on ' + config.PORT);  

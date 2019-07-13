@@ -2,7 +2,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const exec = require('child_process').exec;
+const exec = require('./execUtils').exec;
 const analyze = require('./fileOps').analyze;
 const pins = require('./pins');
 
@@ -106,22 +106,7 @@ const listDir = function(dir){
 
 function search(q){
 	let cmd = `find ${SHARE_PATH} -iname "*${q}*"`;
-	return new Promise((res, rej) => {
-		exec(cmd, { maxBuffer: Infinity }, (err, stdout, stderr) => {
-			if (err !== null){
-				console.log("error occurred");
-				rej(err);
-			}
-			else if (stderr){
-				console.log("std error occurred");
-				rej(stderr);
-			}
-			else {
-				console.log(stdout);
-				res(stdout);
-			}
-		});
-	});
+	return exec(cmd);
 }
 
 async function pinned(){
@@ -131,7 +116,6 @@ async function pinned(){
     let pinList = await Promise.all(pinned.map(async function(pinPath) {
       try {
         let pin = await analyze(pinPath);
-        console.log(pin);
         return pin;
       }
       catch(e) {

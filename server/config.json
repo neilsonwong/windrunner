@@ -3,5 +3,6 @@
 	"SHARE_PATH": "/media/Seagate",
 	"THUMBNAIL_DIR": "/home/honoka/Projects/Windrunner/server/thumbnails",
 	"THUMBNAIL_WORKERS": 25,
-	"PIN_FILE": "pinned.json"
+	"PIN_FILE": "pinned.json",
+	"CACHE_FOLDER": "./cache"
 }

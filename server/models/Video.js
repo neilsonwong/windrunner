@@ -1,7 +1,7 @@
 'use strict';
 
 const File = require('./File');
-const watchedTime = require('./watchTime').get;
+const watchedTime = require('../persistentData/watchTime').get;
 
 class Video extends File {
 	constructor(path, stats, vidLen) {

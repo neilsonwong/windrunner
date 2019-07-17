@@ -1,7 +1,7 @@
 'use strict';
 
 const File = require('./File');
-const isPinned = require('./pins').isPinned;
+const isPinned = require('../persistentData/pins').isPinned;
 
 class Folder extends File {
 	constructor(path, stats) {

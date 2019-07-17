@@ -8,13 +8,13 @@ const fs = require('fs');
 
 const config = require('./config');
 
-const ls = require('./fileUtils').ls;
-const find = require('./fileUtils').find;
-const pinned = require('./fileUtils').pinned;
-const pins = require('./pins');
-const smb = require('./sambaOps');
+const ls = require('./utils/fileUtils').ls;
+const find = require('./utils/fileUtils').find;
+const pinned = require('./utils/fileUtils').pinned;
+const pins = require('./persistentData/pins');
+const smb = require('./cliCommands/sambaOps');
 
-const addToThumbnailQueue = require('./thumbnail').addToThumbnailQueue;
+const addToThumbnailQueue = require('./cliCommands/thumbnail').addToThumbnailQueue;
 
 let app = express();
 

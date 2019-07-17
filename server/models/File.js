@@ -1,7 +1,7 @@
 'use strict';
 
 const pathModule = require('path');
-const SHARE_PATH = require('./config').SHARE_PATH;
+const SHARE_PATH = require('../config').SHARE_PATH;
 
 //massages a fs stats object into a simpler custom file
 class File {
@@ -16,4 +16,3 @@ class File {
 }
 
 module.exports = File;
-

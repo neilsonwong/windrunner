@@ -2,7 +2,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const cacheFolder = require('./config').CACHE_FOLDER;
+const cacheFolder = require('../config').CACHE_FOLDER;
 
 class FileCache {
   constructor() {

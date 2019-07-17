@@ -1,8 +1,8 @@
 'use strict';
 
-const config = require('./config');
+const config = require('../config');
 const FileCache = require('./fileCache');
-const analyze = require('./fileOps').analyze;
+const analyze = require('../utils/fileOps').analyze;
 
 async function getPinList() {
   return FileCache.get("pins");

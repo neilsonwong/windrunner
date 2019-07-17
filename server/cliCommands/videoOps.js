@@ -1,6 +1,6 @@
 'use strict';
 
-const exec = require('./execUtils').exec;
+const exec = require('../executor/execUtils').exec;
 
 async function duration(file){
 	let cmd = `ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "${file}"`;

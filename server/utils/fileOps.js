@@ -1,10 +1,10 @@
 'use strict';
 
 const fs = require('fs');
-const File = require('./File');
-const Folder = require('./Folder');
-const Video = require('./Video');
-const getVidLen = require('./videoOps').duration;
+const File = require('../models/File');
+const Folder = require('../models/Folder');
+const Video = require('../models/Video');
+const getVidLen = require('../cliCommands/videoOps').duration;
 const isVideo = new RegExp(/(\.(avi|mkv|ogm|mp4|flv|ogg|wmv|rm|mpeg|mpg)$)/);
 
 const fDeets = function(file) {

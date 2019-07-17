@@ -5,7 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const execFile = require('child_process').execFile;
 
-const config = require('./config');
+const config = require('../config');
 
 const inProgress = new Set([]);
 const waiting = [];

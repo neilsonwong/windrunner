@@ -2,10 +2,10 @@
 
 const path = require('path');
 const exec = require('child_process').exec;
-const LockedFile = require('./lockedFile');
-const watchTime = require('./watchTime');
+const LockedFile = require('../models/lockedFile');
+const watchTime = require('../persistentData/watchTime');
 
-const SHARE_PATH = require('./config').SHARE_PATH;
+const SHARE_PATH = require('../config').SHARE_PATH;
 
 let alreadyMonitoring = false;
 

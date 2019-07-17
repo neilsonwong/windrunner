@@ -2,11 +2,11 @@
 
 const fs = require('fs');
 const path = require('path');
-const exec = require('./execUtils').exec;
+const exec = require('../executor/execUtils').exec;
 const analyze = require('./fileOps').analyze;
-const pins = require('./pins');
+const pins = require('../persistentData/pins');
 
-const SHARE_PATH = require('./config').SHARE_PATH;
+const SHARE_PATH = require('../config').SHARE_PATH;
 
 //file should be an absolute path relative to the share
 async function ls(rel){

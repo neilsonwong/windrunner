@@ -2,7 +2,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const exec = require('../executor/execUtils').exec;
+const exec = require('./executor').run;
 const analyze = require('./fileOps').analyze;
 const pins = require('../persistentData/pins');
 

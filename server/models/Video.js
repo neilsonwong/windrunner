@@ -8,8 +8,8 @@ class Video extends File {
 		super(path, stats);
 		this.watchTime = watchedTime(path);
 		this.totalTime = vidLen;
+		this.thumbnails = [];
 	}
 }
 
 module.exports = Video;
-

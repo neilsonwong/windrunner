@@ -1,7 +1,7 @@
 'use strict';
 
 const path = require('path');
-const exec = require('child_process').exec;
+const executor = require('../utils/executor');
 const LockedFile = require('../models/lockedFile');
 const watchTime = require('../persistentData/watchTime');
 
@@ -10,29 +10,20 @@ const SHARE_PATH = require('../config').SHARE_PATH;
 let alreadyMonitoring = false;
 
 const lockedSambaFiles = async function() {
-	let smbStatusString = await smbstatus();
-	let lockedFilesArray = smbStatusString.split('\n').filter(filterLockedFile).map(parseLockedFile).filter(e => e != null);
-	return lockedFilesArray;
+	try {
+		let smbStatusString = await smbstatus();
+		let lockedFilesArray = smbStatusString.split('\n').filter(filterLockedFile).map(parseLockedFile).filter(e => e != null);
+		return lockedFilesArray;
+	}
+	catch (e) {
+		console.error('an error occured when finding locked samba files');
+	}
+	return [];
 }
 
 const smbstatus = function() {
 	let cmd = `sudo smbstatus -L`;
-	return new Promise((res, rej) => {
-		exec(cmd, { maxBuffer: Infinity }, (err, stdout, stderr) => {
-			if (err !== null){
-				console.log("error occurred");
-				rej(err);
-			}
-			else if (stderr){
-				console.log("std error occurred");
-				rej(stderr);
-			}
-			else {
-				// console.log(stdout);
-				res(stdout);
-			}
-		});
-	});
+	return executor.run(cmd);
 }
 
 function filterLockedFile(lockedFileLine) {

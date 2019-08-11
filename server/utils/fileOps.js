@@ -6,6 +6,8 @@ const Folder = require('../models/Folder');
 const Video = require('../models/Video');
 const getVidLen = require('../cliCommands/videoOps').duration;
 const isVideo = new RegExp(/(\.(avi|mkv|ogm|mp4|flv|ogg|wmv|rm|mpeg|mpg)$)/);
+const isPinned = require('../persistentData/pins').isPinned;
+
 
 const fDeets = function(file) {
 	return new Promise((res, rej) => {
@@ -16,7 +18,9 @@ const fDeets = function(file) {
 
 			//determine what kind of file this is
 			if (stats.isDirectory()) {
-				res(new Folder(file, stats));
+				let folder = new Folder(file, stats);
+				folder.setPinned(isPinned(folder.path));
+				res(folder);
 			}
 			else if (isVideo.test(file)) {
 				let vidLen = await getVidLen(file);

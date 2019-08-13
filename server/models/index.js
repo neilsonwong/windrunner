@@ -6,10 +6,10 @@ const LockedFile = require('./LockedFile');
 const Video = require('./Video');
 const Command = require('./Command');
 
-module.exports = {
-	File: File,
-	Folder: Folder,
-	LockedFile: LockedFile,
-	Video: Video,
-	Command: Command
+export {
+	File,
+	Folder,
+	LockedFile,
+	Video,
+	Command
 };

@@ -6,6 +6,8 @@
   "scripts": {
     "start": "node index.js windrunner-server",
     "stop": "killall -SIGINT windrunner-server",
+    "debug": "NODE_LOGLEVEL=debug node index.js windrunner-server",
+    "silly": "NODE_LOGLEVEL=silly node index.js windrunner-server",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -13,8 +15,10 @@
   "dependencies": {
     "body-parser": "^1.18.3",
     "cors": "^2.8.4",
+    "debug": "^4.1.1",
     "express": "^4.16.3",
     "level": "^5.0.1",
-    "uuid": "^3.3.2"
+    "uuid": "^3.3.2",
+    "winston": "^3.2.1"
   }
 }

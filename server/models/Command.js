@@ -3,8 +3,9 @@
 const uuidv4 = require('uuid/v4');
 
 class Command {
-	constructor(cmdString) {
-		this.cmdString = cmdString;
+	constructor(cmd, args) {
+		this.cmd = cmd;
+		this.args = args;
 		this.id = uuidv4();
 	}
 }

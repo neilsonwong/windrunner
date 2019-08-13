@@ -1,29 +1,30 @@
 'use strict';
 
 const path = require('path');
+
+const winston = require('../winston');
 const executor = require('../utils/executor');
 const LockedFile = require('../models/lockedFile');
 const watchTime = require('../persistentData/watchTime');
-
 const SHARE_PATH = require('../config').SHARE_PATH;
+
+const LIST_SAMBA_FILES_CMD = `sudo smbstatus -L`;
 
 let alreadyMonitoring = false;
 
 const lockedSambaFiles = async function() {
 	try {
-		let smbStatusString = await smbstatus();
-		let lockedFilesArray = smbStatusString.split('\n').filter(filterLockedFile).map(parseLockedFile).filter(e => e != null);
+		let smbStatusString = await executor.run(LIST_SAMBA_FILES_CMD);
+		let lockedFilesArray = smbStatusString.split('\n')
+			.filter(filterLockedFile)
+			.map(parseLockedFile)
+			.filter(e => e != null);
 		return lockedFilesArray;
 	}
 	catch (e) {
-		console.error('an error occured when finding locked samba files');
+		winston.error('an error occured when finding locked samba files');
 	}
 	return [];
-}
-
-const smbstatus = function() {
-	let cmd = `sudo smbstatus -L`;
-	return executor.run(cmd);
 }
 
 function filterLockedFile(lockedFileLine) {
@@ -56,8 +57,8 @@ function parseLockedFile(lockedFileLine) {
 				return new LockedFile(fullPath, date);
 			}
 			catch (e) {
-				console.log('error occurred when parsing the locked file');
-				console.log(e);
+				winston.error('error occurred when parsing the locked file');
+				winston.error(e);
 			}
 		}
 	}
@@ -66,7 +67,7 @@ function parseLockedFile(lockedFileLine) {
 
 async function monitorSambaFiles() {
 	if (alreadyMonitoring) {
-		console.log('already monitoring samba');
+		winston.debug('already monitoring samba');
 		return;
 	}
 
@@ -99,7 +100,7 @@ async function monitorSambaFiles() {
 		await sleep(60000);
 	}
 
-	console.log('no more locked files');
+	winston.debug('no more locked files');
 
 	for (let filename in watchDurations) {
 		await watchTime.addTime(filename, watchDurations[filename]);

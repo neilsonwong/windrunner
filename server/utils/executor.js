@@ -1,8 +1,10 @@
 'use strict';
 
 const exec = require('child_process').exec;
+const execFile = require('child_process').execFile;
 const EventEmitter = require('events');
 
+const winston = require('../winston');
 const config = require('../config');
 const MAX_WORKERS = config.MAX_WORKERS;
 const Command = require('../models/Command');
@@ -13,6 +15,8 @@ const cmdQ = [];
 
 // events
 const CMD_ADD = 'CMD_ADDED';
+const CMD_DONE = 'CMD_DONE';
+const WORKER_RETIRE = 'WORKER_RETIRE';
 
 let workersActive;
 
@@ -21,14 +25,17 @@ function init() {
 
 	// attach events
 	cmdEvents.on(CMD_ADD, processNext);
+	cmdEvents.on(CMD_DONE, packUp);
+	cmdEvents.on(WORKER_RETIRE, retire);
 }
 
 // add cmd to queue and wait til it is complete
-function execute(cmdString) {
+function execute(cmd, args) {
+	// args can be null or undefined, that is OK.
 	return new Promise((res, rej) => {
 		//add the cmd to the queue
-		let command = new Command(cmdString);
-		console.debug(`pushing command into the queue with id ${command.id}`);
+		let command = new Command(cmd, args);
+		winston.silly(`pushing command into the queue with id ${command.id}`);
 		cmdQ.push(command);
 		cmdEvents.emit(CMD_ADD);
 
@@ -49,14 +56,28 @@ function cleanup() {
 	return 'NOT YET IMPLEMENTED';
 }
 
+function packUp(jobId) {
+	winston.silly(`worker has completed job ${jobId}`);
+	--workersActive;
+	winston.silly(`${workersActive} workers active`);
+	processNext();
+	return;
+}
+
+function retire() {
+	winston.silly(`a worker is retiring`);
+	--workersActive;
+	winston.silly(`${workersActive} workers active`);
+}
+
 async function processNext() {
 	if (workersActive >= MAX_WORKERS) {
-		console.debug(`${MAX_WORKERS} workers are already active`);
+		winston.silly(`${MAX_WORKERS} workers are already active`);
 		return;
 	}
 	else {
-		console.debug(`worker #${workersActive} starting to work`);
 		++workersActive;
+		winston.silly(`worker #${workersActive} starting to work`);
 	}
 
 	if (cmdQ.length > 0) {
@@ -66,7 +87,7 @@ async function processNext() {
 		let error = null;
 
 		try {
-			output = await runCommand(commandToRun.cmdString);
+			output = await runCommand(commandToRun);
 		}
 		catch (err) {
 			error = err;
@@ -74,32 +95,41 @@ async function processNext() {
 
 		// emit the event
 		cmdEvents.emit(commandToRun.id, output, error);
+		cmdEvents.emit(CMD_DONE, commandToRun.id);
 	}
 	else {
-		--workersActive;
-		console.debug('no more items in command queue');
-		console.debug(`${workersActive} workers left`);
+		winston.silly('no more items in command queue');
+		cmdEvents.emit(WORKER_RETIRE);
 	}
 }
 
 function runCommand(cmd) {
 	return new Promise((res, rej) => {
-		console.debug(`executing ${cmd}`);
-
-		exec(cmd, { maxBuffer: Infinity }, (err, stdout, stderr) => {
-			if (err !== null){
-				console.log("error occurred");
-				rej(err);
-			}
-			else if (stderr){
-				console.log("std error occurred");
-				rej(stderr);
-			}
-			else {
-				res(stdout);
-			}
-		});
+		if (cmd.args === undefined) {
+			winston.silly(`executing using exec ${cmd.cmd}`);
+			exec(cmd.cmd, { maxBuffer: Infinity }, handleExecutionResult.bind(null, res, rej));
+		}
+		else {
+			winston.silly(`executing using execFile ${cmd.cmd}`);
+			execFile(cmd.cmd, cmd.args, handleExecutionResult.bind(null, res, rej));
+		}
 	});
+}
+
+function handleExecutionResult(res, rej, err, stdout, stderr) {
+	if (err !== null) {
+		winston.debug('executor command returned an error');
+		winston.debug(err);
+		rej(err);
+	}
+	else if (stderr){
+		winston.debug('executor command returned a stderr');
+		winston.debug(stderr);
+		rej(stderr);
+	}
+	else {
+		res(stdout);
+	}
 }
 
 init();
@@ -107,4 +137,3 @@ init();
 module.exports = {
 	run: execute
 };
-

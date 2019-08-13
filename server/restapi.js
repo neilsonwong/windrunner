@@ -6,15 +6,14 @@ const bodyParser = require('body-parser');
 const path = require('path');
 const fs = require('fs');
 
+const winston = require('./winston');
 const config = require('./config');
-
-const ls = require('./utils/fileUtils').ls;
-const find = require('./utils/fileUtils').find;
-const pinned = require('./utils/fileUtils').pinned;
+const fileNavRouter = require('./routers/fileNavigationRouter');
+const pinned = require('./services/navigatorService').pinned;
 const pins = require('./persistentData/pins');
-const smb = require('./cliCommands/sambaOps');
+const smb = require('./services/sambaService');
 
-const addToThumbnailQueue = require('./cliCommands/thumbnail').addToThumbnailQueue;
+const addToThumbnailQueue = require('./services/thumbnailService').addToThumbnailQueue;
 
 let app = express();
 
@@ -24,6 +23,7 @@ function setup() {
   app.use(cors());
   // app.use(bodyParser.urlencoded({ extended: false }));
   app.use(bodyParser.text());
+  app.use(fileNavRouter);
 }
 
 function defineRoutes() {
@@ -32,24 +32,6 @@ function defineRoutes() {
   });
 
   //handle ls
-  app.get('/ls/:path(*)?', async (req, res) => {
-    let path = req.params.path;
-    if (!path){
-      path = "";
-    }
-    let files = await ls(path); 
-    res.send(JSON.stringify(files));
-  });
-
-  app.get('/find', async (req, res) => {
-    let q = req.query.q;
-    if (!q){
-      q = "";
-    }
-    console.log('attempting to find ' + q)
-    let files = await find(q);
-    res.send(JSON.stringify(files));
-  });
 
   app.use('/thumb/:filePath', function (req, res, next) {
     let filename = path.basename(req.params.filePath);
@@ -118,7 +100,7 @@ function initWebServer() {
   defineRoutes();
   
   app.listen(config.PORT, function () {  
-    console.log('windrunner listing server running on ' + config.PORT);  
+    winston.info(`windrunner server running on ${config.PORT}`);
   });
 }
 

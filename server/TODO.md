@@ -9,6 +9,8 @@ TODO:
     hide stupid ffmpeg messages
     figure out how to compress thumbs
 refactor db portion
+    make samba event based
+    integrate samba monitor with leveldb
 refactor index (init function)
 convert to ES6 modules
 

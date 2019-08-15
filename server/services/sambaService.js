@@ -14,7 +14,7 @@ let alreadyMonitoring = false;
 
 const lockedSambaFiles = async function() {
 	try {
-		let smbStatusString = await executor.run(LIST_SAMBA_FILES_CMD);
+		const smbStatusString = await executor.run(LIST_SAMBA_FILES_CMD);
 		let lockedFilesArray = smbStatusString.split('\n')
 			.filter(filterLockedFile)
 			.map(parseLockedFile)
@@ -45,15 +45,15 @@ function parseLockedFile(lockedFileLine) {
  '5405         1000       DENY_NONE  0x100081    RDONLY     NONE             /media/Lina   .   Mon Jul  8 22:22:00 2019',
 
 	*/
-	let regexpString = `^[0-9]+[\\s]+[0-9]+[\\s]+[A-Z_]+[\\s]+[0-9x]+[\\s]+[A-Z]+[\\s]+[A-Z\\(\\)]+[\\s]+(${SHARE_PATH})[\\s]+(.*)   ([A-Za-z 0-9\\:]+)`;
-	let lockedFileRegex = new RegExp(regexpString);
+	const regexpString = `^[0-9]+[\\s]+[0-9]+[\\s]+[A-Z_]+[\\s]+[0-9x]+[\\s]+[A-Z]+[\\s]+[A-Z\\(\\)]+[\\s]+(${SHARE_PATH})[\\s]+(.*)   ([A-Za-z 0-9\\:]+)`;
+	const lockedFileRegex = new RegExp(regexpString);
 
-	let match = lockedFileRegex.exec(lockedFileLine);
+	const match = lockedFileRegex.exec(lockedFileLine);
 	if (match ) {
-		let fullPath = path.join(SHARE_PATH, match[2]);
+		const fullPath = path.join(SHARE_PATH, match[2]);
 		if (isFile(fullPath)) {
 			try {
-				let date = Date.parse(match[3]);
+				const date = Date.parse(match[3]);
 				return new LockedFile(fullPath, date);
 			}
 			catch (e) {
@@ -65,6 +65,7 @@ function parseLockedFile(lockedFileLine) {
 	return null;
 }
 
+/*
 async function monitorSambaFiles() {
 	if (alreadyMonitoring) {
 		winston.debug('already monitoring samba');
@@ -122,14 +123,15 @@ function sleep(ms) {
 function isFile(pathItem) {
 	return !!path.extname(pathItem);
 }
+*/
 
 module.exports = {
 	getLocked: lockedSambaFiles,
-	watch: monitorSambaFiles 
+	// watch: monitorSambaFiles 
 };
 
-async function main() {
-	await monitorSambaFiles();
-}
+// async function main() {
+// 	await monitorSambaFiles();
+// }
 
-main();
+// main();

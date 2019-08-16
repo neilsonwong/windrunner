@@ -8,7 +8,7 @@ TODO:
 <!-- refactor cli portions into function based services -->
     hide stupid ffmpeg messages
     figure out how to compress thumbs
-refactor db portion
+<!-- refactor db portion -->
     make samba event based
     integrate samba monitor with leveldb
 refactor index (init function)

@@ -8,15 +8,20 @@ const winston = require('../winston');
 const config = require('../config');
 const MAX_WORKERS = config.MAX_WORKERS;
 const Command = require('../models/Command');
+const sleep = require('../utils/utility').sleep;
 
 // initialize state vars
 const cmdEvents = new EventEmitter();
 const cmdQ = [];
+const hooks = {};
 
 // events
-const CMD_ADD = 'CMD_ADDED';
-const CMD_DONE = 'CMD_DONE';
-const WORKER_RETIRE = 'WORKER_RETIRE';
+const EVENTS = {
+	CMD_ADD: 'CMD_ADDED',
+	CMD_DONE: 'CMD_DONE',
+	WORKER_RETIRE: 'WORKER_RETIRE',
+	EXECUTOR_IDLE: 'EXECUTOR_IDLE',
+};
 
 let workersActive;
 
@@ -24,9 +29,9 @@ function init() {
 	workersActive = 0;
 
 	// attach events
-	cmdEvents.on(CMD_ADD, processNext);
-	cmdEvents.on(CMD_DONE, packUp);
-	cmdEvents.on(WORKER_RETIRE, retire);
+	cmdEvents.on(EVENTS.CMD_ADD, processNext);
+	cmdEvents.on(EVENTS.CMD_DONE, packUp);
+	cmdEvents.on(EVENTS.WORKER_RETIRE, retire);
 }
 
 // add cmd to queue and wait til it is complete
@@ -37,7 +42,7 @@ function execute(cmd, args) {
 		let command = new Command(cmd, args);
 		winston.silly(`pushing command into the queue with id ${command.id}`);
 		cmdQ.push(command);
-		cmdEvents.emit(CMD_ADD);
+		cmdEvents.emit(EVENTS.CMD_ADD);
 
 		//add new event waiter for command to finish
 		cmdEvents.once(command.id, (out, err) => {
@@ -68,6 +73,7 @@ function retire() {
 	winston.silly(`a worker is retiring`);
 	--workersActive;
 	winston.silly(`${workersActive} workers active`);
+	triggerPossibleIdle();
 }
 
 async function processNext() {
@@ -95,11 +101,11 @@ async function processNext() {
 
 		// emit the event
 		cmdEvents.emit(commandToRun.id, output, error);
-		cmdEvents.emit(CMD_DONE, commandToRun.id);
+		cmdEvents.emit(EVENTS.CMD_DONE, commandToRun.id);
 	}
 	else {
 		winston.silly('no more items in command queue');
-		cmdEvents.emit(WORKER_RETIRE);
+		cmdEvents.emit(EVENTS.WORKER_RETIRE);
 	}
 }
 
@@ -132,8 +138,32 @@ function handleExecutionResult(res, rej, err, stdout, stderr) {
 	}
 }
 
+function isBusy() {
+	return workersActive !== 0;
+}
+
+// mainly used to add additional hooks into the executor life cycle
+function addHook(src, event, hook) {
+	winston.info(`${src} is adding an executor hook on ${event}`);
+	cmdEvents.on(event, hook);
+}
+
+//TODO: add remove hook
+
+async function triggerPossibleIdle() {
+	if (workersActive === 0) {
+		await sleep(5000);
+		if (workersActive === 0) {
+			cmdEvents.emit(EVENTS.EXECUTOR_IDLE);
+		}
+	}
+}
+
 init();
 
 module.exports = {
-	run: execute
+	run: execute,
+	isBusy: isBusy,
+	addHook: addHook,
+	events: EVENTS,
 };

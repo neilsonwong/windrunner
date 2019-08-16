@@ -6,11 +6,9 @@ const winston = require('winston');
 const File = require('../models/File');
 const Folder = require('../models/Folder');
 const Video = require('../models/Video');
+const utility = require('../utils/utility');
 const getVidLen = require('../services/videoMetadataService').duration;
 const userConsumptionService = require('./userConsumptionService');
-
-const isVideo = new RegExp(/(\.(avi|mkv|ogm|mp4|flv|ogg|wmv|rm|mpeg|mpg)$)/);
-
 const fileLibraryDb = require('./levelDbService').instanceFor('fileLibrary');
 
 async function analyze(file, forceRefresh) {
@@ -41,7 +39,7 @@ async function analyzeFromFs(file) {
       let isPinned = await userConsumptionService.isPinned(file);
       data = new Folder(file, stats, isPinned);
     }
-    else if (isVideo.test(file)) {
+    else if (utility.isVideo.test(file)) {
       let vidLen = await getVidLen(file);
       let watchTime = await userConsumptionService.getWatchTime(file);
       data = new Video(file, stats, vidLen, watchTime);

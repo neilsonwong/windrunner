@@ -31,8 +31,6 @@ function defineRoutes() {
     res.send('Hello this is Sylvanas!');
   });
 
-  //handle ls
-
   app.use('/thumb/:filePath', function (req, res, next) {
     let filename = path.basename(req.params.filePath);
     let imgPath = path.join(config.THUMBNAIL_DIR, filename + '.jpg');

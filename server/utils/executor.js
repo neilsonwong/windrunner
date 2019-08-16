@@ -73,7 +73,6 @@ function retire() {
 	winston.silly(`a worker is retiring`);
 	--workersActive;
 	winston.silly(`${workersActive} workers active`);
-	triggerPossibleIdle();
 }
 
 async function processNext() {
@@ -116,7 +115,7 @@ function runCommand(cmd) {
 			exec(cmd.cmd, { maxBuffer: Infinity }, handleExecutionResult.bind(null, res, rej));
 		}
 		else {
-			winston.silly(`executing using execFile ${cmd.cmd}`);
+			winston.silly(`executing using execFile ${cmd.cmd} ${cmd.args}`);
 			execFile(cmd.cmd, cmd.args, handleExecutionResult.bind(null, res, rej));
 		}
 	});
@@ -134,6 +133,7 @@ function handleExecutionResult(res, rej, err, stdout, stderr) {
 		rej(stderr);
 	}
 	else {
+		winston.debug('executor command finished successfully');
 		res(stdout);
 	}
 }
@@ -150,16 +150,25 @@ function addHook(src, event, hook) {
 
 //TODO: add remove hook
 
-async function triggerPossibleIdle() {
+// async function triggerPossibleIdle() {
+// 	// nasty but it works for now lol
+// 	if (workersActive === 0) {
+// 		await sleep(5000);
+// 		if (workersActive === 0) {
+// 			cmdEvents.emit(EVENTS.EXECUTOR_IDLE);
+// 		}
+// 	}
+// }
+
+async function watchForIdle() {
 	if (workersActive === 0) {
-		await sleep(5000);
-		if (workersActive === 0) {
-			cmdEvents.emit(EVENTS.EXECUTOR_IDLE);
-		}
+		cmdEvents.emit(EVENTS.EXECUTOR_IDLE);
 	}
+	setTimeout(watchForIdle, 10000);
 }
 
 init();
+watchForIdle();
 
 module.exports = {
 	run: execute,

@@ -1,5 +1,6 @@
 'use strict';
 
+const fs = require('fs').promises;
 const path = require('path');
 
 const config = require('../config');
@@ -11,8 +12,8 @@ const utility = require('../utils/utility');
 const bgWorker = require('./backgroundWorkerService');
 
 async function makeThumbnails(filePath) {
-  let needToGen = await checkIfGenerated(filePath)
-  if (needToGen) {
+  let thumbs = await thumbnailsExist(filePath)
+  if (thumbs === false) {
     // check if we have the thumbnails and whether they have been generated already
     winston.debug(`generating thumbnails for ${filePath}`);
 
@@ -26,28 +27,40 @@ async function makeThumbnails(filePath) {
     const thumbnailPromises = [];
     const outputFiles = [];
 
-    for (let i = 0; i < config.MAX_THUMBNAILS; ++i) {
-      //calculate time splits
-      const frameRipTime = secondsToHms(thumbnailTimeUnit * (i+1));
-      const outputPath =  path.join(imgFolder, frameRipTime.replace(/:/g, '_') + '.jpg');
-
-      thumbnailPromises.push(
-        executor.run('ffmpeg', 
-        ['-ss', frameRipTime, '-t', '1', '-i', filePath, '-s', '320x180', '-f', 'mjpeg', outputPath]));
-      outputFiles.push(outputPath);
-    }
-
+    //ensure output dir exists
     try {
+      await fs.mkdir(imgFolder, {recursive: true});
+
+      for (let i = 0; i < config.MAX_THUMBNAILS; ++i) {
+        //calculate time splits
+        const frameRipTime = secondsToHms(thumbnailTimeUnit * (i+1));
+        const outputPath =  path.join(imgFolder, frameRipTime.replace(/:/g, '_') + '.jpg');
+
+        thumbnailPromises.push(
+          executor.run('ffmpeg', 
+          ['-ss', frameRipTime, // set the time we want
+          '-t', '1', '-i', filePath, '-s', '320x180', '-f', 'mjpeg', outputPath, 
+          '-y', // say yes to overwrite
+          '-loglevel', 'error' // hide all output except true errors since ffmpeg pipes stdout to stderr instead
+        ]));
+        outputFiles.push(outputPath);
+      }
+
       await Promise.all(thumbnailPromises);
-      thumbnailDb.put(filePath, outputFiles);
+      await thumbnailDb.put(filePath, outputFiles);
     }
     catch (e) {
       winston.error(`there was an error when generating thumbnails for ${filePath}`);
+      console.log(e);
     }
+  }
+  else {
+    console.log(`thumbnails already exist for ${filePath}`);
+    winston.silly(`thumbnails already exist for ${filePath}`);
   }
 }
 
-async function checkIfGenerated(filePath) {
+async function thumbnailsExist(filePath) {
   const thumbList = await getThumbnails(filePath);
   return (thumbList.length === config.MAX_THUMBNAILS);
 }
@@ -80,13 +93,16 @@ async function quietlyGenerateThumbnails() {
       allFiles.split('\n')
         .filter(filename => (filename.length > 0)) 
         .filter(filename => (utility.isVideo(filename)))
-        .map((fileName) => (bgWorker.addBackgroundTask(fileName)));
+        .forEach((fileName) => {
+          bgWorker.addBackgroundTask(makeThumbnails.bind(null, fileName));
+        });
   }
   catch(e) {
     console.log(e);
   }
 }
 
+// fix this
 quietlyGenerateThumbnails();
 
 module.exports = {

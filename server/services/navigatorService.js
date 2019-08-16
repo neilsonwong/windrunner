@@ -57,7 +57,7 @@ function search(q){
 }
 
 function pinned() {
-    console.error('not used anymore, use the db version or write it NOW');
+    
 }
 
 /* similar timings

@@ -10,7 +10,7 @@ const winston = require('./winston');
 const config = require('./config');
 const fileNavRouter = require('./routers/fileNavigationRouter');
 const pinned = require('./services/navigatorService').pinned;
-const pins = require('./persistentData/pins');
+const userConsumptionService = require('./services/userConsumptionService');
 const smb = require('./services/sambaService');
 
 const addToThumbnailQueue = require('./services/thumbnailService').addToThumbnailQueue;
@@ -55,7 +55,7 @@ function defineRoutes() {
   });
 
   app.get('/pins', async (req, res) => {
-    let files = await pinned();
+    let files = await userConsumptionService.getPinned();
     res.send(JSON.stringify(files));
   });
 
@@ -67,7 +67,7 @@ function defineRoutes() {
     }
     else {
       //add pin
-      let results = await pins.add(pin);
+      let results = await userConsumptionService.addPin(pin);
       console.log(results);
       res.sendStatus(201);
     }
@@ -81,7 +81,7 @@ function defineRoutes() {
     }
     else {
       //remove pin
-      let results = await pins.del(pin);
+      let results = await userConsumptionService.removePin(pin);
       console.log(results);
       res.sendStatus(200);
     }

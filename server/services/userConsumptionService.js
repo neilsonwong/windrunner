@@ -4,10 +4,6 @@ const levelDb = require('./levelDbService')
 const watchHistory = levelDb.instanceFor('watchHistory');
 const pinDb = levelDb.instanceFor('pins');
 
-// user consumption habits
-// fav folders
-// video watch time
-
 async function getPinned() {
     const pinList = await pinDb.all();
     return (pinList === undefined) ? [] : Object.keys(pinList);
@@ -40,6 +36,13 @@ async function updateWatchTime(file, time) {
     }
 }
 
+async function resetWatchTime(file) {
+    return await watchHistory.del(file);
+}
+
+async function setWatchTime(file, time) {
+    return await watchHistory.put(file, time);
+}
 
 module.exports = {
     getPinned: getPinned,

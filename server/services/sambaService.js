@@ -4,8 +4,7 @@ const path = require('path');
 
 const winston = require('../winston');
 const executor = require('../utils/executor');
-const LockedFile = require('../models/lockedFile');
-const watchTime = require('../persistentData/watchTime');
+const LockedFile = require('../models/LockedFile');
 const SHARE_PATH = require('../config').SHARE_PATH;
 
 const LIST_SAMBA_FILES_CMD = `sudo smbstatus -L`;

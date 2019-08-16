@@ -7,12 +7,13 @@ const File = require('../models/File');
 const Folder = require('../models/Folder');
 const Video = require('../models/Video');
 const getVidLen = require('../services/videoMetadataService').duration;
+const userConsumptionService = require('./userConsumptionService');
+
 const isVideo = new RegExp(/(\.(avi|mkv|ogm|mp4|flv|ogg|wmv|rm|mpeg|mpg)$)/);
-const isPinned = require('../persistentData/pins').isPinned;
 
 const fileLibraryDb = require('./levelDbService').instanceFor('fileLibrary');
 
-async function analyze (file, forceRefresh) {
+async function analyze(file, forceRefresh) {
   let fileData;
   // get data from appropriate source
   if (forceRefresh) {
@@ -23,7 +24,7 @@ async function analyze (file, forceRefresh) {
     fileData = await fileLibraryDb.get(file);
 
     // read from fs if not there
-    if (fileData == undefined) {
+    if (fileData === undefined) {
       fileData = await analyzeFromFs(file);
     }
   }
@@ -31,43 +32,49 @@ async function analyze (file, forceRefresh) {
   return fileData;
 }
 
-async function analyzeFromFs (file) {
+async function analyzeFromFs(file) {
   let data;
   try {
     const stats = await fs.stat(file);
 
     if (stats.isDirectory()) {
-      let folder = new Folder(file, stats);
-      folder.setPinned(isPinned(folder.path));
-      data = folder;
+      let isPinned = await userConsumptionService.isPinned(file);
+      data = new Folder(file, stats, isPinned);
     }
     else if (isVideo.test(file)) {
       let vidLen = await getVidLen(file);
-      data = new Video(file, stats, vidLen);
+      let watchTime = await userConsumptionService.getWatchTime(file);
+      data = new Video(file, stats, vidLen, watchTime);
     }
     else {
       data = new File(file, stats);
     }
+
+    // update cache only if it's not a bad case
+    await fileLibraryDb.put(file, data);
   }
   catch (e) {
     data = new File(file, stats);
   }
 
-  // update cache
-  await fileLibraryDb.put(file, data);
   return data;
 }
 
-function analyzeFiles(filesArray) {
+async function analyzeFiles(filesArray) {
     const filePromiseArray = filesArray
         .filter(filename => (filename.length > 0)) 
         .filter(item => !(/(^|\/)\.[^\/\.]/g.test(item)))
         .map((fileName) => (analyze(fileName)));
 
-    return Promise.all(filePromiseArray);
+    return await Promise.all(filePromiseArray);
+}
+
+async function evictFile(file) {
+  return await fileLibraryDb.del(file);
 }
 
 module.exports = {
 	analyze: analyze,
-	analyzeList: analyzeFiles,
+  analyzeList: analyzeFiles,
+  evictFile: evictFile,
 };

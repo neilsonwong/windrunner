@@ -36,7 +36,7 @@ class LevelDbInterface {
         streamVals[data.key] = data.value;
       })
       .on('error', function (err) {
-        winston.error('get all stream encountered an error');
+        winston.warn('get all stream encountered an error');
         rej(err);
       })
       .on('close', () => {

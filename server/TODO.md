@@ -11,12 +11,20 @@ TODO:
 <!-- refactor db portion -->
 <!-- integrate samba monitor with leveldb -->
     test the changes
-folder structure (logs + high low level services)
-scheduler service
-fix background worker
-add other routers
-refactor index (init function)
+<!-- fix background worker -->
+<!-- folder structure (logs + high low level services) -->
+<!-- scheduler service -->
+<!-- add other routers -->
+<!-- implement proper thumbnail getting -->
+<!-- refactor index (init function) -->
+<!-- add gzip -->
+<!-- multiple thumbnails -->
+<!-- fix logging levels + console use -->
+fix error logging
+add linter
 convert to ES6 modules
+startup check with config / deps
+add tests
 
-5 thumbnails
+
 new UI

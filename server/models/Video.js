@@ -7,7 +7,6 @@ class Video extends File {
 		super(path, stats);
 		this.watchTime = watchedTime;
 		this.totalTime = vidLen;
-		this.thumbnails = [];
 	}
 }
 

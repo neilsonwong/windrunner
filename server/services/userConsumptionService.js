@@ -75,5 +75,3 @@ async function main() {
     await testPins();
     await testWatchHistory();
 }
-
-main();

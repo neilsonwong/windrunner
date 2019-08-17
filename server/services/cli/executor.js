@@ -4,11 +4,13 @@ const exec = require('child_process').exec;
 const execFile = require('child_process').execFile;
 const EventEmitter = require('events');
 
-const winston = require('../winston');
-const config = require('../config');
+const winston = require('../../winston');
+const config = require('../../config');
+const Command = require('../../models/Command');
+const scheduler = require('../schedulerService');
+const sleep = require('../../utils').sleep;
+
 const MAX_WORKERS = config.MAX_WORKERS;
-const Command = require('../models/Command');
-const sleep = require('../utils/utility').sleep;
 
 // initialize state vars
 const cmdEvents = new EventEmitter();
@@ -32,6 +34,8 @@ function init() {
 	cmdEvents.on(EVENTS.CMD_ADD, processNext);
 	cmdEvents.on(EVENTS.CMD_DONE, packUp);
 	cmdEvents.on(EVENTS.WORKER_RETIRE, retire);
+
+	scheduler.addTask('check if executor is idle', watchForIdle, 10000);
 }
 
 // add cmd to queue and wait til it is complete
@@ -40,7 +44,7 @@ function execute(cmd, args) {
 	return new Promise((res, rej) => {
 		//add the cmd to the queue
 		let command = new Command(cmd, args);
-		winston.silly(`pushing command into the queue with id ${command.id}`);
+		winston.debug(`pushing command into the queue with id ${command.id}`);
 		cmdQ.push(command);
 		cmdEvents.emit(EVENTS.CMD_ADD);
 
@@ -62,27 +66,27 @@ function cleanup() {
 }
 
 function packUp(jobId) {
-	winston.silly(`worker has completed job ${jobId}`);
+	winston.debug(`worker has completed job ${jobId}`);
 	--workersActive;
-	winston.silly(`${workersActive} workers active`);
+	winston.debug(`${workersActive} workers active`);
 	processNext();
 	return;
 }
 
 function retire() {
-	winston.silly(`a worker is retiring`);
+	winston.debug(`a worker is retiring`);
 	--workersActive;
-	winston.silly(`${workersActive} workers active`);
+	winston.debug(`${workersActive} workers active`);
 }
 
 async function processNext() {
 	if (workersActive >= MAX_WORKERS) {
-		winston.silly(`${MAX_WORKERS} workers are already active`);
+		winston.debug(`${MAX_WORKERS} workers are already active`);
 		return;
 	}
 	else {
 		++workersActive;
-		winston.silly(`worker #${workersActive} starting to work`);
+		winston.debug(`worker #${workersActive} starting to work`);
 	}
 
 	if (cmdQ.length > 0) {
@@ -103,7 +107,7 @@ async function processNext() {
 		cmdEvents.emit(EVENTS.CMD_DONE, commandToRun.id);
 	}
 	else {
-		winston.silly('no more items in command queue');
+		winston.verbose('no more items in command queue');
 		cmdEvents.emit(EVENTS.WORKER_RETIRE);
 	}
 }
@@ -111,11 +115,11 @@ async function processNext() {
 function runCommand(cmd) {
 	return new Promise((res, rej) => {
 		if (cmd.args === undefined) {
-			winston.silly(`executing using exec ${cmd.cmd}`);
+			winston.debug(`executing using exec ${cmd.cmd}`);
 			exec(cmd.cmd, { maxBuffer: Infinity }, handleExecutionResult.bind(null, res, rej));
 		}
 		else {
-			winston.silly(`executing using execFile ${cmd.cmd} ${cmd.args}`);
+			winston.debug(`executing using execFile ${cmd.cmd} ${cmd.args}`);
 			execFile(cmd.cmd, cmd.args, handleExecutionResult.bind(null, res, rej));
 		}
 	});
@@ -123,13 +127,13 @@ function runCommand(cmd) {
 
 function handleExecutionResult(res, rej, err, stdout, stderr) {
 	if (err !== null) {
-		winston.debug('executor command returned an error');
-		winston.debug(err);
+		winston.warn('executor command returned an error');
+		winston.warn(err);
 		rej(err);
 	}
 	else if (stderr){
-		winston.debug('executor command returned a stderr');
-		winston.debug(stderr);
+		winston.warn('executor command returned a stderr');
+		winston.warn(stderr);
 		rej(stderr);
 	}
 	else {
@@ -162,17 +166,17 @@ function addHook(src, event, hook) {
 
 async function watchForIdle() {
 	if (workersActive === 0) {
-		cmdEvents.emit(EVENTS.EXECUTOR_IDLE);
+		await sleep(5000);
+		if (workersActive === 0) {
+			cmdEvents.emit(EVENTS.EXECUTOR_IDLE);
+		}
 	}
-	setTimeout(watchForIdle, 10000);
 }
-
-init();
-watchForIdle();
 
 module.exports = {
 	run: execute,
 	isBusy: isBusy,
 	addHook: addHook,
 	events: EVENTS,
+	init: init,
 };

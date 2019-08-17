@@ -6,5 +6,6 @@
 	"PIN_FILE": "pinned.json",
 	"CACHE_FOLDER": "./cache",
 	"MAX_WORKERS": 8,
-	"SMB_INTERVAL": 120000
+	"SMB_INTERVAL": 120000,
+	"LOG_DIR": "./logs"
 }

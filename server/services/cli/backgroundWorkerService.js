@@ -1,10 +1,9 @@
 'use strict';
 
-const winston = require('../winston');
-const executor = require('../utils/executor');
+const winston = require('../../winston');
+const executor = require('./executor');
 
 const backgroundTasks = [];
-let mutex = true;
 
 function init() {
     // add hook for executor is free
@@ -20,15 +19,15 @@ function addBackgroundTask(fn) {
 }
 
 // we will let the executor emit/tick the event
-
 async function tryRunningBackgroundJob() {
     // we should not neet a semaphore here
     // if we have items in the bg queue
     if (backgroundTasks.length > 0) {
-        // the original function should be the one to call execute, we just need to call their old functions
-        let fn = backgroundTasks.shift();
+        // the original function should be the one to call execute, 
+        // we just need to call their old functions
+        const fn = backgroundTasks.shift();
         if (typeof fn === 'function') {
-            winston.silly('running background fn');
+            winston.verbose('running background fn');
             await fn();
         }
     }

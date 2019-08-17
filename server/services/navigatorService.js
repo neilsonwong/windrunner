@@ -1,9 +1,9 @@
 'use strict';
 
-const statSync = require('fs').statSync;
 const fs = require('fs').promises;
 const path = require('path');
-const executor = require('../utils/executor');
+
+const search = require('./cli/fileList').search;
 const fileLibraryService = require('./fileLibraryService');
 
 const SHARE_PATH = require('../config').SHARE_PATH;
@@ -13,19 +13,18 @@ async function ls(rel) {
     // get file path
     const dirPath = path.join(SHARE_PATH, rel);
     
-    // synchronously check if isDir
-    if (statSync(dirPath).isDirectory()) {
-        // list the directory
-		try {
+    try {
+        const dirStats = await fs.stat(dirPath);
+        if (dirStats.isDirectory()) {
             const fileNames = await fs.readdir(dirPath);
             // transform the listing to a files array
             return await fileLibraryService.analyzeList(fileNames
                 .map(fileNameOnly => (path.join(dirPath, fileNameOnly))));
-		}
-		catch(e) {
-            console.error(`an error occured while listing the files for ${rel}`);
-			console.error(e);
-		}
+        }
+    }
+    catch(e) {
+        winston.error(`an error occured while listing the files for ${rel}`);
+        winston.error(e);
     }
 
     //no more 'ls'ing files, screw that
@@ -35,7 +34,7 @@ async function ls(rel) {
 //find files in a dir
 async function find(q){
 	if (q === ''){
-		console.log("no query passed");
+		winston.verbose('no query passed into find function');
 		return [];
     }
     else {
@@ -45,20 +44,15 @@ async function find(q){
             return await fileLibraryService.analyzeList(results.split('\n'));
         }
         catch(e){
-            console.error(`an error occured while searching all files for ${rel}`);
-			console.error(e);
+            winston.error(`an error occured while searching all files for ${q}`);
+			winston.error(e);
         }
     }
 }
-
-function search(q){
-	const cmd = `find ${SHARE_PATH} -iname "*${q}*"`;
-	return executor.run(cmd);
-}
-
-function pinned() {
-    
-}
+module.exports = {
+	ls: ls,
+	find: find
+};
 
 /* similar timings
 async function testLs(rel) {
@@ -87,8 +81,3 @@ async function newLs(rel) {
 }
 */
 
-module.exports = {
-	ls: ls,
-	find: find,
-	pinned: pinned
-};

@@ -6,8 +6,8 @@ const winston = require('winston');
 const File = require('../models/File');
 const Folder = require('../models/Folder');
 const Video = require('../models/Video');
-const utility = require('../utils/utility');
-const getVidLen = require('../services/videoMetadataService').duration;
+const utility = require('../utils');
+const getVidLen = require('./cli/videoMetadata').duration;
 const userConsumptionService = require('./userConsumptionService');
 const fileLibraryDb = require('./levelDbService').instanceFor('fileLibrary');
 
@@ -31,17 +31,18 @@ async function analyze(file, forceRefresh) {
 }
 
 async function analyzeFromFs(file) {
+  winston.verbose(`analyzing file data for ${file}`);
   let data;
   try {
     const stats = await fs.stat(file);
 
     if (stats.isDirectory()) {
-      let isPinned = await userConsumptionService.isPinned(file);
+      const isPinned = await userConsumptionService.isPinned(file);
       data = new Folder(file, stats, isPinned);
     }
     else if (utility.isVideo.test(file)) {
-      let vidLen = await getVidLen(file);
-      let watchTime = await userConsumptionService.getWatchTime(file);
+      const vidLen = await getVidLen(file);
+      const watchTime = await userConsumptionService.getWatchTime(file);
       data = new Video(file, stats, vidLen, watchTime);
     }
     else {
@@ -52,6 +53,8 @@ async function analyzeFromFs(file) {
     await fileLibraryDb.put(file, data);
   }
   catch (e) {
+    winston.error(`there was an error analyzing the file data for ${file}`);
+    winston.error(e);
     data = new File(file, stats);
   }
 
@@ -68,6 +71,7 @@ async function analyzeFiles(filesArray) {
 }
 
 async function evictFile(file) {
+  winston.verbose(`evicting ${file} from fileLibrary`);
   return await fileLibraryDb.del(file);
 }
 

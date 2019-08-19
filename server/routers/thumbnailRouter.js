@@ -6,16 +6,16 @@ const thumbnailService = require('../services/thumbnailService');
 
 const router = express.Router();
 
-router.get('/thumblist/:filePath', async (req, res) => {
-    const fileName = path.basename(req.params.filePath);
-    const thumbList = await thumbnailService.getThumbnails(fileName);
+router.get('/thumblist/:fileName', async (req, res) => {
+    const fileName = req.params.fileName;
+    const thumbList = await thumbnailService.getThumbnailList(fileName);
     return res.json(thumbList);
 });
 
-router.get('/thumb/:fileName/:imgFile', function (req, res) {
+router.get('/thumb/:fileName/:imgFile', async (req, res) => {
     const fileName = req.params.fileName;
     const imgFile = req.params.imgFile;
-    const fullImgPath = thumbnailService.getThumbnailPath(fileName, imgFile);
+    const fullImgPath = await thumbnailService.getThumbnailPath(fileName, imgFile);
 
     // the files SHOULD exist, so we should know when it's not there
     if (fullImgPath !== null) {

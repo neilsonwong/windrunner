@@ -2,17 +2,37 @@
 
 const winston = require('../../winston');
 const executor = require('./executor');
+const config = require('../../config');
 
 async function search(q) {
-    const cmd = `find ${SHARE_PATH} -iname "*${q}*"`;
+    const cmd = 'find';
+    const args = [config.SHARE_PATH, '-iname', `*${q}*`]
     try {
-        return await executor.run(cmd);
+        const results = await executor.run(cmd, args);
+        if (results) {
+            return results.split('\n');
+        }
     }
     catch (e) {
         winston.warn(`error occurred when running search for ${q}`);
         winston.warn(e);
-        return [];
     }
+    return [];
+}
+
+async function list(d) {
+    const cmd = `ls -d "${d}"/*`;
+    try {
+        const results = await executor.run(cmd);
+        if (results) {
+            return results.split('\n');
+        }
+    }
+    catch (e) {
+        winston.warn(`error occurred when running search for ${q}`);
+        winston.warn(e);
+    }
+    return [];
 }
 
 async function fullListing(folder) {
@@ -28,7 +48,9 @@ async function fullListing(folder) {
     }
 }
 
+
 module.exports = {
     search: search,
+    list: list,
     listAll: fullListing
 }

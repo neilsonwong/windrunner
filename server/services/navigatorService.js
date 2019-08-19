@@ -3,13 +3,14 @@
 const fs = require('fs').promises;
 const path = require('path');
 
-const search = require('./cli/fileList').search;
+const { search, list } = require('./cli/fileList');
 const fileLibraryService = require('./fileLibraryService');
+const winston = require('../winston');
 
 const SHARE_PATH = require('../config').SHARE_PATH;
 
 //file should be an absolute path relative to the share
-async function ls(rel) {
+async function nativels(rel) {
     // get file path
     const dirPath = path.join(SHARE_PATH, rel);
     
@@ -31,6 +32,21 @@ async function ls(rel) {
     return [];
 }
 
+async function cliLs(rel) {
+    // get file path
+    const dirPath = path.join(SHARE_PATH, rel);
+    try {
+        //find all absolute file paths
+        const results = await list(dirPath);
+        return results.length === 0 ? [] :
+            await fileLibraryService.analyzeList(results);
+    }
+    catch(e){
+        winston.error(`an error occured while listing all files for ${rel}`);
+        winston.error(e);
+    }
+}
+
 //find files in a dir
 async function find(q){
 	if (q === ''){
@@ -41,7 +57,8 @@ async function find(q){
         try {
             //find all absolute file paths
             const results = await search(q);
-            return await fileLibraryService.analyzeList(results.split('\n'));
+            return results.length === 0 ? [] :
+                await fileLibraryService.analyzeList(results);
         }
         catch(e){
             winston.error(`an error occured while searching all files for ${q}`);
@@ -50,34 +67,20 @@ async function find(q){
     }
 }
 module.exports = {
-	ls: ls,
+	ls: nativels,
 	find: find
 };
 
-/* similar timings
+/*
 async function testLs(rel) {
     console.time('node ls');
-    await ls(rel);
+    await nativels(rel);
     console.timeEnd('node ls');
 
     console.time('raw ls');
-    await newLs(rel);
+    await cliLs(rel);
     console.timeEnd('raw ls');
 }
 
-async function newLs(rel) {
-    // get file path
-    const dirPath = path.join(SHARE_PATH, rel);
-    try {
-        //find all absolute file paths
-        const cmd = `ls -d ${dirPath}/*`;
-        let results = await executor.run(cmd);
-        return await analyzer.analyzeList(results.split('\n'));
-    }
-    catch(e){
-        console.error(`an error occured while searching all files for ${rel}`);
-        console.error(e);
-    }
-}
+testLs('anime');
 */
-

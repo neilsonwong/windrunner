@@ -52,6 +52,7 @@ async function makeThumbnails(filePath) {
     catch (e) {
       winston.error(`there was an error when generating thumbnails for ${filePath}`);
       winston.error(e);
+      console.log(e);
     }
   }
   else {
@@ -86,7 +87,7 @@ function zeroPad(n) {
 async function getThumbnailPath(fileName, imgFile) {
   const thumbList = await getThumbnailList(fileName);
   if (thumbList.includes(imgFile)) {
-    return path.join(config.THUMBNAIL_DIR, fileName, outFileName);
+    return path.join(config.THUMBNAIL_DIR, fileName, imgFile);
   }
   return null;
 }
@@ -112,8 +113,9 @@ async function quietlyGenerateThumbnails() {
   }
 }
 
+const ONE_DAY = 60 * 60 * 24 * 1000;
 function startBackgroundTask() {
-	scheduler.addTask('thumbnail bg worker', quietlyGenerateThumbnails, 3600000);
+	scheduler.addTask('thumbnail bg worker', quietlyGenerateThumbnails, ONE_DAY);
 }
 
 module.exports = {

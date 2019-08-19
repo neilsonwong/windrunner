@@ -1,22 +1,33 @@
 'use strict';
 
+const path = require('path');
+const moment = require('moment-timezone');
+
 const executor = require('./executor');
 const winston = require('../../winston');
+const config = require('../../config');
 const LockedFile = require('../../models/LockedFile');
 
 const LIST_SAMBA_FILES_CMD = `sudo smbstatus -L`;
+const REMOTE_SAMBA = config.REMOTE_HOST !== undefined;
 
 async function lockedFiles() {
 	try {
-		const smbStatusString = await executor.run(LIST_SAMBA_FILES_CMD);
-		let lockedFilesArray = smbStatusString.split('\n')
-			.filter(filterLockedFile)
-			.map(parseLockedFile)
-			.filter(e => e != null);
-		return lockedFilesArray;
+		const smbStatusString = await executor.run(LIST_SAMBA_FILES_CMD, null, REMOTE_SAMBA);
+		if (smbStatusString && smbStatusString.indexOf('No locked files' === -1)) {
+			let lockedFilesArray = smbStatusString.split('\n')
+				.filter(filterLockedFile)
+				.map(parseLockedFile)
+				.filter(e => e != null);
+			return lockedFilesArray;
+		}
+		else {
+			winston.verbose('no locked files from smbstatus');
+		}
 	}
 	catch (e) {
 		winston.warn('an error occured when finding locked samba files');
+		console.log(e);
 		winston.warn(e);
 	}
 	return [];
@@ -44,16 +55,23 @@ function parseLockedFile(lockedFileLine) {
 		const fullPath = path.join(config.SHARE_PATH, match[2]);
 		if (isFile(fullPath)) {
 			try {
-				const date = Date.parse(match[3]);
-				return new LockedFile(fullPath, date);
+				const lockDate = moment.tz(match[3], 'ddd MMM DD HH:mm:ss YYYY', 'America/Toronto');
+				const lockDateMillis = lockDate.valueOf();
+				return new LockedFile(fullPath, lockDateMillis);
 			}
 			catch (e) {
 				winston.warn('error occurred when parsing the locked file');
 				winston.warn(e);
+				console.log(e)
 			}
 		}
 	}
 	return null;
+}
+
+//fake but most likely good enough for our filtering purposes (basically just check for file extension)
+function isFile(pathItem) {
+	return !!path.extname(pathItem);
 }
 
 module.exports = {

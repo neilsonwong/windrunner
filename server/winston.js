@@ -24,13 +24,20 @@ const loglevels = {
         silly: 'gray',
     }
 };
+
+function devFormat() {
+    const formatMessage = info => `${info.level} ${info.message}`;
+    const formatError = info => `${info.level} ${info.message}\n\n${info.stack}\n`;
+    const format = info => info instanceof Error ? formatError(info) : formatMessage(info);
+    return winston.format.printf(format);
+}
+
 const logger = winston.createLogger({
     levels: loglevels.levels,
     level: 'info',
     format: winston.format.combine(
-            // winston.format.errors({stack: true}),
-            winston.format.json(),
-            winston.format.colorize({all: true})
+        devFormat(),
+        winston.format.colorize({all: true})
     ),
     transports: [
         //

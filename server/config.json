@@ -1,11 +1,12 @@
 {
 	"PORT": 8000,
-	"SHARE_PATH": "/mnt/c/Users/Neilson/Torrents",
-	"THUMBNAIL_DIR": "/mnt/c/Users/Neilson/thumbs",
+	"SHARE_PATH": "/mnt/honoka",
+	"THUMBNAIL_DIR": "/home/neilson/thumbnails",
 	"MAX_THUMBNAILS": 10,
-	"PIN_FILE": "pinned.json",
-	"CACHE_FOLDER": "./cache",
 	"MAX_WORKERS": 8,
-	"SMB_INTERVAL": 120000,
-	"LOG_DIR": "./logs"
+	"SMB_INTERVAL": 20000,
+	"IDLE_INTERVAL": 20000,
+	"IDLE_TRIGGER_TIME": 5000,
+	"LOG_DIR": "./logs",
+	"REMOTE_HOST": "honoka@192.168.0.118"
 }

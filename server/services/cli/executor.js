@@ -1,11 +1,11 @@
 'use strict';
 
-const exec = require('child_process').exec;
-const execFile = require('child_process').execFile;
+const { exec, execFile } = require('child_process');
+const execSSH = require('ssh-exec');
 const EventEmitter = require('events');
 
-const winston = require('../../winston');
 const config = require('../../config');
+const winston = require('../../winston');
 const Command = require('../../models/Command');
 const scheduler = require('../schedulerService');
 const sleep = require('../../utils').sleep;
@@ -35,15 +35,15 @@ function init() {
 	cmdEvents.on(EVENTS.CMD_DONE, packUp);
 	cmdEvents.on(EVENTS.WORKER_RETIRE, retire);
 
-	scheduler.addTask('check if executor is idle', watchForIdle, 10000);
+	scheduler.addTask('check if executor is idle', watchForIdle, config.IDLE_INTERVAL);
 }
 
 // add cmd to queue and wait til it is complete
-function execute(cmd, args) {
+function execute(cmd, args, runRemotely) {
 	// args can be null or undefined, that is OK.
 	return new Promise((res, rej) => {
 		//add the cmd to the queue
-		let command = new Command(cmd, args);
+		let command = new Command(cmd, args, runRemotely);
 		winston.debug(`pushing command into the queue with id ${command.id}`);
 		cmdQ.push(command);
 		cmdEvents.emit(EVENTS.CMD_ADD);
@@ -113,32 +113,11 @@ async function processNext() {
 }
 
 function runCommand(cmd) {
-	return new Promise((res, rej) => {
-		if (cmd.args === undefined) {
-			winston.debug(`executing using exec ${cmd.cmd}`);
-			exec(cmd.cmd, { maxBuffer: Infinity }, handleExecutionResult.bind(null, res, rej));
-		}
-		else {
-			winston.debug(`executing using execFile ${cmd.cmd} ${cmd.args}`);
-			execFile(cmd.cmd, cmd.args, handleExecutionResult.bind(null, res, rej));
-		}
-	});
-}
-
-function handleExecutionResult(res, rej, err, stdout, stderr) {
-	if (err !== null) {
-		winston.warn('executor command returned an error');
-		winston.warn(err);
-		rej(err);
-	}
-	else if (stderr){
-		winston.warn('executor command returned a stderr');
-		winston.warn(stderr);
-		rej(stderr);
+	if (cmd.runRemotely) {
+		return runCommandRemotely(cmd);
 	}
 	else {
-		winston.debug('executor command finished successfully');
-		res(stdout);
+		return runCommandLocally(cmd);
 	}
 }
 
@@ -154,22 +133,66 @@ function addHook(src, event, hook) {
 
 //TODO: add remove hook
 
-// async function triggerPossibleIdle() {
-// 	// nasty but it works for now lol
-// 	if (workersActive === 0) {
-// 		await sleep(5000);
-// 		if (workersActive === 0) {
-// 			cmdEvents.emit(EVENTS.EXECUTOR_IDLE);
-// 		}
-// 	}
-// }
-
 async function watchForIdle() {
 	if (workersActive === 0) {
-		await sleep(5000);
+		await sleep(config.IDLE_TRIGGER_TIME);
 		if (workersActive === 0) {
 			cmdEvents.emit(EVENTS.EXECUTOR_IDLE);
 		}
+	}
+}
+
+function runCommandRemotely(cmd) {
+	return new Promise((res, rej) => {
+		if (config.REMOTE_HOST) {
+			//if args, we have to normalize
+			const commandString = cmd.args === undefined ? cmd.cmd : cmd.toStringCmd();
+			winston.info(`executing remotely using ssh-exec ${commandString}`);
+			execSSH(commandString, config.REMOTE_HOST, handleExecutionResult.bind(null, res, rej));
+		}
+		else {
+			winston.error('attempt to run remote command without remote host specified');
+			return rej('attempt to run remote command without remote host specified');
+		}
+	});
+}
+
+const execOptions = { maxBuffer: Infinity };
+function runCommandLocally(cmd) {
+	return new Promise((res, rej) => {
+		if (cmd.args === undefined) {
+			winston.debug(`executing using exec ${cmd.cmd}`);
+			exec(cmd.cmd, execOptions, handleExecutionResult.bind(null, res, rej));
+		}
+		else {
+			winston.debug(`executing using execFile ${cmd.cmd} ${cmd.args}`);
+			execFile(cmd.cmd, cmd.args, execOptions, handleExecutionResult.bind(null, res, rej));
+		}
+	});
+}
+
+function handleExecutionResult(res, rej, err, stdout, stderr) {
+	if (err !== null) {
+		winston.warn('executor command returned an error');
+		winston.warn(err);
+		console.log(err);
+		rej(err);
+	}
+	else if (stderr){
+		winston.warn('executor command returned a stderr');
+		winston.warn(stderr);
+		console.log(err);
+		rej(stderr);
+	}
+	else {
+		winston.verbose('executor command finished successfully');
+		// if (stdout && stdout.length < 300) {
+		// 	winston.verbose(`results: ${stdout}`);
+		// }
+		// else {
+		// 	winston.silly(`results: ${stdout}`);
+		// }
+		res(stdout);
 	}
 }
 

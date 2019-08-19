@@ -33,8 +33,7 @@ async function tryRunningBackgroundJob() {
     }
 }
 
-init();
-
 module.exports = {
+    init: init,
     addBackgroundTask: addBackgroundTask
 };

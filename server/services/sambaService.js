@@ -1,5 +1,6 @@
 'use strict';
 
+const moment = require('moment-timezone');
 const winston = require('../winston');
 const config = require('../config');
 const userComsumptionService = require('./userConsumptionService');
@@ -13,16 +14,24 @@ async function monitorSamba() {
 	winston.verbose('checking samba for locked files');
 	const lockedFiles = await lockedSambaFiles();
 	const archiveThese = diffLockHistories(lockHistory, lockedFiles);
-	const updatePromises = [];
+	lockHistory = lockedFiles;
+	if (Object.entries(archiveThese).length !== 0 && archiveThese.constructor === Object) {
+		const updatePromises = [];
 
-	for (let file in archiveThese) {
-		const timeDiff = Date.now() - archiveThese[file];
-		// update the watch time on these
-		updatePromises.push(userComsumptionService.updateWatchTime(file, timeDiff));
+		for (let file in archiveThese) {
+			const timeDiff = moment().valueOf() - archiveThese[file];
+
+			// update the watch time on these
+			updatePromises.push(userComsumptionService.updateWatchTime(file, timeDiff));
+		}
+
+		winston.verbose(`updating watch times for ${Object.keys(archiveThese)}`);
+		await Promise.all(updatePromises);
 	}
-
-	winston.verbose(`updating watch times for ${Object.keys(archiveThese)}`);
-	await Promise.all(updatePromises);
+	else {
+		// TODO: lower the logging level
+		winston.verbose(`no samba files to update`);
+	}
 }
 
 function diffLockHistories(oldHistory, newHistory) {
@@ -31,8 +40,8 @@ function diffLockHistories(oldHistory, newHistory) {
 		archiveThese[oldHistory[i].path] = oldHistory[i].time;
 	}
 	for (let j = 0; j < newHistory.length; ++j) {
-		if (archiveThese[newHistory[i].path] !== undefined) {
-			delete archiveThese[newHistory[i].path];
+		if (archiveThese[newHistory[j].path] !== undefined) {
+			delete archiveThese[newHistory[j].path];
 		}
 	}
 	return archiveThese;

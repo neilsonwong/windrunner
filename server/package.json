@@ -7,7 +7,7 @@
     "start": "node index.js windrunner-server",
     "stop": "killall -SIGINT windrunner-server",
     "debug": "NODE_LOGLEVEL=debug node index.js windrunner-server",
-    "silly": "NODE_LOGLEVEL=silly node index.js windrunner-server",
+    "verbose": "NODE_LOGLEVEL=verbose node index.js windrunner-server",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -19,6 +19,9 @@
     "debug": "^4.1.1",
     "express": "^4.16.3",
     "level": "^5.0.1",
+    "moment": "^2.24.0",
+    "moment-timezone": "^0.5.26",
+    "ssh-exec": "^2.0.0",
     "uuid": "^3.3.2",
     "winston": "^3.2.1"
   }

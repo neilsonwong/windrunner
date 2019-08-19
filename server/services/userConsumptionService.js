@@ -6,7 +6,9 @@ const pinDb = levelDb.instanceFor('pins');
 
 async function getPinned() {
     const pinList = await pinDb.all();
-    return (pinList === undefined) ? [] : Object.keys(pinList);
+    const pinNameArray = (pinList === undefined) ? [] : 
+        Object.keys(pinList).map((pinKey) => (pinKey.substr(5)));
+    return pinNameArray;
 }
 
 async function isPinned(folder) {

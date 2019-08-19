@@ -18,7 +18,7 @@ process.title = process.argv[2];
 
 function setup() {
   app.use((req, res, next) => {
-    winston.info(req);
+    // winston.info(req);
     return next();
   });
   app.use(compression());

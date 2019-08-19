@@ -3,11 +3,13 @@
 const express = require('express');
 const winston = require('../winston');
 const userConsumptionService = require('../services/userConsumptionService');
+const fileLibraryService = require('../services/fileLibraryService');
 
 const router = express.Router();
 
 router.get('/pins', async (req, res) => {
-    let files = await userConsumptionService.getPinned();
+    const fileList = await userConsumptionService.getPinned();
+    const files = await fileLibraryService.analyzeList(fileList);
     return res.json(files);
 });
 

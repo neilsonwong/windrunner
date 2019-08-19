@@ -25,7 +25,7 @@ update logging to have verbose (things i want to see sometimes), debug (only dur
 <!-- README - what to install (deps for linux server) -->
 fix error logging
 nice imports / barrels / root references
-add linter
+<!-- add linter -->
 convert to ES6 modules
 startup check with config / deps
 add tests

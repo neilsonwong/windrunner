@@ -7,9 +7,9 @@ const Video = require('./Video');
 const Command = require('./Command');
 
 module.exports = {
-	File,
-	Folder,
-	LockedFile,
-	Video,
-	Command
+  File,
+  Folder,
+  LockedFile,
+  Video,
+  Command
 };

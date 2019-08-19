@@ -8,41 +8,41 @@ const fileLibraryService = require('../services/fileLibraryService');
 const router = express.Router();
 
 router.get('/pins', async (req, res) => {
-    const fileList = await userConsumptionService.getPinned();
-    const files = await fileLibraryService.analyzeList(fileList);
-    return res.json(files);
+  const fileList = await userConsumptionService.getPinned();
+  const files = await fileLibraryService.analyzeList(fileList);
+  return res.json(files);
 });
 
 router.post('/pins/add', async (req, res) => {
-    const pin = req.body;
-    if (!pin) {
-        return res.sendStatus(204);
+  const pin = req.body;
+  if (!pin) {
+    return res.sendStatus(204);
+  }
+  else {
+    const results = await userConsumptionService.addPin(pin);
+    if (!results) {
+      winston.error(`could not add pin ${pin}`);
     }
-    else {
-        const results = await userConsumptionService.addPin(pin);
-        if (!results) {
-            winston.error(`could not add pin ${pin}`);
-        }
-        return res.sendStatus(results ? 201 : 500);
-    }
+    return res.sendStatus(results ? 201 : 500);
+  }
 });
 
 router.post('/pins/del', async (req, res) => {
-    const pin = req.body;
-    if (!pin){
-        return res.sendStatus(204);
+  const pin = req.body;
+  if (!pin){
+    return res.sendStatus(204);
+  }
+  else {
+    const results = await userConsumptionService.removePin(pin);
+    if (!results) {
+      winston.error(`could not del pin ${pin}`);
     }
-    else {
-        const results = await userConsumptionService.removePin(pin);
-        if (!results) {
-            winston.error(`could not del pin ${pin}`);
-        }
-        res.sendStatus(results ? 200 : 500);
-    }
+    res.sendStatus(results ? 200 : 500);
+  }
 });
 
 router.get('/userHabitRouter', (req, res) => {
-    res.send('i am not insane, userHabitRouter working!');
+  res.send('i am not insane, userHabitRouter working!');
 });
 
 module.exports = router;

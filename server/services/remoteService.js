@@ -1,9 +1,9 @@
 'use strict';
 
 function init() {
-    return true;
+  return true;
 }
 
 module.exports = {
-    init: init
-}
+  init: init
+};

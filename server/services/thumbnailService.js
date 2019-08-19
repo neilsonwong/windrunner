@@ -17,7 +17,7 @@ const scheduler = require('./schedulerService');
 
 async function makeThumbnails(filePath) {
   const fileName = path.basename(filePath);
-  const thumbs = await thumbnailsExist(fileName)
+  const thumbs = await thumbnailsExist(fileName);
   if (thumbs === false) {
     // check if we have the thumbnails and whether they have been generated already
     winston.verbose(`generating thumbnails for ${filePath}`);
@@ -71,13 +71,13 @@ async function getThumbnailList(fileName) {
 }
 
 function secondsToHms(d) {
-    d = Number(d);
+  d = Number(d);
 
-    const h = zeroPad(Math.floor(d / 3600));
-    const m = zeroPad(Math.floor(d % 3600 / 60));
-    const s = zeroPad(Math.floor(d % 3600 % 60));
+  const h = zeroPad(Math.floor(d / 3600));
+  const m = zeroPad(Math.floor(d % 3600 / 60));
+  const s = zeroPad(Math.floor(d % 3600 % 60));
 
-    return `${h}:${m}:${s}`;
+  return `${h}:${m}:${s}`;
 }
 
 function zeroPad(n) {
@@ -115,7 +115,7 @@ async function quietlyGenerateThumbnails() {
 
 const ONE_DAY = 60 * 60 * 24 * 1000;
 function startBackgroundTask() {
-	scheduler.addTask('thumbnail bg worker', quietlyGenerateThumbnails, ONE_DAY);
+  scheduler.addTask('thumbnail bg worker', quietlyGenerateThumbnails, ONE_DAY);
 }
 
 module.exports = {
@@ -125,6 +125,6 @@ module.exports = {
   startBackgroundTask: startBackgroundTask,
 };
 
-async function main() {
-  await makeThumbnails('/mnt/c/Users/Neilson/Torrents/[Nep_Blanc] Trinity Seven OVA .mkv');
-}
+// async function main() {
+//   await makeThumbnails('/mnt/c/Users/Neilson/Torrents/[Nep_Blanc] Trinity Seven OVA .mkv');
+// }

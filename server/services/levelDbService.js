@@ -19,7 +19,7 @@ class LevelDbInterface {
     }
     catch (e) {
       if (e.type !== 'NotFoundError') {
-          winston.silly(`no entry for ${key} in leveldb`);
+        winston.silly(`no entry for ${key} in leveldb`);
       }
       return undefined;
     }
@@ -32,20 +32,20 @@ class LevelDbInterface {
         gte: this.prefix,
         lte: String.fromCharCode(this.prefix.charCodeAt(0) + 1)
       })
-      .on('data', function (data) {
-        streamVals[data.key] = data.value;
-      })
-      .on('error', function (err) {
-        winston.warn('get all stream encountered an error');
-        rej(err);
-      })
-      .on('close', () => {
-        winston.silly('get all stream closed');
-      })
-      .on('end', () => {
-        winston.silly('get all stream ended');
-        res(streamVals);
-      });
+        .on('data', function (data) {
+          streamVals[data.key] = data.value;
+        })
+        .on('error', function (err) {
+          winston.warn('get all stream encountered an error');
+          rej(err);
+        })
+        .on('close', () => {
+          winston.silly('get all stream closed');
+        })
+        .on('end', () => {
+          winston.silly('get all stream ended');
+          res(streamVals);
+        });
     });
     return await getAllPromise;
   }
@@ -81,6 +81,6 @@ class LevelDbInterface {
 
 LevelDbInterface.instanceFor = function getDbInstance(prefix) {
   return new LevelDbInterface(prefix);
-}
+};
 
 module.exports = LevelDbInterface;

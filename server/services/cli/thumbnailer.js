@@ -8,14 +8,14 @@ const executor = require('./executor');
 /////////////////////////////////////////////////////////////////
 
 function generateThumbnail(filePath, outputPath, frameRipTime) {
-    return executor.run('ffmpeg', 
-        ['-ss', frameRipTime, // set the time we want
-        '-t', '1', '-i', filePath, '-s', '320x180', '-f', 'mjpeg', outputPath, 
-        '-y', // say yes to overwrite
-        '-loglevel', 'error' // hide all output except true errors since ffmpeg pipes stdout to stderr instead
+  return executor.run('ffmpeg', 
+    ['-ss', frameRipTime, // set the time we want
+      '-t', '1', '-i', filePath, '-s', '320x180', '-f', 'mjpeg', outputPath, 
+      '-y', // say yes to overwrite
+      '-loglevel', 'error' // hide all output except true errors since ffmpeg pipes stdout to stderr instead
     ]);
 }
 
 module.exports = {
-    generateThumbnail: generateThumbnail
+  generateThumbnail: generateThumbnail
 };

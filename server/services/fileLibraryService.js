@@ -59,20 +59,20 @@ async function analyzeFromFs(file) {
   catch (e) {
     winston.error(`there was an error analyzing the file data for ${file}`);
     winston.error(e);
-    console.log(e)
-    data = new File(file, stats);
+    console.log(e);
+    data = new File(file, {});
   }
 
   return data;
 }
 
 async function analyzeFiles(filesArray) {
-    const filePromiseArray = filesArray
-        .filter(filename => (filename.length > 0)) 
-        .filter(item => !(/(^|\/)\.[^\/\.]/g.test(item)))
-        .map((fileName) => (analyze(fileName)));
+  const filePromiseArray = filesArray
+    .filter(filename => (filename.length > 0)) 
+    .filter(item => !(/(^|\/)\.[^/.]/g.test(item)))
+    .map((fileName) => (analyze(fileName)));
 
-    return await Promise.all(filePromiseArray);
+  return await Promise.all(filePromiseArray);
 }
 
 async function evictFile(file) {
@@ -81,7 +81,7 @@ async function evictFile(file) {
 }
 
 module.exports = {
-	analyze: analyze,
+  analyze: analyze,
   analyzeList: analyzeFiles,
   evictFile: evictFile,
 };

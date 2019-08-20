@@ -2,7 +2,7 @@
 
 const path = require('path');
 const winston = require('winston');
-const LOG_DIR = require('./config').LOG_DIR;
+const LOG_DIR = require('../config').LOG_DIR;
 
 const loglevels = {
   levels: {

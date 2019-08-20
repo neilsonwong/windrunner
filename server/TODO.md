@@ -21,6 +21,8 @@ TODO:
 <!-- multiple thumbnails -->
 <!-- fix logging levels + console use -->
 <!-- ssh executor: tried it, DON'T USE, WAY TOO SLOW compared with native -->
+Adhere to SRP
+<!-- Fix circular dependencies -->
 update logging to have verbose (things i want to see sometimes), debug (only during debug), trace (there just in case)
 <!-- README - what to install (deps for linux server) -->
 fix error logging

@@ -3,17 +3,14 @@
 const fs = require('fs').promises;
 const path = require('path');
 
-const config = require('../config');
-const winston = require('../winston');
+const config = require('../../../config');
+const winston = require('../../logger');
 
-const listAll = require('./cli/fileList').listAll;
-const thumbnailer = require('./cli/thumbnailer');
-const videoMetaDataService = require('./cli/videoMetadata');
-const thumbnailDb = require('./levelDbService').instanceFor('thumbnails');
-const utils = require('../utils');
+const { fileList, thumbnailer, videoMetaData } = require('../cli');
+const thumbnailDb = require('../data/levelDbService').instanceFor('thumbnails');
+const utils = require('../../utils');
 
-const bgWorker = require('./cli/backgroundWorkerService');
-const scheduler = require('./schedulerService');
+const { backgroundWorker, scheduler } = require('../infra');
 
 async function makeThumbnails(filePath) {
   const fileName = path.basename(filePath);
@@ -23,7 +20,7 @@ async function makeThumbnails(filePath) {
     winston.verbose(`generating thumbnails for ${filePath}`);
 
     const imgFolder = path.join(config.THUMBNAIL_DIR, fileName);
-    let vidLen = await videoMetaDataService.duration(filePath);
+    let vidLen = await videoMetaData.duration(filePath);
     if (vidLen === -1) {
       vidLen = 1200;
     }
@@ -95,7 +92,7 @@ async function getThumbnailPath(fileName, imgFile) {
 //perhaps move this into an init and use the scheduler or something
 async function quietlyGenerateThumbnails() {
   try {
-    const allFiles = await listAll(config.SHARE_PATH);
+    const allFiles = await fileList.listAll(config.SHARE_PATH);
     allFiles.split('\n')
       .filter(fileName => (fileName.length > 0)) 
       .filter(fileName => (utils.isVideo(fileName)))
@@ -104,7 +101,7 @@ async function quietlyGenerateThumbnails() {
         return !exists;
       })
       .forEach((fileName) => {
-        bgWorker.addBackgroundTask(makeThumbnails.bind(null, fileName));
+        backgroundWorker.addBackgroundTask(makeThumbnails.bind(null, fileName));
       });
   }
   catch(e) {

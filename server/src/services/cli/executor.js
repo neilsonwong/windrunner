@@ -4,11 +4,11 @@ const { exec, execFile } = require('child_process');
 const execSSH = require('ssh-exec');
 const EventEmitter = require('events');
 
-const config = require('../../config');
-const winston = require('../../winston');
-const Command = require('../../models/Command');
-const scheduler = require('../schedulerService');
-const sleep = require('../../utils').sleep;
+const config = require('../../../config');
+const winston = require('../../logger');
+const { Command } = require('../../models');
+const scheduler = require('../infra/schedulerService');
+const { sleep } = require('../../utils');
 
 const MAX_WORKERS = config.MAX_WORKERS;
 

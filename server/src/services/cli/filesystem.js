@@ -9,8 +9,8 @@
 
 const fs = require('fs').promises;
 const executor = require('./executor');
-const config = require('../../config');
-const winston = require('../../winston');
+const config = require('@config');
+const winston = require('@app/logger');
 
 function RemoteCliFs () {}
 

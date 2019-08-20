@@ -1,7 +1,7 @@
 'use strict';
 
 const level = require('level');
-const winston = require('../winston');
+const winston = require('../../logger');
 
 const db = level('windrunner-db', { valueEncoding: 'json'});
 

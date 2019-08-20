@@ -5,12 +5,10 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const compression = require('compression');
 
-const winston = require('./winston');
-const config = require('./config');
+const winston = require('./logger');
+const config = require('../config');
 
-const fileNavRouter = require('./routers/fileNavigationRouter');
-const thumbnailRouter = require('./routers/thumbnailRouter');
-const userHabitsRouter = require('./routers/userHabitRouter');
+const { fileNavRouter, thumbnailRouter, userHabitsRouter} = require('./routers');
 
 let app = express();
 

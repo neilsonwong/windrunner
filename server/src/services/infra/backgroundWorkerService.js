@@ -1,7 +1,7 @@
 'use strict';
 
-const winston = require('../../winston');
-const executor = require('./executor');
+const executor = require('../cli/executor');
+const winston = require('../../logger');
 
 const backgroundTasks = [];
 

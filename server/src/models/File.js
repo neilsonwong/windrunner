@@ -1,11 +1,11 @@
 'use strict';
 
 const pathModule = require('path');
-const SHARE_PATH = require('../config').SHARE_PATH;
+const SHARE_PATH = require('../../config').SHARE_PATH;
 
 //massages a fs stats object into a simpler custom file
 class File {
-  constructor(path, stats){
+  constructor(path, stats) {
     this.name = pathModule.basename(path);
     this.path = path;
     this.rel = path.substring(SHARE_PATH.length);

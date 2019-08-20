@@ -18,6 +18,7 @@
     "cors": "^2.8.4",
     "express": "^4.16.3",
     "level": "^5.0.1",
+    "module-alias": "^2.2.1",
     "moment": "^2.24.0",
     "moment-timezone": "^0.5.26",
     "ssh-exec": "^2.0.0",

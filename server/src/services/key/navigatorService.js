@@ -3,11 +3,11 @@
 const fs = require('fs').promises;
 const path = require('path');
 
-const { search } = require('./cli/fileList');
-const fileLibraryService = require('./fileLibraryService');
-const winston = require('../winston');
+const { search } = require('../cli/fileList');
+const fileLibrary = require('../helper/fileLibraryService');
+const winston = require('../../logger');
 
-const SHARE_PATH = require('../config').SHARE_PATH;
+const SHARE_PATH = require('../../../config').SHARE_PATH;
 
 //file should be an absolute path relative to the share
 async function nativels(rel) {
@@ -19,7 +19,7 @@ async function nativels(rel) {
     if (dirStats.isDirectory()) {
       const fileNames = await fs.readdir(dirPath);
       // transform the listing to a files array
-      return await fileLibraryService.analyzeList(fileNames
+      return await fileLibrary.analyzeList(fileNames
         .map(fileNameOnly => (path.join(dirPath, fileNameOnly))));
     }
   }
@@ -43,7 +43,7 @@ async function find(q){
       //find all absolute file paths
       const results = await search(q);
       return results.length === 0 ? [] :
-        await fileLibraryService.analyzeList(results);
+        await fileLibrary.analyzeList(results);
     }
     catch(e){
       winston.error(`an error occured while searching all files for ${q}`);
@@ -51,6 +51,7 @@ async function find(q){
     }
   }
 }
+
 module.exports = {
   ls: nativels,
   find: find

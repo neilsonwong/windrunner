@@ -4,9 +4,9 @@ const path = require('path');
 const moment = require('moment-timezone');
 
 const executor = require('./executor');
-const winston = require('../../winston');
-const config = require('../../config');
-const LockedFile = require('../../models/LockedFile');
+const winston = require('../../logger');
+const config = require('../../../config');
+const { LockedFile } = require('../../models');
 
 const LIST_SAMBA_FILES_CMD = 'sudo smbstatus -L';
 const REMOTE_SAMBA = config.REMOTE_HOST !== undefined;

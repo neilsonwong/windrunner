@@ -1,14 +1,14 @@
 'use strict';
 
 const fs = require('fs').promises;
-const winston = require('../winston');
-const config = require('../config');
+const winston = require('../../logger');
+const config = require('../../../config');
 
-const { File, Folder, Video } = require('../models');
-const utility = require('../utils');
-const getVidLen = require('./cli/videoMetadata').duration;
-const userConsumptionService = require('./userConsumptionService');
-const fileLibraryDb = require('./levelDbService').instanceFor('fileLibrary');
+const { File, Folder, Video } = require('../../models');
+const utility = require('../../utils');
+const getVidLen = require('../cli/videoMetadata').duration;
+const pinsDb = require('../data/pinsDbService');
+const fileLibraryDb = require('../data/levelDbService').instanceFor('fileLibrary');
 
 async function analyze(file, forceRefresh) {
   let fileData;
@@ -29,6 +29,10 @@ async function analyze(file, forceRefresh) {
   return fileData;
 }
 
+async function getFile() {
+
+}
+
 async function analyzeFromFs(file) {
   winston.verbose(`analyzing file data for ${file}`);
   let data;
@@ -41,12 +45,12 @@ async function analyzeFromFs(file) {
     }
 
     if (stats.isDirectory()) {
-      const isPinned = await userConsumptionService.isPinned(file);
+      const isPinned = await pinsDb.isPinned(file);
       data = new Folder(file, stats, isPinned);
     }
     else if (utility.isVideo(file)) {
       const vidLen = await getVidLen(file);
-      const watchTime = await userConsumptionService.getWatchTime(file);
+      const watchTime = await pinsDb.getWatchTime(file);
       data = new Video(file, stats, vidLen, watchTime);
     }
     else {

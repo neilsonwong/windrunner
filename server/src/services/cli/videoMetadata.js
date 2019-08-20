@@ -1,6 +1,6 @@
 'use strict';
 
-const winston = require('../../winston');
+const winston = require('../../logger');
 const executor = require('./executor');
 
 async function duration(file){

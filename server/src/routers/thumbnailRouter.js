@@ -1,8 +1,8 @@
 'use strict';
 
 const express = require('express');
-const winston = require('../winston');
-const thumbnailService = require('../services/thumbnailService');
+const winston = require('../logger');
+const { thumbnailService } = require('../services/key');
 
 const router = express.Router();
 

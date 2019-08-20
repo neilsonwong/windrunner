@@ -1,8 +1,8 @@
 'use strict';
 
-const winston = require('../../winston');
+const winston = require('../../logger');
+const config = require('../../../config');
 const executor = require('./executor');
-const config = require('../../config');
 
 async function search(q) {
   const cmd = 'find';

@@ -1,18 +1,18 @@
 'use strict';
 
 const moment = require('moment-timezone');
-const winston = require('../winston');
-const config = require('../config');
-const userComsumptionService = require('./userConsumptionService');
-const lockedSambaFiles = require('./cli/samba').lockedFiles;
-const scheduler = require('./schedulerService');
+const winston = require('../../logger');
+const config = require('../../../config');
+const { watchHistory } = require('../data');
+const { samba } = require('../cli');
+const { scheduler } = require('../infra');
 
 let lockHistory = {};
 
 async function monitorSamba() {
   // get locked files
   winston.verbose('checking samba for locked files');
-  const lockedFiles = await lockedSambaFiles();
+  const lockedFiles = await samba();
   const archiveThese = diffLockHistories(lockHistory, lockedFiles);
   lockHistory = lockedFiles;
   if (Object.entries(archiveThese).length !== 0 && archiveThese.constructor === Object) {
@@ -22,7 +22,7 @@ async function monitorSamba() {
       const timeDiff = moment().valueOf() - archiveThese[file];
 
       // update the watch time on these
-      updatePromises.push(userComsumptionService.updateWatchTime(file, timeDiff));
+      updatePromises.push(watchHistory.addWatchTime(file, timeDiff));
     }
 
     winston.verbose(`updating watch times for ${Object.keys(archiveThese)}`);
@@ -52,6 +52,5 @@ function startMonitoring() {
 }
 
 module.exports = {
-  getLocked: lockedSambaFiles,
   startMonitoring: startMonitoring
 };

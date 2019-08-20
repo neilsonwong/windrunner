@@ -9,6 +9,8 @@ function isVideo(filePath) {
   return isVideoRegExp.test(filePath);
 }
 
+// TODO: add is file
+
 module.exports = {
   isVideo: isVideo,
   sleep: sleep,

@@ -1,6 +1,6 @@
 'use strict';
 
-const winston = require('../winston');
+const winston = require('../../logger');
 
 function addTask(name, task, wait) {
   let recursiveTask = async function() {

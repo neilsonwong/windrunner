@@ -1,7 +1,7 @@
 'use strict';
 
 const express = require('express');
-const navigator = require('../services/navigatorService');
+const { navigator } = require('../services/key');
 
 const router = express.Router();
 

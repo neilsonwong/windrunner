@@ -28,7 +28,14 @@ const loglevels = {
 function devFormat() {
   const formatMessage = info => `${info.level} ${info.message}`;
   const formatError = info => `${info.level} ${info.message}\n\n${info.stack}\n`;
-  const format = info => info instanceof Error ? formatError(info) : formatMessage(info);
+  const format = (info => {
+    if (info instanceof Error || 
+      (info.level === 'error' && info.message === undefined)) {
+      console.log(info);
+      return formatError(info);
+    }
+    return formatMessage(info);
+  });
   return winston.format.printf(format);
 }
 

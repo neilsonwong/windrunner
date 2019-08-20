@@ -2,13 +2,12 @@
 
 const express = require('express');
 const winston = require('../logger');
-const { userConsumptionService, fileLibraryService } = require('../services/key');
+const { userConsumptionService } = require('../services/key');
 
 const router = express.Router();
 
 router.get('/pins', async (req, res) => {
-  const fileList = await userConsumptionService.getPinned();
-  const files = await fileLibraryService.analyzeList(fileList);
+  const files = await userConsumptionService.getPinned();
   return res.json(files);
 });
 

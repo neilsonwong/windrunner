@@ -6,8 +6,8 @@ const thumbnailer = require('./thumbnailer');
 const videoMetadata = require('./videoMetadata');
 
 module.exports = {
-    fileList: fileList,
-    samba: samba,
-    thumbnailer: thumbnailer,
-    videoMetadata: videoMetadata,
+  fileList: fileList,
+  samba: samba,
+  thumbnailer: thumbnailer,
+  videoMetadata: videoMetadata,
 };

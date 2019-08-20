@@ -4,6 +4,6 @@ const backgroundWorker = require('./backgroundWorkerService');
 const scheduler = require('./schedulerService');
 
 module.exports = {
-    backgroundWorker: backgroundWorker,
-    scheduler: scheduler,
+  backgroundWorker: backgroundWorker,
+  scheduler: scheduler,
 };

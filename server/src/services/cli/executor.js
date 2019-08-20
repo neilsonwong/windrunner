@@ -107,7 +107,7 @@ async function processNext() {
     cmdEvents.emit(EVENTS.CMD_DONE, commandToRun.id);
   }
   else {
-    winston.verbose('no more items in command queue');
+    winston.trace('no more items in command queue');
     cmdEvents.emit(EVENTS.WORKER_RETIRE);
   }
 }
@@ -146,9 +146,9 @@ function runCommandRemotely(cmd) {
   return new Promise((res, rej) => {
     if (config.REMOTE_HOST) {
       //if args, we have to normalize
-      const commandString = cmd.args === undefined ? cmd.cmd : cmd.toStringCmd();
+      const commandString = cmd.toStringCmd();
       winston.info(`executing remotely using ssh-exec ${commandString}`);
-      execSSH(commandString, config.REMOTE_HOST, handleExecutionResult.bind(null, res, rej));
+      execSSH(commandString, config.REMOTE_HOST, handleExecutionResult.bind(cmd, res, rej));
     }
     else {
       winston.error('attempt to run remote command without remote host specified');
@@ -162,30 +162,31 @@ function runCommandLocally(cmd) {
   return new Promise((res, rej) => {
     if (cmd.args === undefined) {
       winston.debug(`executing using exec ${cmd.cmd}`);
-      exec(cmd.cmd, execOptions, handleExecutionResult.bind(null, res, rej));
+      exec(cmd.cmd, execOptions, handleExecutionResult.bind(cmd, res, rej));
     }
     else {
       winston.debug(`executing using execFile ${cmd.cmd} ${cmd.args}`);
-      execFile(cmd.cmd, cmd.args, execOptions, handleExecutionResult.bind(null, res, rej));
+      execFile(cmd.cmd, cmd.args, execOptions, handleExecutionResult.bind(cmd, res, rej));
     }
   });
 }
 
 function handleExecutionResult(res, rej, err, stdout, stderr) {
+  // this = cmd lol
   if (err !== null) {
-    winston.warn('executor command returned an error');
+    winston.warn(`executor command returned an error for command ${this.toStringCmd()}`);
+    winston.warn(this.toStringCmd());
     winston.warn(err);
-    console.log(err);
     rej(err);
   }
   else if (stderr){
-    winston.warn('executor command returned a stderr');
+    winston.warn(`executor command returned a stderr for command ${this.toStringCmd()}`);
+    winston.warn(this.toStringCmd());
     winston.warn(stderr);
-    console.log(err);
     rej(stderr);
   }
   else {
-    winston.verbose('executor command finished successfully');
+    winston.verbose(`executor command finished successfully for command ${this.toStringCmd()}`);
     // if (stdout && stdout.length < 300) {
     // 	winston.verbose(`results: ${stdout}`);
     // }

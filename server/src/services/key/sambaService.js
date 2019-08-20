@@ -12,7 +12,7 @@ let lockHistory = {};
 async function monitorSamba() {
   // get locked files
   winston.verbose('checking samba for locked files');
-  const lockedFiles = await samba();
+  const lockedFiles = await samba.lockedFiles();
   const archiveThese = diffLockHistories(lockHistory, lockedFiles);
   lockHistory = lockedFiles;
   if (Object.entries(archiveThese).length !== 0 && archiveThese.constructor === Object) {

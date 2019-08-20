@@ -8,5 +8,6 @@
 	"IDLE_INTERVAL": 20000,
 	"IDLE_TRIGGER_TIME": 5000,
 	"LOG_DIR": "./logs",
-	"REMOTE_HOST": "honoka@192.168.0.118"
+	"REMOTE_HOST": "honoka@192.168.0.118",
+	"REMOTE_SHARE_PATH": "//HONOKA/seagate"
 }

@@ -6,7 +6,7 @@ const pinDb = require('../data/pinsDbService');
 
 async function getPinned() {
   const pinList = await pinDb.getPinned();
-  const files = await fileLibrary.analyzeList(pinList);
+  const files = await fileLibrary.get(pinList);
   return files;
 }
 

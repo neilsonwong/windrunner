@@ -7,12 +7,17 @@ async function getFile(file) {
   return await fileLibraryDb.get(file);
 }
 
+async function setFile(file, data) {
+  return await fileLibraryDb.put(file, data);
+}
+
 async function evictFile(file) {
   winston.verbose(`evicting ${file} from fileLibrary`);
   return await fileLibraryDb.del(file);
 }
 
 module.exports = {
-  getFile: getFile,
-  evictFile: evictFile,
+  get: getFile,
+  set: setFile,
+  evict: evictFile,
 };

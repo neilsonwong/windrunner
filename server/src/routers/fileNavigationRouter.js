@@ -1,19 +1,19 @@
 'use strict';
 
 const express = require('express');
-const { navigator } = require('../services/key');
+const { navigatorService } = require('../services/key');
 
 const router = express.Router();
 
 router.get('/ls/:path(*)?', async (req, res) => {
   const path = req.params.path || '';
-  const files = await navigator.ls(path); 
+  const files = await navigatorService.ls(path); 
   return res.json(files);
 });
 
 router.get('/find', async (req, res) => {
   const q = req.query.q || '';
-  const files = await navigator.find(q);
+  const files = await navigatorService.find(q);
   return res.json(files);
 });
 

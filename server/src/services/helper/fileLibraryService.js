@@ -5,12 +5,18 @@ const winston = require('../../logger');
 const config = require('../../../config');
 
 const { File, Folder, Video } = require('../../models');
-const utility = require('../../utils');
+const { isVideo } = require('../../utils');
 const getVidLen = require('../cli/videoMetadata').duration;
-const pinsDb = require('../data/pinsDbService');
-const fileLibraryDb = require('../data/levelDbService').instanceFor('fileLibrary');
+const { pins, watchHistory, fileLibrary } = require('../data');
 
-async function analyze(file, forceRefresh) {
+async function getFileOrList(fileOrList) {
+  if (Array.isArray(fileOrList)) {
+    return await analyzeList(fileOrList);
+  }
+  return await analyzeFile(fileOrList);
+}
+
+async function analyzeFile(file, forceRefresh) {
   let fileData;
   // get data from appropriate source
   if (forceRefresh) {
@@ -18,7 +24,7 @@ async function analyze(file, forceRefresh) {
   }
   else {
     // grab from db
-    fileData = await fileLibraryDb.get(file);
+    fileData = await fileLibrary.get(file);
 
     // read from fs if not there
     if (fileData === undefined) {
@@ -29,63 +35,60 @@ async function analyze(file, forceRefresh) {
   return fileData;
 }
 
-async function getFile() {
+async function analyzeList(filesArray) {
+  const filePromiseArray = filesArray
+    .filter(filename => (filename.length > 0)) 
+    .filter(item => !(/(^|\/)\.[^/.]/g.test(item)))
+    .map((fileName) => (analyzeFile(fileName)));
 
+  return await Promise.all(filePromiseArray);
 }
 
 async function analyzeFromFs(file) {
   winston.verbose(`analyzing file data for ${file}`);
-  let data;
+
   try {
     let stats = await fs.stat(file);
-    if (config.REMOTE_HOST) {
-      while (stats === null) {
-        stats = await fs.stat(file);
-      }
-    }
+    stats = await accountForBuggyRemoteExecution(stats, file);
 
-    if (stats.isDirectory()) {
-      const isPinned = await pinsDb.isPinned(file);
-      data = new Folder(file, stats, isPinned);
-    }
-    else if (utility.isVideo(file)) {
-      const vidLen = await getVidLen(file);
-      const watchTime = await pinsDb.getWatchTime(file);
-      data = new Video(file, stats, vidLen, watchTime);
-    }
-    else {
-      data = new File(file, stats);
-    }
-
-    // update cache only if it's not a bad case
-    await fileLibraryDb.put(file, data);
+    const data = await specializedFile(file, stats);
+    //update the cache
+    await fileLibrary.set(file, data);
+    return data;
   }
   catch (e) {
     winston.error(`there was an error analyzing the file data for ${file}`);
     winston.error(e);
     console.log(e);
-    data = new File(file, {});
+    return new File(file);
   }
-
-  return data;
 }
 
-async function analyzeFiles(filesArray) {
-  const filePromiseArray = filesArray
-    .filter(filename => (filename.length > 0)) 
-    .filter(item => !(/(^|\/)\.[^/.]/g.test(item)))
-    .map((fileName) => (analyze(fileName)));
-
-  return await Promise.all(filePromiseArray);
+async function specializedFile(file, stats) {
+  if (stats.isDirectory()) {
+    const isPinned = await pins.isPinned(file);
+    return new Folder(file, stats, isPinned);
+  }
+  else if (isVideo(file)) {
+    const vidLen = await getVidLen(file);
+    const watchTime = await watchHistory.getWatchTime(file);
+    return new Video(file, stats, vidLen, watchTime);
+  }
+  else {
+    // generic file type
+    return new File(file, stats);
+  }
 }
 
-async function evictFile(file) {
-  winston.verbose(`evicting ${file} from fileLibrary`);
-  return await fileLibraryDb.del(file);
+async function accountForBuggyRemoteExecution(stats, file) {
+  if (config.REMOTE_HOST) {
+    while (stats === null) {
+      stats = await fs.stat(file);
+    }
+  }
+  return stats;
 }
 
 module.exports = {
-  analyze: analyze,
-  analyzeList: analyzeFiles,
-  evictFile: evictFile,
+  get: getFileOrList
 };

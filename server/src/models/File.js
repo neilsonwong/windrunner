@@ -9,9 +9,11 @@ class File {
     this.name = pathModule.basename(path);
     this.path = path;
     this.rel = path.substring(SHARE_PATH.length);
-    this.size = stats.size;
-    this.birthTime = stats.birthtime;
-    this.isDir = stats.isDirectory();
+    if (stats) {
+      this.size = stats.size;
+      this.birthTime = stats.birthtime;
+      this.isDir = stats.isDirectory();
+    }
   }
 }
 

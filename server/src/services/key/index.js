@@ -6,8 +6,8 @@ const thumbnailService = require('./thumbnailService');
 const userConsumptionService = require('./userConsumptionService');
 
 module.exports = {
-    navigatorService: navigatorService,
-    sambaService: sambaService,
-    thumbnailService: thumbnailService,
-    userConsumptionService: userConsumptionService
+  navigatorService: navigatorService,
+  sambaService: sambaService,
+  thumbnailService: thumbnailService,
+  userConsumptionService: userConsumptionService
 };

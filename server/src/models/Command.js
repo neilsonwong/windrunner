@@ -12,10 +12,10 @@ class Command {
 
   toStringCmd() {
     // add doublequotes for spaces
-    // TODO: can change to a regex in the future
     if (this.args) {
       let joinedArgs = this.args.map(e => {
         let fixed = e;
+        // TODO: can change to a regex in the future
         if ((fixed.indexOf(' ') !== -1) ||
 				// (fixed.indexOf('*') !== -1) ||
 				(fixed.indexOf('$') !== -1) ||

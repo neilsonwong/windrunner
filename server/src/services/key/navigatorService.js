@@ -19,7 +19,7 @@ async function nativels(rel) {
     if (dirStats.isDirectory()) {
       const fileNames = await fs.readdir(dirPath);
       // transform the listing to a files array
-      return await fileLibrary.analyzeList(fileNames
+      return await fileLibrary.get(fileNames
         .map(fileNameOnly => (path.join(dirPath, fileNameOnly))));
     }
   }
@@ -43,7 +43,7 @@ async function find(q){
       //find all absolute file paths
       const results = await search(q);
       return results.length === 0 ? [] :
-        await fileLibrary.analyzeList(results);
+        await fileLibrary.get(results);
     }
     catch(e){
       winston.error(`an error occured while searching all files for ${q}`);
@@ -78,7 +78,7 @@ async function cliLs(rel) {
     //find all absolute file paths
     const results = await list(dirPath);
     return results.length === 0 ? [] :
-      await fileLibraryService.analyzeList(results);
+      await fileLibraryService.get(results);
   }
   catch(e){
     winston.error(`an error occured while listing all files for ${rel}`);

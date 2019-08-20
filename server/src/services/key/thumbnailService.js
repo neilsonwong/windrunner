@@ -1,14 +1,15 @@
 'use strict';
 
-const fs = require('fs').promises;
 const path = require('path');
+const fs = require('fs').promises;
+const imagemin = require('imagemin');
+const imageminJpegtran = require('imagemin-jpegtran');
 
 const config = require('../../../config');
 const winston = require('../../logger');
-
-const { fileList, thumbnailer, videoMetaData } = require('../cli');
-const thumbnailDb = require('../data/levelDbService').instanceFor('thumbnails');
-const utils = require('../../utils');
+const { fileList, thumbnailer, videoMetadata } = require('../cli');
+const { thumbnails } = require('../data');
+const { isVideo } = require('../../utils');
 
 const { backgroundWorker, scheduler } = require('../infra');
 
@@ -20,7 +21,7 @@ async function makeThumbnails(filePath) {
     winston.verbose(`generating thumbnails for ${filePath}`);
 
     const imgFolder = path.join(config.THUMBNAIL_DIR, fileName);
-    let vidLen = await videoMetaData.duration(filePath);
+    let vidLen = await videoMetadata.duration(filePath);
     if (vidLen === -1) {
       vidLen = 1200;
     }
@@ -43,7 +44,8 @@ async function makeThumbnails(filePath) {
       }
 
       await Promise.all(thumbnailPromises);
-      await thumbnailDb.put(fileName, outputFiles);
+      await thumbnails.setThumbnailList(fileName, outputFiles);
+      await minifyFolder(imgFolder);
       winston.verbose(`successfully generated thumbnails for ${filePath}`);
     }
     catch (e) {
@@ -63,8 +65,7 @@ async function thumbnailsExist(fileName) {
 }
 
 async function getThumbnailList(fileName) {
-  const thumbList = await thumbnailDb.get(fileName);
-  return (thumbList === undefined) ? [] : thumbList;
+  return await thumbnails.getThumbnailList(fileName);
 }
 
 function secondsToHms(d) {
@@ -95,7 +96,7 @@ async function quietlyGenerateThumbnails() {
     const allFiles = await fileList.listAll(config.SHARE_PATH);
     allFiles.split('\n')
       .filter(fileName => (fileName.length > 0)) 
-      .filter(fileName => (utils.isVideo(fileName)))
+      .filter(fileName => (isVideo(fileName)))
       .filter(async (fileName) => {
         const exists = await thumbnailsExist(fileName);
         return !exists;
@@ -107,6 +108,21 @@ async function quietlyGenerateThumbnails() {
   catch(e) {
     winston.error('there was an issue quietly generating thumbnails in the background');
     winston.error(e);
+  }
+}
+
+async function minifyFolder(folder) {
+  const jpgWildCard = path.join(folder, '*.jpg');
+  try {
+    await imagemin([jpgWildCard], {
+      destination: folder,
+      plugins: [ imageminJpegtran() ]
+    });
+    winston.verbose(`image compression complete for ${folder}`);
+  }
+  catch (e) {
+    winston.warn('an error occurred when minifying the images');
+    winston.warn(e);
   }
 }
 

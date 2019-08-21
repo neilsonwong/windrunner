@@ -1,7 +1,7 @@
 'use strict';
 
 const fs = require('fs').promises;
-const winston = require('../../logger');
+const logger = require('../../logger');
 const config = require('../../../config');
 
 const { File, Folder, Video } = require('../../models');
@@ -45,7 +45,7 @@ async function analyzeList(filesArray) {
 }
 
 async function analyzeFromFs(file) {
-  winston.verbose(`analyzing file data for ${file}`);
+  logger.verbose(`analyzing file data for ${file}`);
 
   try {
     let stats = await fs.stat(file);
@@ -57,8 +57,8 @@ async function analyzeFromFs(file) {
     return data;
   }
   catch (e) {
-    winston.error(`there was an error analyzing the file data for ${file}`);
-    winston.error(e);
+    logger.error(`there was an error analyzing the file data for ${file}`);
+    logger.error(e);
     console.log(e);
     return new File(file);
   }

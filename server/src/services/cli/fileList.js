@@ -1,6 +1,6 @@
 'use strict';
 
-const winston = require('../../logger');
+const logger = require('../../logger');
 const config = require('../../../config');
 const executor = require('./executor');
 
@@ -14,8 +14,8 @@ async function search(q) {
     }
   }
   catch (e) {
-    winston.warn(`error occurred when running search for ${q}`);
-    winston.warn(e);
+    logger.warn(`error occurred when running search for ${q}`);
+    logger.warn(e);
   }
   return [];
 }
@@ -29,8 +29,8 @@ async function list(d) {
     }
   }
   catch (e) {
-    winston.warn(`error occurred when running search for ${d}`);
-    winston.warn(e);
+    logger.warn(`error occurred when running search for ${d}`);
+    logger.warn(e);
   }
   return [];
 }
@@ -42,8 +42,8 @@ async function fullListing(folder) {
     return allFiles;
   }
   catch(e) {
-    winston.warn(`there was an error full Listing ${folder}`);
-    winston.warn(e);
+    logger.warn(`there was an error full Listing ${folder}`);
+    logger.warn(e);
     return ''; 
   }
 }

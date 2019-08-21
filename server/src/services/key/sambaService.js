@@ -1,7 +1,7 @@
 'use strict';
 
 const moment = require('moment-timezone');
-const winston = require('../../logger');
+const logger = require('../../logger');
 const config = require('../../../config');
 const { watchHistory } = require('../data');
 const { samba } = require('../cli');
@@ -11,7 +11,7 @@ let lockHistory = {};
 
 async function monitorSamba() {
   // get locked files
-  winston.verbose('checking samba for locked files');
+  logger.verbose('checking samba for locked files');
   const lockedFiles = await samba.lockedFiles();
   const archiveThese = diffLockHistories(lockHistory, lockedFiles);
   lockHistory = lockedFiles;
@@ -25,12 +25,12 @@ async function monitorSamba() {
       updatePromises.push(watchHistory.addWatchTime(file, timeDiff));
     }
 
-    winston.verbose(`updating watch times for ${Object.keys(archiveThese)}`);
+    logger.verbose(`updating watch times for ${Object.keys(archiveThese)}`);
     await Promise.all(updatePromises);
   }
   else {
     // TODO: lower the logging level
-    winston.verbose('no samba files to update');
+    logger.verbose('no samba files to update');
   }
 }
 

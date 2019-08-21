@@ -7,7 +7,7 @@ TODO:
 <!-- split up models + cmd portions -->
 <!-- refactor cli portions into function based services -->
 <!-- hide stupid ffmpeg messages -->
-    figure out how to compress thumbs
+<!-- figure out how to compress thumbs -->
 <!-- refactor db portion -->
 <!-- integrate samba monitor with leveldb -->
 <!-- test the changes -->

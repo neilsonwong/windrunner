@@ -4,7 +4,7 @@ const path = require('path');
 const moment = require('moment-timezone');
 
 const executor = require('./executor');
-const winston = require('../../logger');
+const logger = require('../../logger');
 const config = require('../../../config');
 const { LockedFile } = require('../../models');
 
@@ -22,13 +22,13 @@ async function lockedFiles() {
       return lockedFilesArray;
     }
     else {
-      winston.verbose('no locked files from smbstatus');
+      logger.verbose('no locked files from smbstatus');
     }
   }
   catch (e) {
-    winston.warn('an error occured when finding locked samba files');
+    logger.warn('an error occured when finding locked samba files');
     console.log(e);
-    winston.warn(e);
+    logger.warn(e);
   }
   return [];
 }
@@ -60,8 +60,8 @@ function parseLockedFile(lockedFileLine) {
         return new LockedFile(fullPath, lockDateMillis);
       }
       catch (e) {
-        winston.warn('error occurred when parsing the locked file');
-        winston.warn(e);
+        logger.warn('error occurred when parsing the locked file');
+        logger.warn(e);
         console.log(e);
       }
     }

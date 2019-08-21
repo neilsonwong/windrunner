@@ -1,10 +1,10 @@
 'use strict';
 
-const winston = require('../../logger');
+const logger = require('../../logger');
 
 function addTask(name, task, wait) {
   let recursiveTask = async function() {
-    winston.verbose(`running scheduled task ${name}`);
+    logger.verbose(`running scheduled task ${name}`);
     await task();
     setTimeout(recursiveTask, wait);
   };

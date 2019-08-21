@@ -1,7 +1,7 @@
 'use strict';
 
 const express = require('express');
-const winston = require('../logger');
+const logger = require('../logger');
 const { userConsumptionService } = require('../services/key');
 
 const router = express.Router();
@@ -19,7 +19,7 @@ router.post('/pins/add', async (req, res) => {
   else {
     const results = await userConsumptionService.addPin(pin);
     if (!results) {
-      winston.error(`could not add pin ${pin}`);
+      logger.error(`could not add pin ${pin}`);
     }
     return res.sendStatus(results ? 201 : 500);
   }
@@ -33,7 +33,7 @@ router.post('/pins/del', async (req, res) => {
   else {
     const results = await userConsumptionService.removePin(pin);
     if (!results) {
-      winston.error(`could not del pin ${pin}`);
+      logger.error(`could not del pin ${pin}`);
     }
     res.sendStatus(results ? 200 : 500);
   }

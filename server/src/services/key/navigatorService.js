@@ -5,7 +5,7 @@ const path = require('path');
 
 const { search } = require('../cli/fileList');
 const fileLibrary = require('../helper/fileLibraryService');
-const winston = require('../../logger');
+const logger = require('../../logger');
 
 const SHARE_PATH = require('../../../config').SHARE_PATH;
 
@@ -24,8 +24,8 @@ async function nativels(rel) {
     }
   }
   catch(e) {
-    winston.error(`an error occured while listing the files for ${rel}`);
-    winston.error(e);
+    logger.error(`an error occured while listing the files for ${rel}`);
+    logger.error(e);
   }
 
   //no more 'ls'ing files, screw that
@@ -35,7 +35,7 @@ async function nativels(rel) {
 //find files in a dir
 async function find(q){
   if (q === ''){
-    winston.verbose('no query passed into find function');
+    logger.verbose('no query passed into find function');
     return [];
   }
   else {
@@ -46,8 +46,8 @@ async function find(q){
         await fileLibrary.get(results);
     }
     catch(e){
-      winston.error(`an error occured while searching all files for ${q}`);
-      winston.error(e);
+      logger.error(`an error occured while searching all files for ${q}`);
+      logger.error(e);
     }
   }
 }
@@ -56,34 +56,3 @@ module.exports = {
   ls: nativels,
   find: find
 };
-
-/*
-async function testLs(rel) {
-    console.time('node ls');
-    await nativels(rel);
-    console.timeEnd('node ls');
-
-    console.time('raw ls');
-    await cliLs(rel);
-    console.timeEnd('raw ls');
-}
-
-testLs('anime');
-
-// too slow to be usable
-async function cliLs(rel) {
-  // get file path
-  const dirPath = path.join(SHARE_PATH, rel);
-  try {
-    //find all absolute file paths
-    const results = await list(dirPath);
-    return results.length === 0 ? [] :
-      await fileLibraryService.get(results);
-  }
-  catch(e){
-    winston.error(`an error occured while listing all files for ${rel}`);
-    winston.error(e);
-  }
-}
-
-*/

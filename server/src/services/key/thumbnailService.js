@@ -6,7 +6,7 @@ const imagemin = require('imagemin');
 const imageminJpegtran = require('imagemin-jpegtran');
 
 const config = require('../../../config');
-const winston = require('../../logger');
+const logger = require('../../logger');
 const { fileList, thumbnailer, videoMetadata } = require('../cli');
 const { thumbnails } = require('../data');
 const { isVideo } = require('../../utils');
@@ -18,7 +18,7 @@ async function makeThumbnails(filePath) {
   const thumbs = await thumbnailsExist(fileName);
   if (thumbs === false) {
     // check if we have the thumbnails and whether they have been generated already
-    winston.verbose(`generating thumbnails for ${filePath}`);
+    logger.verbose(`generating thumbnails for ${filePath}`);
 
     const imgFolder = path.join(config.THUMBNAIL_DIR, fileName);
     let vidLen = await videoMetadata.duration(filePath);
@@ -46,16 +46,16 @@ async function makeThumbnails(filePath) {
       await Promise.all(thumbnailPromises);
       await thumbnails.setThumbnailList(fileName, outputFiles);
       await minifyFolder(imgFolder);
-      winston.verbose(`successfully generated thumbnails for ${filePath}`);
+      logger.verbose(`successfully generated thumbnails for ${filePath}`);
     }
     catch (e) {
-      winston.error(`there was an error when generating thumbnails for ${filePath}`);
-      winston.error(e);
+      logger.error(`there was an error when generating thumbnails for ${filePath}`);
+      logger.error(e);
       console.log(e);
     }
   }
   else {
-    winston.debug(`thumbnails already exist for ${filePath}`);
+    logger.debug(`thumbnails already exist for ${filePath}`);
   }
 }
 
@@ -106,8 +106,8 @@ async function quietlyGenerateThumbnails() {
       });
   }
   catch(e) {
-    winston.error('there was an issue quietly generating thumbnails in the background');
-    winston.error(e);
+    logger.error('there was an issue quietly generating thumbnails in the background');
+    logger.error(e);
   }
 }
 
@@ -118,11 +118,11 @@ async function minifyFolder(folder) {
       destination: folder,
       plugins: [ imageminJpegtran() ]
     });
-    winston.verbose(`image compression complete for ${folder}`);
+    logger.verbose(`image compression complete for ${folder}`);
   }
   catch (e) {
-    winston.warn('an error occurred when minifying the images');
-    winston.warn(e);
+    logger.warn('an error occurred when minifying the images');
+    logger.warn(e);
   }
 }
 

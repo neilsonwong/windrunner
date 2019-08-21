@@ -1,7 +1,7 @@
 'use strict';
 
 const express = require('express');
-const winston = require('../logger');
+const logger = require('../logger');
 const { thumbnailService } = require('../services/key');
 
 const router = express.Router();
@@ -22,7 +22,7 @@ router.get('/thumb/:fileName/:imgFile', async (req, res) => {
     return res.sendFile(fullImgPath);
   }
   else {
-    winston.error(`couldn't find thumbnail for ${fileName} ${imgFile}`);
+    logger.error(`couldn't find thumbnail for ${fileName} ${imgFile}`);
     return res.sendStatus(404);
   }
 });

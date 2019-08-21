@@ -1,7 +1,7 @@
 'use strict';
 
 const level = require('level');
-const winston = require('../../logger');
+const logger = require('../../logger');
 
 const db = level('windrunner-db', { valueEncoding: 'json'});
 
@@ -14,12 +14,12 @@ class LevelDbInterface {
     const key = `${this.prefix}/${rawKey}`;
     try {
       const data = await db.get(key);
-      winston.silly(`leveldb data for ${key} is ${data}`);
+      logger.silly(`leveldb data for ${key} is ${data}`);
       return data;
     }
     catch (e) {
       if (e.type !== 'NotFoundError') {
-        winston.silly(`no entry for ${key} in leveldb`);
+        logger.silly(`no entry for ${key} in leveldb`);
       }
       return undefined;
     }
@@ -36,14 +36,14 @@ class LevelDbInterface {
           streamVals[data.key] = data.value;
         })
         .on('error', function (err) {
-          winston.warn('get all stream encountered an error');
+          logger.warn('get all stream encountered an error');
           rej(err);
         })
         .on('close', () => {
-          winston.silly('get all stream closed');
+          logger.silly('get all stream closed');
         })
         .on('end', () => {
-          winston.silly('get all stream ended');
+          logger.silly('get all stream ended');
           res(streamVals);
         });
     });
@@ -54,12 +54,12 @@ class LevelDbInterface {
     const key = `${this.prefix}/${rawKey}`;
     try {
       await db.put(key, data);
-      winston.silly(`put ${key} as ${data}`);
+      logger.silly(`put ${key} as ${data}`);
       return true;
     }
     catch (e) {
-      winston.error(`there was an error when putting data for ${key}`);
-      winston.error(e);
+      logger.error(`there was an error when putting data for ${key}`);
+      logger.error(e);
       return false;
     }
   }
@@ -68,12 +68,12 @@ class LevelDbInterface {
     const key = `${this.prefix}/${rawKey}`;
     try {
       await db.del(key);
-      winston.silly(`deleted ${key}`);
+      logger.silly(`deleted ${key}`);
       return true;
     }
     catch (e) {
-      winston.error(`there was an error deleting data for ${key}`);
-      winston.error(e);
+      logger.error(`there was an error deleting data for ${key}`);
+      logger.error(e);
       return false;
     }
   }

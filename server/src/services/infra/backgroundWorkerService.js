@@ -1,7 +1,7 @@
 'use strict';
 
 const executor = require('../cli/executor');
-const winston = require('../../logger');
+const logger = require('../../logger');
 
 const backgroundTasks = [];
 
@@ -27,7 +27,7 @@ async function tryRunningBackgroundJob() {
     // we just need to call their old functions
     const fn = backgroundTasks.shift();
     if (typeof fn === 'function') {
-      winston.verbose('running background fn');
+      logger.verbose('running background fn');
       await fn();
     }
   }

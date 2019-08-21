@@ -1,6 +1,6 @@
 'use strict';
 
-const winston = require('../../logger');
+const logger = require('../../logger');
 const fileLibraryDb = require('./levelDbService').instanceFor('fileLibrary');
 
 async function getFile(file) {
@@ -12,7 +12,7 @@ async function setFile(file, data) {
 }
 
 async function evictFile(file) {
-  winston.verbose(`evicting ${file} from fileLibrary`);
+  logger.verbose(`evicting ${file} from fileLibrary`);
   return await fileLibraryDb.del(file);
 }
 

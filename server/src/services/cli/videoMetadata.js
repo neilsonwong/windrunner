@@ -1,6 +1,6 @@
 'use strict';
 
-const winston = require('../../logger');
+const logger = require('../../logger');
 const executor = require('./executor');
 
 async function duration(file){
@@ -10,8 +10,8 @@ async function duration(file){
     return Math.floor(duration);
   }
   catch (e) {
-    winston.warn(`error getting video length for ${file}`);
-    winston.warn(e);
+    logger.warn(`error getting video length for ${file}`);
+    logger.warn(e);
     return -1;
   }
 }

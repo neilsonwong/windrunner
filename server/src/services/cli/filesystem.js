@@ -10,7 +10,7 @@
 const fs = require('fs').promises;
 const executor = require('./executor');
 const config = require('@config');
-const winston = require('@app/logger');
+const logger = require('@app/logger');
 
 function RemoteCliFs () {}
 
@@ -28,10 +28,10 @@ RemoteCliFs.stat = async function(file) {
     return statObj;
   }
   catch (e) {
-    winston.warn(`error occured running stat on file ${file}`);
+    logger.warn(`error occured running stat on file ${file}`);
     console.log(cmd);
     console.log(e);
-    winston.warn(e);
+    logger.warn(e);
   }
   return null;
 };
@@ -46,8 +46,8 @@ RemoteCliFs.readdir = async function(dirPath) {
     return fileNames.split('\n');
   }
   catch (e) {
-    winston.warn(`error occured reading contents for folder ${dirPath}`);
-    winston.warn(e);
+    logger.warn(`error occured reading contents for folder ${dirPath}`);
+    logger.warn(e);
     console.log(e);
   }
   return [];
@@ -62,8 +62,8 @@ RemoteCliFs.mkdir = async function(folder, options) {
     return true;
   }
   catch (e) {
-    winston.warn(`error occured creating folder ${folder}`);
-    winston.warn(e);
+    logger.warn(`error occured creating folder ${folder}`);
+    logger.warn(e);
     console.log(e);
   }
   return false;
@@ -87,8 +87,8 @@ function newStat(statString) {
       };
     }
     catch(e) {
-      winston.warn('error occured when parsing stat string');
-      winston.warn(e);
+      logger.warn('error occured when parsing stat string');
+      logger.warn(e);
       console.log(statString);
       console.log(e);
     }

@@ -3,7 +3,7 @@
 const fs = require('fs').promises;
 const { exec } = require('child_process');
 const config = require('../../../config');
-const winston = require('../../logger');
+const logger = require('../../logger');
 
 async function mountRemoteSamba() {
   try {
@@ -21,15 +21,15 @@ async function mountRemoteSamba() {
           rej(stderr);
         }
         else {
-          winston.info(`mounted ${config.REMOTE_SHARE_PATH} at ${config.SHARE_PATH}`);
+          logger.info(`mounted ${config.REMOTE_SHARE_PATH} at ${config.SHARE_PATH}`);
           res(stdout);
         }
       });
     });
   }
   catch (e) {
-    winston.error(`error mounting ${config.REMOTE_SHARE_PATH} at ${config.SHARE_PATH}`);
-    winston.error(e);
+    logger.error(`error mounting ${config.REMOTE_SHARE_PATH} at ${config.SHARE_PATH}`);
+    logger.error(e);
   }
 }
 

@@ -5,7 +5,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const compression = require('compression');
 
-const winston = require('./logger');
+const logger = require('./logger');
 const config = require('../config');
 
 const { fileNavRouter, thumbnailRouter, userHabitsRouter} = require('./routers');
@@ -16,7 +16,7 @@ process.title = process.argv[2];
 
 function setup() {
   app.use((req, res, next) => {
-    // winston.info(req);
+    logger.trace(req);
     return next();
   });
   app.use(compression());
@@ -39,7 +39,7 @@ function initWebServer() {
   defineRoutes();
   
   app.listen(config.PORT, function () {  
-    winston.info(`windrunner server running on ${config.PORT}`);
+    logger.info(`windrunner server running on ${config.PORT}`);
   });
 }
 

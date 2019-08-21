@@ -15,7 +15,13 @@ function init() {
 }
 
 function addBackgroundTask(fn) {
-  backgroundTasks.push(fn);
+  if (typeof fn === 'function') {
+    backgroundTasks.push(fn);
+  }
+  else {
+    logger.error('an attempt to add a non function to the background worker was detected');
+    logger.error(new Error('non function in bgworker'));
+  }
 }
 
 // we will let the executor emit/tick the event
@@ -25,12 +31,15 @@ async function tryRunningBackgroundJob() {
   if (backgroundTasks.length > 0) {
     // the original function should be the one to call execute, 
     // we just need to call their old functions
-    const fn = backgroundTasks.shift();
-    if (typeof fn === 'function') {
-      logger.verbose('running background fn');
-      await fn();
-    }
+    const fn = randomTask();
+    await fn();
   }
+}
+
+function randomTask() {
+  const randomIdx = Math.floor(Math.random() * backgroundTasks.length);
+  const selected = backgroundTasks.splice(randomIdx, 1);
+  return selected[0];
 }
 
 module.exports = {

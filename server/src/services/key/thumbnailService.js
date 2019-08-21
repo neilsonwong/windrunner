@@ -11,7 +11,8 @@ const { fileList, thumbnailer, videoMetadata } = require('../cli');
 const { thumbnails } = require('../data');
 const { isVideo } = require('../../utils');
 
-const { backgroundWorker, scheduler } = require('../infra');
+const backgroundWorker = require('../infra/backgroundWorkerService');
+const scheduler = require('../infra/schedulerService');
 
 async function makeThumbnails(filePath) {
   const fileName = path.basename(filePath);

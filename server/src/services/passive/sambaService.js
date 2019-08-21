@@ -5,7 +5,7 @@ const logger = require('../../logger');
 const config = require('../../../config');
 const { watchHistory } = require('../data');
 const { samba } = require('../cli');
-const { scheduler } = require('../infra');
+const scheduler = require('../infra/schedulerService');
 
 let lockHistory = {};
 

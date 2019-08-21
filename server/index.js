@@ -4,8 +4,9 @@
 
 const restapi = require('./src/restapi');
 const executor = require('./src/services/cli/executor');
-const { thumbnailService, sambaService } = require('./src/services/key');
-const { backgroundWorker } = require('./src/services/infra');
+const { thumbnailService } = require('./src/services/key');
+const sambaService = require('./src/services/passive/sambaService');
+const backgroundWorker = require('./src/services/infra/backgroundWorkerService');
 const remoteService = require('./src/services/infra/remoteService');
 
 async function main() {

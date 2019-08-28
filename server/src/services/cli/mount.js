@@ -5,18 +5,31 @@ const { exec, spawn } = require('child_process');
 const config = require('../../../config');
 const logger = require('../../logger');
 
+function spawn2() {
+  console.log('spawn called');
+  console.log(arguments);
+  var result = spawn.apply(this, arguments);
+  return result;
+}
+
 async function mountRemoteSamba() {
   try {
     // make the folder if it's not there
     await fs.mkdir(config.SHARE_PATH, {recursive: true});
 
     // mount the remote samba drive
-    const cmd = `sudo mount -t drvfs '${config.REMOTE_SHARE_PATH}' ${config.SHARE_PATH}`;
+    const cmd = ['mount', '--verbose', '-t', 'drvfs', `${config.REMOTE_SHARE_PATH}`,  `${config.SHARE_PATH}`/* '/home/neilson/honoka'*/ ];
     await new Promise((res, rej) => {
-      const child = spawn(cmd);
+      const child = spawn('sudo', 
+        ['-S', '-k', '-p', 'password prompt'].concat(cmd), 
+        {stdio: 'pipe'});
       child.stdin.setDefaultEncoding('utf-8');
-      child.stdout.on('data', (data) => {
-        if (data.indexOf('password') > 0) {
+
+      // apparently sudo likes to pipe from stderr!
+      child.stderr.on('data', (data) => {
+        const lines = data.toString();
+        console.log(lines);
+        if (lines.indexOf('password prompt') !== -1) {
           // i think it's asking for sudo password
           child.stdin.write(`${config.SUDO_PW}\n`);
           child.stdin.end();
@@ -28,12 +41,12 @@ async function mountRemoteSamba() {
         rej(e);
       });
 
-      child.on('close', () => {
-        logger.info(`mounted ${config.REMOTE_SHARE_PATH} at ${config.SHARE_PATH}`);
-        res();
+      child.on('close', (code) => {
+        if (code === 0) {
+          logger.info(`mounted ${config.REMOTE_SHARE_PATH} at ${config.SHARE_PATH}`);
+          res();
+        }
       });
-
-        
     });
   }
   catch (e) {

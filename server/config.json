@@ -1,6 +1,6 @@
 {
 	"PORT": 8000,
-	"SHARE_PATH": "/mnt/honoka",
+	"SHARE_PATH": "/media/Seagate",
 	"THUMBNAIL_DIR": "/home/neilson/thumbnails",
 	"MAX_THUMBNAILS": 10,
 	"MAX_WORKERS": 8,
@@ -9,5 +9,6 @@
 	"IDLE_TRIGGER_TIME": 5000,
 	"LOG_DIR": "./logs",
 	"REMOTE_HOST": "honoka@192.168.0.118",
-	"REMOTE_SHARE_PATH": "//HONOKA/seagate"
+	"REMOTE_SHARE_PATH": "//HONOKA/seagate",
+	"SUDO_PW": ""
 }

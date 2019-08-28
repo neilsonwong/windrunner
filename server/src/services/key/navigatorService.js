@@ -12,7 +12,8 @@ const SHARE_PATH = require('../../../config').SHARE_PATH;
 //file should be an absolute path relative to the share
 async function nativels(rel) {
   // get file path
-  const dirPath = path.join(SHARE_PATH, rel);
+  const dirPath = (rel.indexOf(SHARE_PATH) === 0) ? rel :
+    path.join(SHARE_PATH, rel);
     
   try {
     const dirStats = await fs.stat(dirPath);
@@ -45,7 +46,7 @@ async function find(q){
       return results.length === 0 ? [] :
         await fileLibrary.get(results);
     }
-    catch(e){
+    catch(e) {
       logger.error(`an error occured while searching all files for ${q}`);
       logger.error(e);
     }

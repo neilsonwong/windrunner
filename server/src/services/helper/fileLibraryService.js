@@ -4,7 +4,8 @@ const fs = require('fs').promises;
 const logger = require('../../logger');
 const config = require('../../../config');
 
-const { File, Folder, Video } = require('../../models');
+const { File } = require('../../models');
+const FILETYPE = require('../../models/FileType');
 const { isVideo } = require('../../utils');
 const getVidLen = require('../cli/videoMetadata').duration;
 const { pins, watchHistory, fileLibrary } = require('../data');
@@ -51,9 +52,10 @@ async function analyzeFromFs(file) {
     let stats = await fs.stat(file);
     stats = await accountForBuggyRemoteExecution(stats, file);
 
-    const data = await specializedFile(file, stats);
+    const fileObj = new File(file, stats);
+    populateMetadata(fileObj);
     //update the cache
-    await fileLibrary.set(file, data);
+    await fileLibrary.set(file, fileObj);
     return data;
   }
   catch (e) {
@@ -64,20 +66,31 @@ async function analyzeFromFs(file) {
   }
 }
 
-async function specializedFile(file, stats) {
-  if (stats.isDirectory()) {
-    const isPinned = await pins.isPinned(file);
-    return new Folder(file, stats, isPinned);
+async function populateMetadata(file) {
+  let metadata = undefined;
+  switch (file.type) {
+    case FILETYPE.DIRECTORY:
+      const isPinned = await pins.isPinned(file);
+      metadata = {
+        isPinned: isPinned
+      };
+      break;
+    case FILETYPE.VIDEO:
+      const vidLen = await getVidLen(file);
+      const watchTime = await watchHistory.getWatchTime(file);
+      metadata = {
+        watchTime: watchTime,
+        totalTime: vidLen
+      };
+      break;
+    // case FILETYPE.INVALID:
+    // case FILETYPE.FILE:
+    default:
+      metadata = undefined;
   }
-  else if (isVideo(file)) {
-    const vidLen = await getVidLen(file);
-    const watchTime = await watchHistory.getWatchTime(file);
-    return new Video(file, stats, vidLen, watchTime);
-  }
-  else {
-    // generic file type
-    return new File(file, stats);
-  }
+
+  file.setMetadata(metadata);
+  return file;
 }
 
 async function accountForBuggyRemoteExecution(stats, file) {

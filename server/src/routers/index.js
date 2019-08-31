@@ -1,11 +1,11 @@
 'use strict';
 
-const fileNavRouter = require('./fileNavigationRouter');
-const thumbnailRouter = require('./thumbnailRouter');
-const userHabitsRouter = require('./userHabitsRouter');
+const v1 = require('./v1Router');
+const v2 = require('./v2Router');
 
 module.exports = {
-  fileNavRouter: fileNavRouter,
-  thumbnailRouter: thumbnailRouter,
-  userHabitsRouter: userHabitsRouter,
+    api: {
+        v1: v1,
+        v2: v2
+    }
 };

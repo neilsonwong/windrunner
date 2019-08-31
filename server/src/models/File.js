@@ -11,19 +11,13 @@ class File {
     this.path = path;
     this.rel = path.substring(SHARE_PATH.length);
     this.type = getFileType(path, stats);
-    if (stats) {
-      this.size = stats.size;
-      this.birthTime = stats.birthtime;
-    }
-    if (metadata) {
-      this.metadata = metadata;
-    }
+    this.size = stats ? stats.size : undefined;
+    this.birthTime = stats ? stats.birthtime: undefined;
+    this.metadata = metadata || {};
   }
 
   setMetadata(metadata) {
-    if (metadata) {
-      this.metadata = metadata;
-    }
+    this.metadata = metadata || {};
   }
 }
 

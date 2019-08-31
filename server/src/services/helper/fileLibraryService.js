@@ -56,7 +56,7 @@ async function analyzeFromFs(file) {
     populateMetadata(fileObj);
     //update the cache
     await fileLibrary.set(file, fileObj);
-    return data;
+    return fileObj;
   }
   catch (e) {
     logger.error(`there was an error analyzing the file data for ${file}`);

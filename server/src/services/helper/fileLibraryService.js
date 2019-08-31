@@ -17,19 +17,19 @@ async function getFileOrList(fileOrList) {
   return await analyzeFile(fileOrList);
 }
 
-async function analyzeFile(file, forceRefresh) {
+async function analyzeFile(filePath, forceRefresh) {
   let fileData;
   // get data from appropriate source
   if (forceRefresh) {
-    fileData = await analyzeFromFs(file);
+    fileData = await analyzeFromFs(filePath);
   }
   else {
     // grab from db
-    fileData = await fileLibrary.get(file);
+    fileData = await fileLibrary.get(filePath);
 
     // read from fs if not there
     if (fileData === undefined) {
-      fileData = await analyzeFromFs(file);
+      fileData = await analyzeFromFs(filePath);
     }
   }
 
@@ -40,44 +40,44 @@ async function analyzeList(filesArray) {
   const filePromiseArray = filesArray
     .filter(filename => (filename.length > 0)) 
     .filter(item => !(/(^|\/)\.[^/.]/g.test(item)))
-    .map((fileName) => (analyzeFile(fileName)));
+    .map((filePath) => (analyzeFile(filePath)));
 
   return await Promise.all(filePromiseArray);
 }
 
-async function analyzeFromFs(file) {
-  logger.verbose(`analyzing file data for ${file}`);
+async function analyzeFromFs(filePath) {
+  logger.verbose(`analyzing file data for ${filePath}`);
 
   try {
-    let stats = await fs.stat(file);
-    stats = await accountForBuggyRemoteExecution(stats, file);
+    let stats = await fs.stat(filePath);
+    stats = await accountForBuggyRemoteExecution(stats, filePath);
 
-    const fileObj = new File(file, stats);
+    const fileObj = new File(filePath, stats);
     populateMetadata(fileObj);
     //update the cache
-    await fileLibrary.set(file, fileObj);
+    await fileLibrary.set(fileObj.id, fileObj);
     return fileObj;
   }
   catch (e) {
-    logger.error(`there was an error analyzing the file data for ${file}`);
+    logger.error(`there was an error analyzing the file data for ${filePath}`);
     logger.error(e);
     console.log(e);
-    return new File(file);
+    return new File(filePath);
   }
 }
 
-async function populateMetadata(file) {
+async function populateMetadata(fileObj) {
   let metadata = undefined;
-  switch (file.type) {
+  switch (fileObj.type) {
     case FILETYPE.DIRECTORY:
-      const isPinned = await pins.isPinned(file);
+      const isPinned = await pins.isPinned(fileObj);
       metadata = {
         isPinned: isPinned
       };
       break;
     case FILETYPE.VIDEO:
-      const vidLen = await getVidLen(file);
-      const watchTime = await watchHistory.getWatchTime(file);
+      const vidLen = await getVidLen(fileObj);
+      const watchTime = await watchHistory.getWatchTime(fileObj);
       metadata = {
         watchTime: watchTime,
         totalTime: vidLen
@@ -89,14 +89,14 @@ async function populateMetadata(file) {
       metadata = undefined;
   }
 
-  file.setMetadata(metadata);
-  return file;
+  fileObj.setMetadata(metadata);
+  return fileObj;
 }
 
-async function accountForBuggyRemoteExecution(stats, file) {
+async function accountForBuggyRemoteExecution(stats, filePath) {
   if (config.REMOTE_HOST) {
     while (stats === null) {
-      stats = await fs.stat(file);
+      stats = await fs.stat(filePath);
     }
   }
   return stats;

@@ -10,11 +10,14 @@ const logger = require('../../logger');
 const { fileList, thumbnailer, videoMetadata } = require('../cli');
 const { thumbnails } = require('../data');
 const { isVideo } = require('../../utils');
+const fileLibrary = require('../helper/fileLibraryService');
 
 const backgroundWorker = require('../infra/backgroundWorkerService');
 const scheduler = require('../infra/schedulerService');
 
-async function makeThumbnails(filePath) {
+async function makeThumbnails(fileId) {
+  const fileObj = fileLibrary.get(fileId);
+  const filePath = fileObj.path;
   const fileName = path.basename(filePath);
   const thumbs = await thumbnailsExist(fileName);
   if (thumbs === false) {
@@ -45,7 +48,7 @@ async function makeThumbnails(filePath) {
       }
 
       await Promise.all(thumbnailPromises);
-      await thumbnails.setThumbnailList(fileName, outputFiles);
+      await thumbnails.setThumbnailList(fileId, outputFiles);
       await minifyFolder(imgFolder);
       logger.verbose(`successfully generated thumbnails for ${filePath}`);
     }
@@ -60,13 +63,13 @@ async function makeThumbnails(filePath) {
   }
 }
 
-async function thumbnailsExist(fileName) {
-  const thumbList = await getThumbnailList(fileName);
+async function thumbnailsExist(fileId) {
+  const thumbList = await getThumbnailList(fileId);
   return (thumbList.length === config.MAX_THUMBNAILS);
 }
 
-async function getThumbnailList(fileName) {
-  return await thumbnails.getThumbnailList(fileName);
+async function getThumbnailList(fileId) {
+  return await thumbnails.getThumbnailList(fileId);
 }
 
 function secondsToHms(d) {
@@ -83,15 +86,17 @@ function zeroPad(n) {
   return ('0' + n).slice(-2);
 }
 
-async function getThumbnailPath(fileName, imgFile) {
-  const thumbList = await getThumbnailList(fileName);
+async function getThumbnailPath(fileId, imgFile) {
+  const thumbList = await getThumbnailList(fileId);
+  const fileObj = fileLibrary.get(fileId);
   if (thumbList.includes(imgFile)) {
-    return path.join(config.THUMBNAIL_DIR, fileName, imgFile);
+    return path.join(config.THUMBNAIL_DIR, fileObj.name, imgFile);
   }
   return null;
 }
 
 //perhaps move this into an init and use the scheduler or something
+// move this into librarian
 async function quietlyGenerateThumbnails() {
   try {
     const allFiles = await fileList.listAll(config.SHARE_PATH);
@@ -103,7 +108,7 @@ async function quietlyGenerateThumbnails() {
         return !exists;
       })
       .forEach((fileName) => {
-        backgroundWorker.addBackgroundTask(makeThumbnails.bind(null, fileName));
+        // backgroundWorker.addBackgroundTask(makeThumbnails.bind(null, fileName));
       });
   }
   catch(e) {

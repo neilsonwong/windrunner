@@ -3,22 +3,31 @@
 const express = require('express');
 const { navigatorService } = require('../services/key');
 
-const router = express.Router();
+const router1 = express.Router();
+const router2 = express.Router();
 
-router.get('/ls/:path(*)?', async (req, res) => {
+router1.get('/ls/:path(*)?', async (req, res) => {
   const path = req.params.path || '';
   const files = await navigatorService.ls(path); 
   return res.json(files);
 });
 
-router.get('/find', async (req, res) => {
+router1.get('/find', async (req, res) => {
   const q = req.query.q || '';
   const files = await navigatorService.find(q);
   return res.json(files);
 });
 
-router.get('/fileNavRouter', (req, res) => {
+router1.get('/fileNavRouter', (req, res) => {
   return res.send('i am not insane, fileNavRouter working!');
 });
 
-module.exports = router;
+router2.get('/ls/:path(*)?', async (req, res) => {
+  const path = req.params.path || '';
+
+});
+
+module.exports = {
+  v1: router1,
+  v2: router2
+};

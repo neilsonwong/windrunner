@@ -43,4 +43,7 @@ router.get('/userHabitRouter', (req, res) => {
   res.send('i am not insane, userHabitRouter working!');
 });
 
-module.exports = router;
+module.exports = {
+  v1: router,
+  v2: router
+};

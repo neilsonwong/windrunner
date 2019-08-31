@@ -1,5 +1,7 @@
 'use strict';
 
+const FILETYPE = require('../models/FileType');
+
 function sleep(ms) {
   return new Promise(r => setTimeout(r,ms));
 }
@@ -9,9 +11,21 @@ function isVideo(filePath) {
   return isVideoRegExp.test(filePath);
 }
 
-// TODO: add is file
+function getFileType(file, stats) {
+  if (stats === null || stats === undefined) {
+    return FILETYPE.INVALID;
+  }
+  else if (stats.isDirectory()) {
+    return FILETYPE.DIRECTORY;
+  }
+  else if (isVideo(file)) {
+    return FILETYPE.VIDEO;
+  }
+  return FILETYPE.FILE;
+}
 
 module.exports = {
   isVideo: isVideo,
   sleep: sleep,
+  getFileType: getFileType,
 };

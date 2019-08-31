@@ -8,7 +8,7 @@ const compression = require('compression');
 const logger = require('./logger');
 const config = require('../config');
 
-const { fileNavRouter, thumbnailRouter, userHabitsRouter} = require('./routers');
+const { api } = require('./routers');
 
 let app = express();
 
@@ -23,9 +23,7 @@ function setup() {
   app.use(cors());
   // app.use(bodyParser.urlencoded({ extended: false }));
   app.use(bodyParser.text());
-  app.use(fileNavRouter);
-  app.use(thumbnailRouter);
-  app.use(userHabitsRouter);
+  app.use('/api/v1', api.v1);
 }
 
 function defineRoutes() {

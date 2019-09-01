@@ -10,7 +10,7 @@ const logger = require('../../logger');
 const { fileList, thumbnailer, videoMetadata } = require('../cli');
 const { thumbnails } = require('../data');
 const { isVideo } = require('../../utils');
-const fileLibrary = require('../helper/fileLibraryService');
+const fileLibrary = require('./fileLibraryService');
 
 const backgroundWorker = require('../infra/backgroundWorkerService');
 const scheduler = require('../infra/schedulerService');
@@ -95,28 +95,6 @@ async function getThumbnailPath(fileId, imgFile) {
   return null;
 }
 
-//perhaps move this into an init and use the scheduler or something
-// move this into librarian
-async function quietlyGenerateThumbnails() {
-  try {
-    const allFiles = await fileList.listAll(config.SHARE_PATH);
-    allFiles.split('\n')
-      .filter(fileName => (fileName.length > 0)) 
-      .filter(fileName => (isVideo(fileName)))
-      .filter(async (fileName) => {
-        const exists = await thumbnailsExist(fileName);
-        return !exists;
-      })
-      .forEach((fileName) => {
-        // backgroundWorker.addBackgroundTask(makeThumbnails.bind(null, fileName));
-      });
-  }
-  catch(e) {
-    logger.error('there was an issue quietly generating thumbnails in the background');
-    logger.error(e);
-  }
-}
-
 async function minifyFolder(folder) {
   const jpgWildCard = path.join(folder, '*.jpg');
   try {
@@ -132,16 +110,10 @@ async function minifyFolder(folder) {
   }
 }
 
-const ONE_DAY = 60 * 60 * 24 * 1000;
-function startBackgroundTask() {
-  scheduler.addTask('thumbnail bg worker', quietlyGenerateThumbnails, ONE_DAY);
-}
-
 module.exports = {
   makeThumbnails: makeThumbnails,
   getThumbnailList: getThumbnailList,
   getThumbnailPath: getThumbnailPath,
-  startBackgroundTask: startBackgroundTask,
 };
 
 // async function main() {

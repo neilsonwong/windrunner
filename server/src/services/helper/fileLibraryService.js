@@ -1,14 +1,18 @@
 'use strict';
 
 const fs = require('fs').promises;
+const EventEmitter = require('events');
 const logger = require('../../logger');
 const config = require('../../../config');
 
-const { File } = require('../../models');
-const FILETYPE = require('../../models/FileType');
+const { File, FileType } = require('../../models');
 const { isVideo } = require('../../utils');
 const getVidLen = require('../cli/videoMetadata').duration;
 const { pins, watchHistory, fileLibrary } = require('../data');
+const fileLibEvents = new EventEmitter();
+const EVENTS = {
+  FRESH_FILE: 'FRESH_FILE'
+};
 
 async function getFileOrList(fileOrList) {
   if (Array.isArray(fileOrList)) {
@@ -53,9 +57,13 @@ async function analyzeFromFs(filePath) {
     stats = await accountForBuggyRemoteExecution(stats, filePath);
 
     const fileObj = new File(filePath, stats);
-    populateMetadata(fileObj);
+    await populateMetadata(fileObj);
     //update the cache
-    await fileLibrary.set(fileObj.id, fileObj);
+    if (fileObj.type !== FileType.DIRECTORY) {
+      // i don't need to wait, just need it to run
+      fileLibrary.set(fileObj.id, fileObj);
+      fileLibEvents.emit(EVENTS.FRESH_FILE);
+    }
     return fileObj;
   }
   catch (e) {
@@ -69,13 +77,13 @@ async function analyzeFromFs(filePath) {
 async function populateMetadata(fileObj) {
   let metadata = undefined;
   switch (fileObj.type) {
-    case FILETYPE.DIRECTORY:
+    case FileType.DIRECTORY:
       const isPinned = await pins.isPinned(fileObj);
       metadata = {
         isPinned: isPinned
       };
       break;
-    case FILETYPE.VIDEO:
+    case FileType.VIDEO:
       const vidLen = await getVidLen(fileObj);
       const watchTime = await watchHistory.getWatchTime(fileObj);
       metadata = {
@@ -103,5 +111,7 @@ async function accountForBuggyRemoteExecution(stats, filePath) {
 }
 
 module.exports = {
-  get: getFileOrList
+  get: getFileOrList,
+  events: EVENTS,
+  emitter: fileLibEvents
 };

@@ -6,13 +6,17 @@ const logger = require('../../logger');
 const config = require('../../../config');
 
 const { File, FileType } = require('../../models');
-const { isVideo } = require('../../utils');
 const getVidLen = require('../cli/videoMetadata').duration;
 const { pins, watchHistory, fileLibrary } = require('../data');
 const fileLibEvents = new EventEmitter();
 const EVENTS = {
   FRESH_FILE: 'FRESH_FILE'
 };
+
+async function getById(fileId) {
+  const filePath = await fileLibrary.getPathFromId(fileId);
+  return await analyzeFile(filePath);
+}
 
 async function getFileOrList(fileOrList) {
   if (Array.isArray(fileOrList)) {
@@ -61,7 +65,7 @@ async function analyzeFromFs(filePath) {
     //update the cache
     if (fileObj.type !== FileType.DIRECTORY) {
       // i don't need to wait, just need it to run
-      fileLibrary.set(fileObj.id, fileObj);
+      await fileLibrary.set(fileObj);
       fileLibEvents.emit(EVENTS.FRESH_FILE);
     }
     return fileObj;
@@ -69,7 +73,6 @@ async function analyzeFromFs(filePath) {
   catch (e) {
     logger.error(`there was an error analyzing the file data for ${filePath}`);
     logger.error(e);
-    console.log(e);
     return new File(filePath);
   }
 }
@@ -78,14 +81,14 @@ async function populateMetadata(fileObj) {
   let metadata = undefined;
   switch (fileObj.type) {
     case FileType.DIRECTORY:
-      const isPinned = await pins.isPinned(fileObj);
+      const isPinned = await pins.isPinned(fileObj.path);
       metadata = {
         isPinned: isPinned
       };
       break;
     case FileType.VIDEO:
-      const vidLen = await getVidLen(fileObj);
-      const watchTime = await watchHistory.getWatchTime(fileObj);
+      const vidLen = await getVidLen(fileObj.path);
+      const watchTime = await watchHistory.getWatchTime(fileObj.path);
       metadata = {
         watchTime: watchTime,
         totalTime: vidLen
@@ -112,6 +115,7 @@ async function accountForBuggyRemoteExecution(stats, filePath) {
 
 module.exports = {
   get: getFileOrList,
+  getById: getById,
   events: EVENTS,
   emitter: fileLibEvents
 };

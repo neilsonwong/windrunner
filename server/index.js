@@ -7,7 +7,6 @@ const executor = require('./src/services/cli/executor');
 const backgroundWorker = require('./src/services/infra/backgroundWorkerService');
 const remoteService = require('./src/services/infra/remoteService');
 
-const { thumbnailService } = require('./src/services/key');
 const sambaService = require('./src/services/passive/sambaService');
 const librarianService = require('./src/services/passive/librarianService');
 
@@ -25,9 +24,8 @@ async function main() {
   restapi.init();
 
   // start services that have long running tasks
-  thumbnailService.startBackgroundTask();
+  librarianService.startBackgroundTask();
   sambaService.startMonitoring();
-  librarianService.startWatching();
 }
 
 main();

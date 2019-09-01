@@ -16,6 +16,10 @@ class File {
     this.size = stats ? stats.size : undefined;
     this.birthTime = stats ? stats.birthtime: undefined;
   }
+
+  setMetadata(metadata) {
+    this.metadata = metadata || {};
+  }
 }
 
 // TODO: add file definitions version

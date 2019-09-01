@@ -57,7 +57,7 @@ async function find(q){
 async function recent() {
   try {
     //find all absolute file paths
-    const results = await changed(q);
+    const results = await changed(config.SHARE_PATH, 7);
     return results.length === 0 ? [] :
       await fileLibrary.get(results);
   }

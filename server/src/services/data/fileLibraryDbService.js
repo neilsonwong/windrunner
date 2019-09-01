@@ -4,15 +4,15 @@ const logger = require('../../logger');
 const fileLibraryDb = require('./levelDbService').instanceFor('fileLibrary');
 const fileIndexDb = require('./levelDbService').instanceFor('fileLibraryIndex');
 
-async function getFile(file) {
-  return await fileLibraryDb.get(file);
+async function getFile(filePath) {
+  return await fileLibraryDb.get(filePath);
 }
 
 async function setFile(fileObj) {
   if (fileObj.id) {
     // add id
-    await fileLibraryDb.put(fileObj.id, fileObj);
-    return await fileIndexDb.put(fileObj.path, fileObj.id);
+    await fileLibraryDb.put(fileObj.path, fileObj);
+    return await fileIndexDb.put(fileObj.id, fileObj.path);
   }
   else {
     logger.error('attempt to setFile without fileId in fileObj');
@@ -24,13 +24,19 @@ async function evictFile(file) {
   return await fileLibraryDb.del(file);
 }
 
-async function findId(filePath) {
-  return await fileIndexDb.get(filePath);
+async function getPathFromId(fileId) {
+  return await fileIndexDb.get(fileId);
+}
+
+async function getById(fileId) {
+  const filePath = await fileIndexDb.get(fileId);
+  return await getFile(filePath);
 }
 
 module.exports = {
   get: getFile,
   set: setFile,
   evict: evictFile,
-  findId: findId,
+  getById: getById,
+  getPathFromId, getPathFromId,
 };

@@ -7,7 +7,8 @@ const { thumbnailService } = require('../services/key');
 const router1 = express.Router();
 const router2 = express.Router();
 
-router1.get('/thumb/:filePath', function (req, res, next) {
+// OLD FUNCTION FOR LEGACY PURPOSES
+router1.get('/thumb/:filePath', async (req, res) => {
   const fileName = path.basename(req.params.filePath);
   const thumbList = await thumbnailService.getThumbnailList(fileName);
   if (thumbList.length === 0) {

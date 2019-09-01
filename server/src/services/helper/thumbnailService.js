@@ -7,16 +7,12 @@ const imageminJpegtran = require('imagemin-jpegtran');
 
 const config = require('../../../config');
 const logger = require('../../logger');
-const { fileList, thumbnailer, videoMetadata } = require('../cli');
+const { thumbnailer, videoMetadata } = require('../cli');
 const { thumbnails } = require('../data');
-const { isVideo } = require('../../utils');
 const fileLibrary = require('./fileLibraryService');
 
-const backgroundWorker = require('../infra/backgroundWorkerService');
-const scheduler = require('../infra/schedulerService');
-
 async function makeThumbnails(fileId) {
-  const fileObj = fileLibrary.get(fileId);
+  const fileObj = await fileLibrary.getById(fileId);
   const filePath = fileObj.path;
   const fileName = path.basename(filePath);
   const thumbs = await thumbnailsExist(fileName);
@@ -55,7 +51,6 @@ async function makeThumbnails(fileId) {
     catch (e) {
       logger.error(`there was an error when generating thumbnails for ${filePath}`);
       logger.error(e);
-      console.log(e);
     }
   }
   else {
@@ -88,7 +83,7 @@ function zeroPad(n) {
 
 async function getThumbnailPath(fileId, imgFile) {
   const thumbList = await getThumbnailList(fileId);
-  const fileObj = fileLibrary.get(fileId);
+  const fileObj = fileLibrary.getById(fileId);
   if (thumbList.includes(imgFile)) {
     return path.join(config.THUMBNAIL_DIR, fileObj.name, imgFile);
   }

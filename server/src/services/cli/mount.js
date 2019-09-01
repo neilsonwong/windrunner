@@ -6,8 +6,6 @@ const config = require('../../../config');
 const logger = require('../../logger');
 
 function spawn2() {
-  console.log('spawn called');
-  console.log(arguments);
   var result = spawn.apply(this, arguments);
   return result;
 }
@@ -28,7 +26,6 @@ async function mountRemoteSamba() {
       // apparently sudo likes to pipe from stderr!
       child.stderr.on('data', (data) => {
         const lines = data.toString();
-        console.log(lines);
         if (lines.indexOf('password prompt') !== -1) {
           // i think it's asking for sudo password
           child.stdin.write(`${config.SUDO_PW}\n`);

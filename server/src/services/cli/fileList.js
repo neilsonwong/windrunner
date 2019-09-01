@@ -10,7 +10,8 @@ async function search(q) {
   try {
     const results = await executor.run(cmd, args);
     if (results) {
-      return results.split('\n');
+      return results.split('\n')
+        .filter(e => (e.length > 0));
     }
   }
   catch (e) {
@@ -25,7 +26,8 @@ async function list(d) {
   try {
     const results = await executor.run(cmd);
     if (results) {
-      return results.split('\n');
+      return results.split('\n')
+        .filter(e => (e.length > 0));
     }
   }
   catch (e) {
@@ -39,7 +41,9 @@ async function fullListing(folder) {
   try {
     const allFiles = await executor.run('find',
       [folder, '-not', '-path', '*/.*', '-type', 'f']);
-    return allFiles;
+    return allFiles.split('\n')
+      .filter(e => (e.length > 0));
+;
   }
   catch(e) {
     logger.warn(`there was an error full Listing ${folder}`);
@@ -51,8 +55,9 @@ async function fullListing(folder) {
 async function changed(folder, days) {
   try {
     const changed = await executor.run('find',
-      [folder, '-type', 'f', '-mtime', `-${days}`]);
-    return changed;
+      [folder, '-not', '-path', '*/.*', '-type', 'f', '-mtime', `-${days}`]);
+    return changed.split('\n')
+      .filter(e => (e.length > 0));
   }
   catch(e) {
     logger.warn(`there was an error full Listing ${folder}`);

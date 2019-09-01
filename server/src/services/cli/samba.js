@@ -27,7 +27,6 @@ async function lockedFiles() {
   }
   catch (e) {
     logger.warn('an error occured when finding locked samba files');
-    console.log(e);
     logger.warn(e);
   }
   return [];
@@ -62,7 +61,6 @@ function parseLockedFile(lockedFileLine) {
       catch (e) {
         logger.warn('error occurred when parsing the locked file');
         logger.warn(e);
-        console.log(e);
       }
     }
   }

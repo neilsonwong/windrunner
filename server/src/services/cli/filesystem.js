@@ -29,8 +29,6 @@ RemoteCliFs.stat = async function(file) {
   }
   catch (e) {
     logger.warn(`error occured running stat on file ${file}`);
-    console.log(cmd);
-    console.log(e);
     logger.warn(e);
   }
   return null;
@@ -48,7 +46,6 @@ RemoteCliFs.readdir = async function(dirPath) {
   catch (e) {
     logger.warn(`error occured reading contents for folder ${dirPath}`);
     logger.warn(e);
-    console.log(e);
   }
   return [];
 };
@@ -64,7 +61,6 @@ RemoteCliFs.mkdir = async function(folder, options) {
   catch (e) {
     logger.warn(`error occured creating folder ${folder}`);
     logger.warn(e);
-    console.log(e);
   }
   return false;
 };
@@ -89,8 +85,6 @@ function newStat(statString) {
     catch(e) {
       logger.warn('error occured when parsing stat string');
       logger.warn(e);
-      console.log(statString);
-      console.log(e);
     }
   }
   return null;

@@ -1,5 +1,6 @@
 'use strict';
 
+const config = require('../../../config');
 const logger = require('../../logger');
 const { changed } = require('../cli/fileList');
 const { FileType } = require('../../models');
@@ -18,15 +19,16 @@ function init() {
 }
 
 async function catalog(filePath) {
-  await fileLibrary.get(filePath);
+  const fileObj = await fileLibrary.get(filePath);
   if (fileObj.type === FileType.VIDEO) {
+    logger.info('trying to catalog');
     thumbnailer.makeThumbnails(fileObj.id);
   }
 }
 
 async function catalogChanged() {
   try {
-    const changedFiles = await changed(q);
+    const changedFiles = await changed(config.SHARE_PATH, 7);
     changedFiles.forEach(filePath => {
       catalog(filePath);
     });
@@ -43,8 +45,6 @@ async function catalogAll() {
   logger.info('cataloging all files');
   try {
     const allFiles = await fileList.listAll(config.SHARE_PATH)
-      .split('\n')
-      .filter(filePath => (filePath.length > 0)) 
       .filter(filePath => (isVideo(filePath)));
 
       logger.info(`there are a total of ${allFiles.length} to catalog`);
@@ -73,6 +73,5 @@ function startBackgroundTask() {
 // TODO: catalog all
 
 module.exports = {
-  find: find,
   startBackgroundTask: startBackgroundTask,
 };

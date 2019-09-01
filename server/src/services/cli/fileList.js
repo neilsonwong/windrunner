@@ -48,9 +48,22 @@ async function fullListing(folder) {
   }
 }
 
+async function changed(folder, days) {
+  try {
+    const changed = await executor.run('find',
+      [folder, '-type', 'f', '-mtime', `-${days}`]);
+    return changed;
+  }
+  catch(e) {
+    logger.warn(`there was an error full Listing ${folder}`);
+    logger.warn(e);
+    return '';
+  }
+}
 
 module.exports = {
   search: search,
   list: list,
-  listAll: fullListing
+  listAll: fullListing,
+  changed: changed
 };

@@ -3,8 +3,9 @@
 const fs = require('fs').promises;
 const path = require('path');
 
-const { search } = require('../cli/fileList');
-const fileLibrary = require('../helper/fileLibraryService');
+const { search, changed } = require('../cli/fileList');
+// const fileLibrary = require('../helper/fileLibraryService');
+const librarian = require('../passive/librarianService');
 const logger = require('../../logger');
 
 const SHARE_PATH = require('../../../config').SHARE_PATH;
@@ -53,7 +54,21 @@ async function find(q){
   }
 }
 
+async function recent() {
+  try {
+    //find all absolute file paths
+    const results = await changed(q);
+    return results.length === 0 ? [] :
+      await fileLibrary.get(results);
+  }
+  catch(e) {
+    logger.error(`an error occured while finding recently changed files`);
+    logger.error(e);
+  }
+}
+
 module.exports = {
   ls: nativels,
-  find: find
+  find: find,
+  recent: recent
 };

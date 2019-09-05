@@ -38,16 +38,27 @@ function init() {
   scheduler.addTask('check if executor is idle', watchForIdle, config.IDLE_INTERVAL);
 }
 
+function priorityExec(cmd, args, runRemotely) {
+  //add the cmd to the queue
+  const command = new Command(cmd, args, runRemotely);
+  logger.debug(`pushing HIGH PRIORITY command into the queue with id ${command.id}`);
+  cmdQ.unshift(command);
+  return submit(command);
+}
+
 // add cmd to queue and wait til it is complete
 function execute(cmd, args, runRemotely) {
   // args can be null or undefined, that is OK.
-  return new Promise((res, rej) => {
-    //add the cmd to the queue
-    let command = new Command(cmd, args, runRemotely);
-    logger.debug(`pushing command into the queue with id ${command.id}`);
-    cmdQ.push(command);
-    cmdEvents.emit(EVENTS.CMD_ADD);
+  let command = new Command(cmd, args, runRemotely);
+  logger.debug(`pushing command into the queue with id ${command.id}`);
+  cmdQ.push(command);
+  return submit(command);
+}
 
+function submit(command) {
+  cmdEvents.emit(EVENTS.CMD_ADD);
+
+  return new Promise((res, rej) => {
     //add new event waiter for command to finish
     cmdEvents.once(command.id, (out, err) => {
       if (err) {
@@ -199,6 +210,7 @@ function handleExecutionResult(res, rej, err, stdout, stderr) {
 
 module.exports = {
   run: execute,
+  rush: priorityExec,
   isBusy: isBusy,
   addHook: addHook,
   events: EVENTS,

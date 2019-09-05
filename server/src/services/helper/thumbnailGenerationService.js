@@ -111,6 +111,7 @@ module.exports = {
   makeThumbnails: makeThumbnails,
   getThumbnailList: getThumbnailList,
   getThumbnailPath: getThumbnailPath,
+  getThumbnailGenerator: getThumbnailGenerator,
 };
 
 // async function main() {

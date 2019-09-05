@@ -1,26 +1,25 @@
 'use strict';
 
 const express = require('express');
+const streamingMiddleware = require('../utils/streamingMiddleware');
 const { navigatorService } = require('../services/key');
 
 const router1 = express.Router();
 const router2 = express.Router();
+router2.use(streamingMiddleware);
 
 router1.get('/ls/:path(*)?', async (req, res) => {
   const path = req.params.path || '';
-  const files = await navigatorService.ls(path); 
-  return res.json(files);
+  return res.json(await navigatorService.ls(path));
 });
 
 router1.get('/find', async (req, res) => {
   const q = req.query.q || '';
-  const files = await navigatorService.find(q);
-  return res.json(files);
+  return res.json(await navigatorService.find(q));
 });
 
 router1.get('/recent', async (req, res) => {
-  const files = await navigatorService.recent();
-  return res.json(files);
+  return res.json(await navigatorService.recent());
 });
 
 router1.get('/fileNavRouter', (req, res) => {
@@ -28,17 +27,9 @@ router1.get('/fileNavRouter', (req, res) => {
 });
 
 router2.get('/recent', async (req, res) => {
-  const cached = navigatorService.getOldRecent();
-  const cachedString = JSON.stringify(cached);
-  res.write(`${cachedString}\n`);
-
-  const updated = await navigatorService.recent();
-  const strUpdated = JSON.stringify(updated);
-
-  if (cachedString !== strUpdated) {
-    res.write(strUpdated);
-  }
-  res.end();
+  res.stream(navigatorService.getOldRecent());
+  res.update(await navigatorService.recent());
+  return res.end();
 });
 
 router2.get('/ls/:path(*)?', async (req, res) => {

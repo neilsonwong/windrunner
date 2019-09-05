@@ -3,9 +3,11 @@
 const express = require('express');
 const logger = require('../logger');
 const { thumbnailService } = require('../services/key');
+const streamingMiddleware = require('../utils/streamingMiddleware');
 
 const router1 = express.Router();
 const router2 = express.Router();
+router2.use(streamingMiddleware);
 
 // OLD FUNCTION FOR LEGACY PURPOSES
 router1.get('/thumb/:filePath', async (req, res) => {
@@ -24,17 +26,14 @@ router1.get('/thumb/:filePath', async (req, res) => {
 router2.get('/thumblist/:fileId', async (req, res) => {
   const fileId = req.params.fileId;
   const thumbList = await thumbnailService.getThumbnailList(fileId);
+  console.log(thumbList);
+  res.stream(thumbList.length);
   if (thumbList.length === 0) {
-    // thumbs are missing, try to generate
-    const thumbnailCreationTriggered = thumbnailService.makeThumbnails(fileId);
-    if (thumbnailCreationTriggered) {
-      return res.sendStatus(202);
-    }
-    else {
-      return res.sendStatus(400);
-    }
+    await thumbnailService.makeThumbnails(fileId);
+    console.log('trying to update the thumblist')
+    res.update(await thumbnailService.getThumbnailList(fileId));
   }
-  return res.json(thumbList);
+  return res.end();
 });
 
 router2.get('/thumb/:fileId/:imgFile', async (req, res) => {

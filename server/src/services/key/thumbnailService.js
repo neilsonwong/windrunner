@@ -1,6 +1,6 @@
 'use strict';
 
-const thumbnailer = require('../helper/thumbnailService');
+const thumbnailer = require('../helper/thumbnailGenerationService');
 const fileLibrary = require('../helper/fileLibraryService');
 const { FileType } = require('../../models');
 
@@ -12,9 +12,14 @@ async function makeThumbnails(fileId) {
     if (pendingThumbnails.has(fileId) === false) {
       // fire it off, but don't wait for it to finish
       // store our promise in a map so other can subscribe to it
+      const thumbGen = thumbnailer.getThumbnailGenerator();
+      const firstThumbDone = thumbGen.next();
+      const allThumbsDone = thumbGen.next();
+
       pendingThumbnails.set(fileId,
-        thumbnailer.makeThumbnails(fileId)
-          .then(removeFromPending.bind(null, fileId)));
+        allThumbsDone.then(removeFromPending.bind(null, fileId)));
+      
+      return await firstThumbDone;
     }
     return true;
   }

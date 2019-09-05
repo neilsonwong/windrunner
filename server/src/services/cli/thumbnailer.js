@@ -16,6 +16,16 @@ function generateThumbnail(filePath, outputPath, frameRipTime) {
     ]);
 }
 
+function generateThumbnailNow(filePath, outputPath, frameRipTime) {
+  return executor.rush('ffmpeg', 
+    ['-ss', frameRipTime, // set the time we want
+      '-t', '1', '-i', filePath, '-s', '426x240', '-f', 'mjpeg', outputPath, 
+      '-y', // say yes to overwrite
+      '-loglevel', 'error' // hide all output except true errors since ffmpeg pipes stdout to stderr instead
+    ]);
+}
+
 module.exports = {
-  generateThumbnail: generateThumbnail
+  generateThumbnail: generateThumbnail,
+  generateThumbnailNow: generateThumbnailNow
 };

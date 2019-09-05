@@ -9,7 +9,7 @@ const { isVideo } = require('../../utils');
 
 // background watcher services
 const fileLibrary = require('../helper/fileLibraryService');
-const thumbnailer = require('../helper/thumbnailService');
+const thumbnailer = require('../helper/thumbnailGenerationService');
 
 // make it simple, scan for new files once per day
 // TODO: scan for files if drive is in use 

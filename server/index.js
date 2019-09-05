@@ -23,8 +23,11 @@ async function main() {
   // start the rest api
   restapi.init();
 
+  // FOR TESTING NOW
+  // librarianService.catalogAll();
+
   // start services that have long running tasks
-  librarianService.startBackgroundTask();
+  // librarianService.startBackgroundTask();
   sambaService.startMonitoring();
 }
 

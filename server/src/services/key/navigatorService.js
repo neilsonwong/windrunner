@@ -3,12 +3,13 @@
 const fs = require('fs').promises;
 const path = require('path');
 
-const { search, changed } = require('../cli/fileList');
-// const fileLibrary = require('../helper/fileLibraryService');
-const librarian = require('../passive/librarianService');
 const logger = require('../../logger');
+const { search, changed } = require('../cli/fileList');
+const fileLibrary = require('../helper/fileLibraryService');
 
 const SHARE_PATH = require('../../../config').SHARE_PATH;
+
+let oldRecent = [];
 
 //file should be an absolute path relative to the share
 async function nativels(rel) {
@@ -55,11 +56,13 @@ async function find(q){
 }
 
 async function recent() {
+  logger.debug('trying to find recently changed files');
   try {
-    //find all absolute file paths
-    const results = await changed(config.SHARE_PATH, 7);
-    return results.length === 0 ? [] :
+    const results = await changed(SHARE_PATH, 7);
+    const recentlyChanged = results.length === 0 ? [] :
       await fileLibrary.get(results);
+    oldRecent = recentlyChanged;
+    return recentlyChanged;
   }
   catch(e) {
     logger.error(`an error occured while finding recently changed files`);
@@ -67,8 +70,13 @@ async function recent() {
   }
 }
 
+function getOldRecent() {
+  return oldRecent;
+}
+
 module.exports = {
   ls: nativels,
   find: find,
-  recent: recent
+  recent: recent,
+  getOldRecent: getOldRecent
 };

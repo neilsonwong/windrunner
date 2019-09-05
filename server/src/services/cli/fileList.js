@@ -40,7 +40,7 @@ async function list(d) {
 async function fullListing(folder) {
   try {
     const allFiles = await executor.run('find',
-      [folder, '-not', '-path', '*/.*', '-type', 'f']);
+      [folder, '-not', '-path', `'*/.*'`, '-type', 'f']);
     return allFiles.split('\n')
       .filter(e => (e.length > 0));
 ;
@@ -48,21 +48,58 @@ async function fullListing(folder) {
   catch(e) {
     logger.warn(`there was an error full Listing ${folder}`);
     logger.warn(e);
-    return ''; 
+    return []; 
   }
 }
 
+// smarter way is to search at depth 1 for changes to folder and call recursively, should be WAY faster
+// async function changed(folder, days) {
+//   try {
+//     const changed = await executor.run('find',
+//       [folder, '-not', '-path', `'*/.*'`, '-type', 'f', '-mtime', `-${days}`]);
+//     return changed.split('\n')
+//       .filter(e => (e.length > 0));
+//   }
+//   catch(e) {
+//     logger.warn(`there was an error finding changed files in ${folder}`);
+//     logger.warn(e);
+//     return [];
+//   }
+// }
+
 async function changed(folder, days) {
   try {
-    const changed = await executor.run('find',
-      [folder, '-not', '-path', '*/.*', '-type', 'f', '-mtime', `-${days}`]);
-    return changed.split('\n')
+    let allChanges = [];
+
+    const changedFiles = await executor.run('find',
+      [folder, '-mindepth', '1', '-maxdepth', '1', 
+      '-not', '-path', `'*/.*'`, 
+      '-type', 'f', 
+      '-mtime', `-${days}`]);
+
+    const changedDirString = await executor.run('find',
+      [folder, '-mindepth', '1', '-maxdepth', '1', 
+      '-not', '-path', `'*/.*'`, 
+      '-type', 'd', 
+      '-mtime', `-${days}`]);
+
+    const changedDirs = changedDirString.split('\n')
       .filter(e => (e.length > 0));
+
+    allChanges.push(...(changedFiles.split('\n')
+      .filter(e => (e.length > 0))));
+
+    const subChanges = await Promise.all(changedDirs.map(e => changed(e, days)));
+    for (let change of subChanges) {
+      allChanges.push(...change);
+    }
+
+    return allChanges;
   }
   catch(e) {
-    logger.warn(`there was an error full Listing ${folder}`);
+    logger.warn(`there was an error finding changed files in ${folder}`);
     logger.warn(e);
-    return '';
+    return [];
   }
 }
 

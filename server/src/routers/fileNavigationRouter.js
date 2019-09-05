@@ -18,8 +18,27 @@ router1.get('/find', async (req, res) => {
   return res.json(files);
 });
 
+router1.get('/recent', async (req, res) => {
+  const files = await navigatorService.recent();
+  return res.json(files);
+});
+
 router1.get('/fileNavRouter', (req, res) => {
   return res.send('i am not insane, fileNavRouter working!');
+});
+
+router2.get('/recent', async (req, res) => {
+  const cached = navigatorService.getOldRecent();
+  const cachedString = JSON.stringify(cached);
+  res.write(`${cachedString}\n`);
+
+  const updated = await navigatorService.recent();
+  const strUpdated = JSON.stringify(updated);
+
+  if (cachedString !== strUpdated) {
+    res.write(strUpdated);
+  }
+  res.end();
 });
 
 router2.get('/ls/:path(*)?', async (req, res) => {

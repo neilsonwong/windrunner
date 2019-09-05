@@ -48,7 +48,9 @@ function diffLockHistories(oldHistory, newHistory) {
 }
 
 function startMonitoring() {
-  scheduler.addTask('monitor Samba', monitorSamba, config.SMB_INTERVAL);
+  if (config.SMB_DISABLE !== true) {
+    scheduler.addTask('monitor Samba', monitorSamba, config.SMB_INTERVAL);
+  }
 }
 
 module.exports = {

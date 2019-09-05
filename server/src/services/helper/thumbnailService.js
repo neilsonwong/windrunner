@@ -43,9 +43,11 @@ async function makeThumbnails(fileId) {
         outputFiles.push(outFileName);
       }
 
+      // TODO: quickly finish first one
+
       await Promise.all(thumbnailPromises);
-      await thumbnails.setThumbnailList(fileId, outputFiles);
       await minifyFolder(imgFolder);
+      await thumbnails.setThumbnailList(fileId, outputFiles);
       logger.verbose(`successfully generated thumbnails for ${filePath}`);
     }
     catch (e) {
@@ -83,7 +85,7 @@ function zeroPad(n) {
 
 async function getThumbnailPath(fileId, imgFile) {
   const thumbList = await getThumbnailList(fileId);
-  const fileObj = fileLibrary.getById(fileId);
+  const fileObj = await fileLibrary.getById(fileId);
   if (thumbList.includes(imgFile)) {
     return path.join(config.THUMBNAIL_DIR, fileObj.name, imgFile);
   }

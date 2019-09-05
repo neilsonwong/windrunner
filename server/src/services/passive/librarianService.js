@@ -2,9 +2,10 @@
 
 const config = require('../../../config');
 const logger = require('../../logger');
-const { changed } = require('../cli/fileList');
+const { listAll, changed } = require('../cli/fileList');
 const { FileType } = require('../../models');
 const scheduler = require('../infra/schedulerService');
+const { isVideo } = require('../../utils');
 
 // background watcher services
 const fileLibrary = require('../helper/fileLibraryService');
@@ -21,7 +22,7 @@ function init() {
 async function catalog(filePath) {
   const fileObj = await fileLibrary.get(filePath);
   if (fileObj.type === FileType.VIDEO) {
-    logger.info('trying to catalog');
+    logger.debug(`trying to catalog ${filePath}`);
     thumbnailer.makeThumbnails(fileObj.id);
   }
 }
@@ -44,20 +45,21 @@ async function catalogChanged() {
 async function catalogAll() {
   logger.info('cataloging all files');
   try {
-    const allFiles = await fileList.listAll(config.SHARE_PATH)
-      .filter(filePath => (isVideo(filePath)));
+    let allFiles = await listAll(config.SHARE_PATH);
+    allFiles = allFiles.filter(filePath => (isVideo(filePath)));
 
-      logger.info(`there are a total of ${allFiles.length} to catalog`);
+    logger.info(`there are a total of ${allFiles.length} files to catalog`);
 
-      // we can run this in a regular for loop since each generation task should use all workers anyways
-      for (let i = 0; i < allFiles.length; ++i) {
-        // backgroundWorker.addBackgroundTask(makeThumbnails.bind(null, fileName));
-        await catalog(filePath);
-        if (i % 100 === 0) {
-          logger.info(`cataloged ${i} of ${allFiles.length} files.`);
-        }
+    // we can run this in a regular for loop since each generation task should use all workers anyways
+    for (let i = 0; i < allFiles.length; ++i) {
+      // backgroundWorker.addBackgroundTask(makeThumbnails.bind(null, fileName));
+      const filePath = allFiles[i];
+      await catalog(filePath);
+      if (i % 100 === 0) {
+        logger.info(`cataloged ${i} of ${allFiles.length} files.`);
       }
-      logger.info('all files have been cataloged');
+    }
+    logger.info('all files have been cataloged');
   }
   catch(e) {
     logger.error('there was an issue cataloging all files');
@@ -74,4 +76,5 @@ function startBackgroundTask() {
 
 module.exports = {
   startBackgroundTask: startBackgroundTask,
+  catalogAll: catalogAll
 };

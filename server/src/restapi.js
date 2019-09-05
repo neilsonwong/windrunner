@@ -24,6 +24,7 @@ function setup() {
   // app.use(bodyParser.urlencoded({ extended: false }));
   app.use(bodyParser.text());
   app.use('/api/v1', api.v1);
+  app.use('/api/v2', api.v2);
 }
 
 function defineRoutes() {

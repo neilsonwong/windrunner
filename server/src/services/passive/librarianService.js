@@ -16,7 +16,7 @@ const thumbnailer = require('../helper/thumbnailGenerationService');
 // catalog files slowly when nobody cares
 
 function init() {
-  fileLibrary.emitter.on(fileLibrary.events.FRESH_FILE, catalog);
+  // fileLibrary.emitter.on(fileLibrary.events.FRESH_FILE, catalog);
 }
 
 async function catalog(filePath) {

@@ -67,3 +67,11 @@ TypeError [ERR_INVALID_ARG_TYPE]: The "path" argument must be one of type string
   level: 'error',
   [Symbol(level)]: 'error'
 }
+
+
+(node:5843) UnhandledPromiseRejectionWarning: TypeError [ERR_INVALID_ARG_TYPE]: The "path" argument must be of type string. Received type undefined
+    at validateString (internal/validators.js:112:11)
+    at Object.basename (path.js:1157:5)
+    at new File (/home/dt224292/Neilson/windrunner/server/src/models/File.js:12:28)
+    at analyzeFromFs (/home/dt224292/Neilson/windrunner/server/src/services/helper/fileLibraryService.js:76:12)
+(node:5843) UnhandledPromiseRejectionWarning: Unhandled promise rejection. This error originated either by throwing inside of an async function without a catch block, or by rejecting a promise which was not handled with .catch(). (rejection id: 2)

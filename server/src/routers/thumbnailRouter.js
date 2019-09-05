@@ -26,12 +26,23 @@ router1.get('/thumb/:filePath', async (req, res) => {
 router2.get('/thumblist/:fileId', async (req, res) => {
   const fileId = req.params.fileId;
   const thumbList = await thumbnailService.getThumbnailList(fileId);
-  console.log(thumbList);
-  res.stream(thumbList.length);
+  res.stream(thumbList);
   if (thumbList.length === 0) {
-    await thumbnailService.makeThumbnails(fileId);
-    console.log('trying to update the thumblist')
-    res.update(await thumbnailService.getThumbnailList(fileId));
+    const thumbnailPromises = await thumbnailService.makeThumbnails(fileId);
+    if (thumbnailPromises !== false) {
+      const firstThumbnailDone = thumbnailPromises[0];
+      const allThumbnailsDone = thumbnailPromises[1];
+
+      await firstThumbnailDone;
+      res.update(await thumbnailService.getThumbnailList(fileId));
+
+      await allThumbnailsDone;
+      res.update(await thumbnailService.getThumbnailList(fileId));
+    }
+    else {
+      logger.warning('attempt to generate thumbnail for file that is not a video');
+      return res.sendStatus(500);
+    }
   }
   return res.end();
 });

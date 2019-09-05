@@ -11,26 +11,28 @@ const { thumbnailer, videoMetadata } = require('../cli');
 const { thumbnails } = require('../data');
 const fileLibrary = require('./fileLibraryService');
 
+// we want to return two promises
+// 1 for full generation of 1st thumbnail
+// 1 for full generation of all thumbnails
 async function makeThumbnails(fileId) {
   const fileObj = await fileLibrary.getById(fileId);
-  const filePath = fileObj.path;
-  const fileName = path.basename(filePath);
-  const thumbs = await thumbnailsExist(fileName);
-  if (thumbs === false) {
+  if (await thumbnailsExist(fileId) === false) {
     // check if we have the thumbnails and whether they have been generated already
-    logger.verbose(`generating thumbnails for ${filePath}`);
+    logger.verbose(`generating thumbnails for ${fileObj.path}`);
 
-    const imgFolder = path.join(config.THUMBNAIL_DIR, fileName);
-    let vidLen = await videoMetadata.duration(filePath);
-    if (vidLen === -1) {
-      vidLen = 1200;
-    }
+    // use filename for folder name, for debugging clarity
+    const imgFolder = path.join(config.THUMBNAIL_DIR, fileObj.name);
+    // we should already have the vid len in the fileObj
+    const vidLen = (fileObj.metadata && fileObj.metadata.totalTime && 
+      fileObj.metadata.totalTime !== -1) ? fileObj.metadata.totalTime : 1200;
+
     const thumbnailTimeUnit = Math.floor(vidLen / (config.MAX_THUMBNAILS + 1));
+
     const thumbnailPromises = [];
     const outputFiles = [];
 
-    //ensure output dir exists
     try {
+      // ensure output dir exists
       await fs.mkdir(imgFolder, {recursive: true});
 
       for (let i = 0; i < config.MAX_THUMBNAILS; ++i) {
@@ -38,25 +40,31 @@ async function makeThumbnails(fileId) {
         const frameRipTime = secondsToHms(thumbnailTimeUnit * (i+1));
         const outFileName = frameRipTime.replace(/:/g, '_') + '.jpg';
         const outputPath =  path.join(imgFolder, outFileName);
-
-        thumbnailPromises.push(thumbnailer.generateThumbnail(filePath, outputPath, frameRipTime));
+        thumbnailPromises.push(thumbnailer.generateThumbnail(fileObj.path, outputPath, frameRipTime, i === 0));
         outputFiles.push(outFileName);
       }
 
-      // TODO: quickly finish first one
-
-      await Promise.all(thumbnailPromises);
-      await minifyFolder(imgFolder);
-      await thumbnails.setThumbnailList(fileId, outputFiles);
-      logger.verbose(`successfully generated thumbnails for ${filePath}`);
+      const firstThumbOutput = path.join(imgFolder, outputFiles[0]);
+      const firstThumbPromise = thumbnailPromises[0]
+        .then(() => (minifyFile(firstThumbOutput)))
+        .then(() => (thumbnails.setThumbnailList(fileId, [outputFiles[0]])))
+        .then(() => { logger.verbose(`successfully generated first thmb for ${fileObj.path}`); });
+     
+      const allThumbsDone = Promise.all(thumbnailPromises)
+        .then(() => (minifyFolder(imgFolder)))
+        .then(() => (thumbnails.setThumbnailList(fileId, outputFiles)))
+        .then(() => { logger.verbose(`successfully generated thumbnails for ${fileObj.path}`); });
+      
+      return [firstThumbPromise, allThumbsDone];
     }
     catch (e) {
-      logger.error(`there was an error when generating thumbnails for ${filePath}`);
+      logger.error(`there was an error when generating thumbnails for ${fileObj.path}`);
       logger.error(e);
     }
   }
   else {
-    logger.debug(`thumbnails already exist for ${filePath}`);
+    logger.debug(`thumbnails already exist for ${fileObj.path}`);
+    return [true, true];
   }
 }
 
@@ -107,11 +115,25 @@ async function minifyFolder(folder) {
   }
 }
 
+async function minifyFile(filePath) {
+  const folder = path.dirname(filePath);
+  try {
+    await imagemin([filePath], {
+      destination: folder,
+      plugins: [ imageminJpegtran() ]
+    });
+    logger.verbose(`image compression complete for ${filePath}`);
+  }
+  catch (e) {
+    logger.warn(`an error occurred when minifying the image ${filePath}`);
+    logger.warn(e);
+  }
+}
+
 module.exports = {
   makeThumbnails: makeThumbnails,
   getThumbnailList: getThumbnailList,
   getThumbnailPath: getThumbnailPath,
-  getThumbnailGenerator: getThumbnailGenerator,
 };
 
 // async function main() {

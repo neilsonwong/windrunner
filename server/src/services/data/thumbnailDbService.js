@@ -2,13 +2,13 @@
 
 const thumbnailDb = require('../data/levelDbService').instanceFor('thumbnails');
 
-async function getThumbnailList(fileName) {
-  const thumbList = await thumbnailDb.get(fileName);
+async function getThumbnailList(fileId) {
+  const thumbList = await thumbnailDb.get(fileId);
   return (thumbList === undefined) ? [] : thumbList;
 }
 
-async function setThumbnailList(fileName, imgArray) {
-  await thumbnailDb.put(fileName, imgArray);
+async function setThumbnailList(fileId, imgArray) {
+  await thumbnailDb.put(fileId, imgArray);
 }
 
 module.exports = {

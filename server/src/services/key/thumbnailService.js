@@ -12,16 +12,16 @@ async function makeThumbnails(fileId) {
     if (pendingThumbnails.has(fileId) === false) {
       // fire it off, but don't wait for it to finish
       // store our promise in a map so other can subscribe to it
-      const thumbGen = thumbnailer.getThumbnailGenerator();
-      const firstThumbDone = thumbGen.next();
-      const allThumbsDone = thumbGen.next();
+      const thumbnailPromises = await thumbnailer.makeThumbnails(fileId);
+      const allThumbsDone = thumbnailPromises[1];
+      allThumbsDone.then(removeFromPending.bind(null, fileId));
 
-      pendingThumbnails.set(fileId,
-        allThumbsDone.then(removeFromPending.bind(null, fileId)));
-      
-      return await firstThumbDone;
+      pendingThumbnails.set(fileId, thumbnailPromises);
+      return thumbnailPromises;
     }
-    return true;
+    else {
+      return pendingThumbnails.get(fileId);
+    }
   }
   return false;
 }

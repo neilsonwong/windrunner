@@ -16,7 +16,7 @@ const thumbnailer = require('../helper/thumbnailGenerationService');
 // catalog files slowly when nobody cares
 
 function init() {
-  // fileLibrary.emitter.on(fileLibrary.events.FRESH_FILE, catalog);
+  fileLibrary.emitter.on(fileLibrary.events.FRESH_FILE, catalog);
 }
 
 async function catalog(filePath) {
@@ -71,8 +71,6 @@ const SIX_HOURS = 60 * 60 * 6 * 1000;
 function startBackgroundTask() {
   scheduler.addTask('librarian bg worker', catalogChanged, SIX_HOURS);
 }
-
-// TODO: catalog all
 
 module.exports = {
   startBackgroundTask: startBackgroundTask,

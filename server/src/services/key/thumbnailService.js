@@ -4,26 +4,11 @@ const thumbnailer = require('../helper/thumbnailGenerationService');
 const fileLibrary = require('../helper/fileLibraryService');
 const { FileType } = require('../../models');
 
-const pendingThumbnails = new Map();
-
 async function makeThumbnails(fileId) {
   const fileObj = await fileLibrary.getById(fileId);
-  if (fileObj.type === FileType.VIDEO) {
-    if (pendingThumbnails.has(fileId) === false) {
-      // fire it off, but don't wait for it to finish
-      // store our promise in a map so other can subscribe to it
-      const thumbnailPromises = await thumbnailer.makeThumbnails(fileId);
-      const allThumbsDone = thumbnailPromises[1];
-      allThumbsDone.then(removeFromPending.bind(null, fileId));
-
-      pendingThumbnails.set(fileId, thumbnailPromises);
-      return thumbnailPromises;
-    }
-    else {
-      return pendingThumbnails.get(fileId);
-    }
-  }
-  return false;
+  return (fileObj.type === FileType.VIDEO) ?
+    await thumbnailer.makeThumbnails(fileId) :
+    false;
 }
 
 function getThumbnailList(fileId) {
@@ -41,7 +26,7 @@ async function getThumbnailFromFilename(fileName) {
     const thumbList = await thumbnailService.getThumbnailList(fileId);
     if (thumbList.length === 0) {
       logger.error(`no thumbnails made for ${fileName}`);
-      return res.send("OK");
+      return null;
     }
 
     const fullImgPath = await thumbnailService.getThumbnailPath(fileName, imgPath);

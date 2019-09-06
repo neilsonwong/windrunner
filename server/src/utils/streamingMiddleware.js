@@ -2,6 +2,8 @@
 // very useful
 // https://gist.github.com/CMCDragonkai/6bfade6431e9ffb7fe88
 
+const CHUNK_END = '\r\n';
+
 const streamingMiddleware = function (req, res, next) {
   // inject functions into res to make things easier for to stream lol!
   res.initStream = sendFirstChunk.bind(res);
@@ -18,11 +20,11 @@ function stream(val) {
   }
   const sVal = JSON.stringify(val);
   this.previousResponse = sVal;
-  this.write(sVal + '\n');
+  this.write(sVal + CHUNK_END);
 }
 
 function sendFirstChunk() {
-  this.write(Array(1024).join('\n'));
+  this.write(Array(1024).join(CHUNK_END));
 }
 
 // stringify and compare with old response

@@ -11,56 +11,20 @@ const { thumbnailer, videoMetadata } = require('../cli');
 const { thumbnails } = require('../data');
 const fileLibrary = require('./fileLibraryService');
 
+const pendingThumbnails = new Map();
+
 // we want to return two promises
 // 1 for full generation of 1st thumbnail
 // 1 for full generation of all thumbnails
 async function makeThumbnails(fileId) {
   const fileObj = await fileLibrary.getById(fileId);
   if (await thumbnailsExist(fileId) === false) {
-    // check if we have the thumbnails and whether they have been generated already
-    logger.verbose(`generating thumbnails for ${fileObj.path}`);
+    // check if we are already generating
 
-    // use filename for folder name, for debugging clarity
-    const imgFolder = path.join(config.THUMBNAIL_DIR, fileObj.name);
-    // we should already have the vid len in the fileObj
-    const vidLen = (fileObj.metadata && fileObj.metadata.totalTime && 
-      fileObj.metadata.totalTime !== -1) ? fileObj.metadata.totalTime : 1200;
-
-    const thumbnailTimeUnit = Math.floor(vidLen / (config.MAX_THUMBNAILS + 1));
-
-    const thumbnailPromises = [];
-    const outputFiles = [];
-
-    try {
-      // ensure output dir exists
-      await fs.mkdir(imgFolder, {recursive: true});
-
-      for (let i = 0; i < config.MAX_THUMBNAILS; ++i) {
-        //calculate time splits
-        const frameRipTime = secondsToHms(thumbnailTimeUnit * (i+1));
-        const outFileName = frameRipTime.replace(/:/g, '_') + '.jpg';
-        const outputPath =  path.join(imgFolder, outFileName);
-        thumbnailPromises.push(thumbnailer.generateThumbnail(fileObj.path, outputPath, frameRipTime, i === 0));
-        outputFiles.push(outFileName);
-      }
-
-      const firstThumbOutput = path.join(imgFolder, outputFiles[0]);
-      const firstThumbPromise = thumbnailPromises[0]
-        .then(() => (minifyFile(firstThumbOutput)))
-        .then(() => (thumbnails.setThumbnailList(fileId, [outputFiles[0]])))
-        .then(() => { logger.verbose(`successfully generated first thmb for ${fileObj.path}`); });
-     
-      const allThumbsDone = Promise.all(thumbnailPromises)
-        .then(() => (minifyFolder(imgFolder)))
-        .then(() => (thumbnails.setThumbnailList(fileId, outputFiles)))
-        .then(() => { logger.verbose(`successfully generated thumbnails for ${fileObj.path}`); });
-      
-      return [firstThumbPromise, allThumbsDone];
+    if (pendingThumbnails.has(fileId) === false) {
+      pendingThumbnails.set(fileId, generateThumbnail(fileObj));
     }
-    catch (e) {
-      logger.error(`there was an error when generating thumbnails for ${fileObj.path}`);
-      logger.error(e);
-    }
+    return await pendingThumbnails.get(fileId);
   }
   else {
     logger.debug(`thumbnails already exist for ${fileObj.path}`);
@@ -127,6 +91,53 @@ async function minifyFile(filePath) {
   catch (e) {
     logger.warn(`an error occurred when minifying the image ${filePath}`);
     logger.warn(e);
+  }
+}
+
+async function generateThumbnail(fileObj) {
+  logger.verbose(`generating thumbnails for ${fileObj.path}`);
+
+  // use filename for folder name, for debugging clarity
+  const imgFolder = path.join(config.THUMBNAIL_DIR, fileObj.name);
+  // we should already have the vid len in the fileObj
+  const vidLen = (fileObj.metadata && fileObj.metadata.totalTime && 
+    fileObj.metadata.totalTime !== -1) ? fileObj.metadata.totalTime : 1200;
+
+  const thumbnailTimeUnit = Math.floor(vidLen / (config.MAX_THUMBNAILS + 1));
+
+  const thumbnailPromises = [];
+  const outputFiles = [];
+
+  // generate the actual thumbnails
+  try {
+    // ensure output dir exists
+    await fs.mkdir(imgFolder, {recursive: true});
+
+    for (let i = 0; i < config.MAX_THUMBNAILS; ++i) {
+      //calculate time splits
+      const frameRipTime = secondsToHms(thumbnailTimeUnit * (i+1));
+      const outFileName = frameRipTime.replace(/:/g, '_') + '.jpg';
+      const outputPath =  path.join(imgFolder, outFileName);
+      thumbnailPromises.push(thumbnailer.generateThumbnail(fileObj.path, outputPath, frameRipTime, i === 0));
+      outputFiles.push(outFileName);
+    }
+
+    const firstThumbOutput = path.join(imgFolder, outputFiles[0]);
+    const firstThumbPromise = thumbnailPromises[0]
+      .then(() => (minifyFile(firstThumbOutput)))
+      .then(() => (thumbnails.setThumbnailList(fileObj.id, [outputFiles[0]])))
+      .then(() => { logger.verbose(`successfully generated first thmb for ${fileObj.path}`); });
+    
+    const allThumbsDone = Promise.all(thumbnailPromises)
+      .then(() => (minifyFolder(imgFolder)))
+      .then(() => (thumbnails.setThumbnailList(fileObj.id, outputFiles)))
+      .then(() => { logger.verbose(`successfully generated thumbnails for ${fileObj.path}`); });
+    
+    return [firstThumbPromise, allThumbsDone];
+  }
+  catch (e) {
+    logger.error(`there was an error when generating thumbnails for ${fileObj.path}`);
+    logger.error(e);
   }
 }
 

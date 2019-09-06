@@ -38,18 +38,18 @@ function init() {
   scheduler.addTask('check if executor is idle', watchForIdle, config.IDLE_INTERVAL);
 }
 
-function priorityExec(cmd, args, runRemotely) {
+function priorityExec(cmd, args, opts) {
   //add the cmd to the queue
-  const command = new Command(cmd, args, runRemotely);
+  const command = new Command(cmd, args, opts);
   logger.debug(`pushing HIGH PRIORITY command into the queue with id ${command.id}`);
   cmdQ.unshift(command);
   return submit(command);
 }
 
 // add cmd to queue and wait til it is complete
-function execute(cmd, args, runRemotely) {
+function execute(cmd, args, opts) {
   // args can be null or undefined, that is OK.
-  let command = new Command(cmd, args, runRemotely);
+  let command = new Command(cmd, args, opts);
   logger.debug(`pushing command into the queue with id ${command.id}`);
   cmdQ.push(command);
   return submit(command);

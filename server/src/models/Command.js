@@ -3,11 +3,12 @@
 const uuidv4 = require('uuid/v4');
 
 class Command {
-  constructor(cmd, args, runRemotely) {
+  constructor(cmd, args, opts) {
+    this.id = uuidv4();
     this.cmd = cmd;
     this.args = args;
-    this.runRemotely = runRemotely === true;
-    this.id = uuidv4();
+    this.runRemotely = opts && opts.remotely === true;
+    this.stream = opts && opts.stream;
   }
 
   toStringCmd() {

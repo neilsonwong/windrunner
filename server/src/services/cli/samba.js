@@ -13,7 +13,7 @@ const REMOTE_SAMBA = config.REMOTE_HOST !== undefined;
 
 async function lockedFiles() {
   try {
-    const smbStatusString = await executor.run(LIST_SAMBA_FILES_CMD, null, REMOTE_SAMBA);
+    const smbStatusString = await executor.run(LIST_SAMBA_FILES_CMD, null, { remote: REMOTE_SAMBA });
     if (smbStatusString && smbStatusString.indexOf('No locked files' === -1)) {
       let lockedFilesArray = smbStatusString.split('\n')
         .filter(filterLockedFile)

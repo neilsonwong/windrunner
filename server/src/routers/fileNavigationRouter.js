@@ -37,6 +37,14 @@ router2.get('/ls/:path(*)?', async (req, res) => {
 
 });
 
+router2.get('/find', async (req, res) => {
+  const q = req.query.q || '';
+  const streamAlive = await navigatorService.streamFind(q, (outputLine) => {
+    res.stream(outputLine);
+  });
+  return res.end();
+});
+
 module.exports = {
   v1: router1,
   v2: router2

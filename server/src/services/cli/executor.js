@@ -1,12 +1,12 @@
 'use strict';
 
-const { exec, execFile } = require('child_process');
+const { exec, execFile, spawn } = require('child_process');
 const execSSH = require('ssh-exec');
 const EventEmitter = require('events');
 
 const config = require('../../../config');
 const logger = require('../../logger');
-const { Command } = require('../../models');
+const { Command, CommandStream } = require('../../models');
 const scheduler = require('../infra/schedulerService');
 const { sleep } = require('../../utils');
 
@@ -113,6 +113,9 @@ async function processNext() {
       error = err;
     }
 
+    // NOTE: I know that this spawn addition can cause the logical workers to be less than the actual workers
+    // the amount of spawns should be fairly low and should resolve within a very reasonable amount of time
+
     // emit the event
     cmdEvents.emit(commandToRun.id, output, error);
     cmdEvents.emit(EVENTS.CMD_DONE, commandToRun.id);
@@ -174,6 +177,12 @@ function runCommandLocally(cmd) {
     if (cmd.args === undefined) {
       logger.debug(`executing using exec ${cmd.cmd}`);
       exec(cmd.cmd, execOptions, handleExecutionResult.bind(cmd, res, rej));
+    }
+    else if (cmd.stream && cmd.args) { //args is implicitly true, but here for clarity
+      logger.debug(`executing using spawn ${cmd.cmd} ${cmd.args}`);
+      // send it back so we can attach to the stream!
+      const spawned = spawn(cmd.cmd, cmd.args);
+      return res(new CommandStream(spawned));
     }
     else {
       logger.debug(`executing using execFile ${cmd.cmd} ${cmd.args}`);

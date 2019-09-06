@@ -4,7 +4,7 @@ const fs = require('fs').promises;
 const path = require('path');
 
 const logger = require('../../logger');
-const { search, changed } = require('../cli/fileList');
+const { search, changed, streamSearch } = require('../cli/fileList');
 const fileLibrary = require('../helper/fileLibraryService');
 
 const SHARE_PATH = require('../../../config').SHARE_PATH;
@@ -70,6 +70,27 @@ async function recent() {
   }
 }
 
+async function streamFind(q, onLine) {
+  logger.debug('trying to use streamed find');
+  try {
+    const spawned = await streamSearch(q);
+    spawned.on('line', onLine);
+
+    // nasty but i think it will work
+    const ender = new Promise((res, rej) => {
+      spawned.on('end', () => {
+        res(true);
+      });
+    });
+    spawned.ready();
+    return await ender;
+  }
+  catch(e) {
+    logger.error(`an error occured while stream finding files`);
+    logger.error(e);
+  }
+}
+
 function getOldRecent() {
   return oldRecent;
 }
@@ -78,5 +99,6 @@ module.exports = {
   ls: nativels,
   find: find,
   recent: recent,
-  getOldRecent: getOldRecent
+  getOldRecent: getOldRecent,
+  streamFind: streamFind
 };

@@ -21,6 +21,19 @@ async function search(q) {
   return [];
 }
 
+async function streamSearch(q) {
+  const cmd = 'find';
+  const args = [config.SHARE_PATH, '-iname', `*${q}*`];
+  try {
+    const spawned = await executor.run(cmd, args, { stream: true });
+    return spawned;
+  }
+  catch (e) {
+    logger.warn(`error occurred when running streamed search for ${q}`);
+    logger.warn(e);
+  }
+}
+
 async function list(d) {
   const cmd = `ls -d "${d}"/*`;
   try {
@@ -43,7 +56,6 @@ async function fullListing(folder) {
       [folder, '-not', '-path', `'*/.*'`, '-type', 'f']);
     return allFiles.split('\n')
       .filter(e => (e.length > 0));
-;
   }
   catch(e) {
     logger.warn(`there was an error full Listing ${folder}`);
@@ -107,5 +119,6 @@ module.exports = {
   search: search,
   list: list,
   listAll: fullListing,
-  changed: changed
+  changed: changed,
+  streamSearch, streamSearch
 };

@@ -8,7 +8,7 @@ async function getThumbnailList(fileId) {
 }
 
 async function setThumbnailList(fileId, imgArray) {
-  await thumbnailDb.put(fileId, imgArray);
+  return await thumbnailDb.put(fileId, imgArray);
 }
 
 module.exports = {

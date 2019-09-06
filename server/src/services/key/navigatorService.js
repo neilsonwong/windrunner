@@ -70,20 +70,10 @@ async function recent() {
   }
 }
 
-async function streamFind(q, onLine) {
+async function streamFind(q) {
   logger.debug('trying to use streamed find');
   try {
-    const spawned = await streamSearch(q);
-    spawned.on('line', onLine);
-
-    // nasty but i think it will work
-    const ender = new Promise((res, rej) => {
-      spawned.on('end', () => {
-        res(true);
-      });
-    });
-    spawned.ready();
-    return await ender;
+    return await streamSearch(q);
   }
   catch(e) {
     logger.error(`an error occured while stream finding files`);

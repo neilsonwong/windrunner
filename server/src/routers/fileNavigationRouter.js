@@ -34,14 +34,13 @@ router2.get('/recent', async (req, res) => {
 
 router2.get('/ls/:path(*)?', async (req, res) => {
   const path = req.params.path || '';
-
+  return res.json(await navigatorService.ls(path));
 });
 
 router2.get('/find', async (req, res) => {
   const q = req.query.q || '';
-  const streamAlive = await navigatorService.streamFind(q, (outputLine) => {
-    res.stream(outputLine);
-  });
+  const findStream = await navigatorService.streamFind(q);
+  await findStream.ready((line) => (res.stream(line)));
   return res.end();
 });
 

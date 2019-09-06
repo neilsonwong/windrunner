@@ -7,7 +7,7 @@ const { getFileType } = require('../utils');
 
 //massages a fs stats object into a simpler custom file
 class File {
-  constructor(path, stats, metadata) {
+  constructor(path, stats) {
     this.id = uuidv4();
     this.name = pathModule.basename(path);
     this.path = path;

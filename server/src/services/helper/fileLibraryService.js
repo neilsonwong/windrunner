@@ -15,6 +15,10 @@ const EVENTS = {
 
 async function getById(fileId) {
   const filePath = await fileLibrary.getPathFromId(fileId);
+  if (filePath === undefined) {
+    logger.error(`could not find filePath for ${fileId}`);
+    return null;
+  }
   return await analyzeFile(filePath);
 }
 

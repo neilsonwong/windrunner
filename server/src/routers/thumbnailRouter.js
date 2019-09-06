@@ -4,6 +4,7 @@ const express = require('express');
 const logger = require('../logger');
 const { thumbnailService } = require('../services/key');
 const streamingMiddleware = require('../utils/streamingMiddleware');
+const { sleep } = require('../utils');
 
 const router1 = express.Router();
 const router2 = express.Router();
@@ -64,6 +65,15 @@ router2.get('/thumb/:fileId/:imgFile', async (req, res) => {
 
 router2.get('/thumbnailRouter', (req, res) => {
   return res.send('i am not insane, thumbnailRouter working!');
+});
+
+router2.get('/streamTest', async (req, res) => {
+  res.stream(['hello']);
+  await sleep(5000);
+  res.update(['hello world']);
+  await sleep(5000);
+  res.update(['hello world !']);
+  res.end();
 });
 
 module.exports = {

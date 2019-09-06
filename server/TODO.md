@@ -34,17 +34,17 @@ convert to ES6 modules
 startup check with config / deps
 add tests
 
-thumbnail issues
+<!-- thumbnail issues -->
 <!-- thumbnail trying to generate for non videos, check that out! -->
 img min not always minifying
 
-add streaming images
+<!-- add streaming images -->
 add eviction if images don't load / reporting broken img links
 
 add smb heart beat instead of long running function
 
-cache recents, then upon rehit, reload them then dynamically change the list using streaming
-priority execution
+<!-- cache recents, then upon rehit, reload them then dynamically change the list using streaming -->
+<!-- priority execution -->
 
 new UI
 

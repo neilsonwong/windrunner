@@ -18,7 +18,7 @@ async function addPin(pin) {
   return await pinDb.put(pin, Date.now());
 }
 
-async function removePin(pin) {
+async function delPin(pin) {
   return await pinDb.del(pin);
 }
 
@@ -26,7 +26,7 @@ module.exports = {
   getPinned: getPinned,
   isPinned: isPinned,
   addPin: addPin,
-  removePin: removePin,
+  delPin: delPin,
 };
 
 /*

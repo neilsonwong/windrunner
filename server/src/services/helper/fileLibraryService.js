@@ -86,8 +86,10 @@ async function populateMetadata(fileObj) {
   switch (fileObj.type) {
     case FileType.DIRECTORY:
       const isPinned = await pins.isPinned(fileObj.path);
+      const dirContains = await fs.readdir(fileObj.path);
       metadata = {
-        isPinned: isPinned
+        isPinned: isPinned,
+        fileCount: dirContains.length
       };
       break;
     case FileType.VIDEO:

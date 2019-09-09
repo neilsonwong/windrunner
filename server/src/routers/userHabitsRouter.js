@@ -14,28 +14,40 @@ router.get('/pins', async (req, res) => {
 router.post('/pins/add', async (req, res) => {
   const pin = req.body;
   if (!pin) {
-    return res.sendStatus(204);
+    return res.sendStatus(400);
   }
   else {
     const results = await userConsumptionService.addPin(pin);
     if (!results) {
       logger.error(`could not add pin ${pin}`);
     }
-    return res.sendStatus(results ? 201 : 500);
+    console.log(results);
+    return results ? res.status(201).send(pin) : res.sendStatus(500);
   }
 });
 
 router.post('/pins/del', async (req, res) => {
   const pin = req.body;
   if (!pin){
-    return res.sendStatus(204);
+    return res.sendStatus(400);
   }
   else {
-    const results = await userConsumptionService.removePin(pin);
+    const results = await userConsumptionService.delPin(pin);
     if (!results) {
       logger.error(`could not del pin ${pin}`);
     }
-    res.sendStatus(results ? 200 : 500);
+    console.log(results);
+    return results ? res.status(200).send(pin) : res.sendStatus(500);
+  }
+});
+
+router.post('/watch', async(req, res) => {
+  const fileId = req.body;
+  if (!fileId) {
+    return res.sendStatus(400);
+  }
+  else {
+    // trigger smb service watch
   }
 });
 

@@ -18,8 +18,8 @@ async function addPin(pin) {
   return await pinDb.addPin(pin);
 }
 
-async function removePin(pin) {
-  return await pinDb.del(pin);
+async function delPin(pin) {
+  return await pinDb.delPin(pin);
 }
 
 async function getWatchTime(file) {
@@ -38,7 +38,7 @@ module.exports = {
   getPinned: getPinned,
   isPinned: isPinned,
   addPin: addPin,
-  removePin: removePin,
+  delPin: delPin,
   getWatchTime: getWatchTime,
   updateWatchTime: updateWatchTime,
   resetWatchTime: resetWatchTime,

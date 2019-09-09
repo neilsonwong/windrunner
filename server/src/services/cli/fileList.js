@@ -64,24 +64,29 @@ async function fullListing(folder) {
   }
 }
 
-// smarter way is to search at depth 1 for changes to folder and call recursively, should be WAY faster
-// async function changed(folder, days) {
-//   try {
-//     const changed = await executor.run('find',
-//       [folder, '-not', '-path', `'*/.*'`, '-type', 'f', '-mtime', `-${days}`]);
-//     return changed.split('\n')
-//       .filter(e => (e.length > 0));
-//   }
-//   catch(e) {
-//     logger.warn(`there was an error finding changed files in ${folder}`);
-//     logger.warn(e);
-//     return [];
-//   }
-// }
+async function slowChanged(folder, days) {
+  console.log('running changed')
+  try {
+    const changed = await executor.run('find',
+      [folder, '-maxdepth', '3', '-not', '-path', `'*/.*'`, '-type', 'f', '-mtime', `-${days}`]);
+    return changed.split('\n')
+      .filter(e => (e.length > 0));
+  }
+  catch(e) {
+    logger.warn(`there was an error finding changed files in ${folder}`);
+    logger.warn(e);
+    return [];
+  }
+}
 
-async function changed(folder, days) {
+async function changed(folder, days, depth) {
+  if (!depth) {
+    depth = 0;
+  }
+
   try {
     let allChanges = [];
+    const rootDirMaxDepth = depth === 0 ? '2' : '1';
 
     const changedFiles = await executor.run('find',
       [folder, '-mindepth', '1', '-maxdepth', '1', 
@@ -90,7 +95,7 @@ async function changed(folder, days) {
       '-mtime', `-${days}`]);
 
     const changedDirString = await executor.run('find',
-      [folder, '-mindepth', '1', '-maxdepth', '1', 
+      [folder, '-mindepth', '1', '-maxdepth', rootDirMaxDepth,
       '-not', '-path', `'*/.*'`, 
       '-type', 'd', 
       '-mtime', `-${days}`]);
@@ -101,7 +106,7 @@ async function changed(folder, days) {
     allChanges.push(...(changedFiles.split('\n')
       .filter(e => (e.length > 0))));
 
-    const subChanges = await Promise.all(changedDirs.map(e => changed(e, days)));
+    const subChanges = await Promise.all(changedDirs.map(e => changed(e, days, depth + 1)));
     for (let change of subChanges) {
       allChanges.push(...change);
     }

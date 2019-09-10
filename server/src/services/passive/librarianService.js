@@ -74,5 +74,6 @@ function startBackgroundTask() {
 
 module.exports = {
   startBackgroundTask: startBackgroundTask,
-  catalogAll: catalogAll
+  catalogAll: catalogAll,
+  init, init,
 };

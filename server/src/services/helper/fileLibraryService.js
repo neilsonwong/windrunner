@@ -119,9 +119,14 @@ async function accountForBuggyRemoteExecution(stats, filePath) {
   return stats;
 }
 
+async function expire(filePath) {
+  return await fileLibrary.evict(filePath);
+}
+
 module.exports = {
   get: getFileOrList,
   getById: getById,
+  expire: expire,
   events: EVENTS,
   emitter: fileLibEvents
 };

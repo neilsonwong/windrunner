@@ -43,6 +43,8 @@ add tests
 <!-- cache recents, then upon rehit, reload them then dynamically change the list using streaming -->
 <!-- priority execution -->
 <!-- fix librarian race condition for thumb gen -->
+librarian undefined gets
+add remote share location for smbstatus checking
 add eviction if images don't load / reporting broken img links
 add smb heart beat instead of long running function
 img min not always minifying

@@ -19,9 +19,9 @@ async function setFile(fileObj) {
   }
 }
 
-async function evictFile(file) {
-  logger.verbose(`evicting ${file} from fileLibrary`);
-  return await fileLibraryDb.del(file);
+async function evictFile(filePath) {
+  logger.verbose(`evicting ${filePath} from fileLibrary`);
+  return await fileLibraryDb.del(filePath);
 }
 
 async function getPathFromId(fileId) {

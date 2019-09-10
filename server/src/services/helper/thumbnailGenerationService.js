@@ -41,8 +41,9 @@ async function getThumbnailList(fileId) {
   return await thumbnails.getThumbnailList(fileId);
 }
 
-function secondsToHms(d) {
+function msToHms(d) {
   d = Number(d);
+  d = Math.floor(d/1000);
 
   const h = zeroPad(Math.floor(d / 3600));
   const m = zeroPad(Math.floor(d % 3600 / 60));
@@ -115,7 +116,7 @@ async function generateThumbnail(fileObj) {
 
     for (let i = 0; i < config.MAX_THUMBNAILS; ++i) {
       //calculate time splits
-      const frameRipTime = secondsToHms(thumbnailTimeUnit * (i+1));
+      const frameRipTime = msToHms(thumbnailTimeUnit * (i+1));
       const outFileName = frameRipTime.replace(/:/g, '_') + '.jpg';
       const outputPath =  path.join(imgFolder, outFileName);
       thumbnailPromises.push(thumbnailer.generateThumbnail(fileObj.path, outputPath, frameRipTime, i === 0));

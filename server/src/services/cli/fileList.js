@@ -65,7 +65,6 @@ async function fullListing(folder) {
 }
 
 async function slowChanged(folder, days) {
-  console.log('running changed')
   try {
     const changed = await executor.run('find',
       [folder, '-maxdepth', '3', '-not', '-path', `'*/.*'`, '-type', 'f', '-mtime', `-${days}`]);

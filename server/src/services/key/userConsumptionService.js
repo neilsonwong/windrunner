@@ -3,6 +3,7 @@
 const fileLibrary = require('../helper/fileLibraryService');
 const watchHistory = require('../data/watchHistoryDbService');
 const pinDb = require('../data/pinsDbService');
+const sambaService = require('../helper/sambaService');
 
 async function getPinned() {
   const pinList = await pinDb.getPinned();
@@ -34,6 +35,12 @@ async function resetWatchTime(file) {
   return await watchHistory.resetWatchTime(file);
 }
 
+async function monitorWatchTime() {
+  const updatedFiles = await sambaService.startMonitoring();
+  // updated files need to be evicted from the fileLibrary
+  await Promise.all(updatedFiles.map(e => (fileLibrary.expire(e))));
+}
+
 module.exports = {
   getPinned: getPinned,
   isPinned: isPinned,
@@ -42,4 +49,5 @@ module.exports = {
   getWatchTime: getWatchTime,
   updateWatchTime: updateWatchTime,
   resetWatchTime: resetWatchTime,
+  monitorWatchTime: monitorWatchTime,
 };

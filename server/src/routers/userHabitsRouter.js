@@ -21,7 +21,6 @@ router.post('/pins/add', async (req, res) => {
     if (!results) {
       logger.error(`could not add pin ${pin}`);
     }
-    console.log(results);
     return results ? res.status(201).send(pin) : res.sendStatus(500);
   }
 });
@@ -36,18 +35,18 @@ router.post('/pins/del', async (req, res) => {
     if (!results) {
       logger.error(`could not del pin ${pin}`);
     }
-    console.log(results);
     return results ? res.status(200).send(pin) : res.sendStatus(500);
   }
 });
 
-router.post('/watch', async(req, res) => {
+router.post('/watch', (req, res) => {
   const fileId = req.body;
   if (!fileId) {
     return res.sendStatus(400);
   }
   else {
-    // trigger smb service watch
+    userConsumptionService.monitorWatchTime();
+    return res.sendStatus(200);
   }
 });
 

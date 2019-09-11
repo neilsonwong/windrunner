@@ -44,6 +44,12 @@ router2.get('/find', async (req, res) => {
   return res.end();
 });
 
+router2.get('/file', async(req, res) => {
+  // this path should be relative
+  const rel = req.query.rel || '';
+  return res.json(await navigatorService.getOne(rel));
+});
+
 module.exports = {
   v1: router1,
   v2: router2

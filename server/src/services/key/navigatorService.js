@@ -85,10 +85,23 @@ function getOldRecent() {
   return oldRecent;
 }
 
+async function getOne(rel) {
+  const fullPath = (rel.indexOf(SHARE_PATH) === 0) ? rel :
+    path.join(SHARE_PATH, rel);
+  try {
+    return await fileLibrary.get(fullPath);
+  }
+  catch(e) {
+    logger.error(`an error occured while getting one file`);
+    logger.error(e);
+  }
+}
+
 module.exports = {
   ls: nativels,
   find: find,
   recent: recent,
   getOldRecent: getOldRecent,
-  streamFind: streamFind
+  streamFind: streamFind,
+  getOne: getOne,
 };

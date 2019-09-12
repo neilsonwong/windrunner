@@ -65,13 +65,11 @@ async function analyzeFromFs(filePath) {
     stats = await accountForBuggyRemoteExecution(stats, filePath);
 
     const fileObj = new File(filePath, stats);
-    await populateMetadata(fileObj);
-    //update the cache
-    if (fileObj.type !== FileType.DIRECTORY) {
-      // i don't need to wait, just need it to run
-      await fileLibrary.set(fileObj);
-      fileLibEvents.emit(EVENTS.FRESH_FILE);
-    }
+    // new strat is to assign and populate later
+    // in the meantime a metadata less object is returned
+    await fileLibrary.set(fileObj);
+    // kick start the population process, in the meantime the fast version is returned instantly
+    populateMetadata(fileObj);
     return fileObj;
   }
   catch (e) {
@@ -82,6 +80,23 @@ async function analyzeFromFs(filePath) {
 }
 
 async function populateMetadata(fileObj) {
+  try {
+    fileObj.metadata = await getMetadata(fileObj);
+    //update the cache
+    if (fileObj.type !== FileType.DIRECTORY) {
+      // i don't need to wait, just need it to run
+      await fileLibrary.set(fileObj);
+      console.log('updated file data')
+      fileLibEvents.emit(EVENTS.FRESH_FILE);
+    }
+  }
+  catch (e) {
+    logger.error(`there was an error populating metadata for ${filePath}`);
+    logger.error(e);
+  }
+}
+
+async function getMetadata(fileObj) {
   let metadata = undefined;
   switch (fileObj.type) {
     case FileType.DIRECTORY:
@@ -106,8 +121,7 @@ async function populateMetadata(fileObj) {
       metadata = undefined;
   }
 
-  fileObj.setMetadata(metadata);
-  return fileObj;
+  return metadata;
 }
 
 async function accountForBuggyRemoteExecution(stats, filePath) {

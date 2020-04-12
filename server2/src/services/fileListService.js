@@ -16,11 +16,11 @@ async function listDirectory(dir) {
 
     try {
         const pathOnServer = fileUtil.pathOnServer(dir);
-        const files = await fs.promises.readdir(pathOnServer);
+        const files = await fs.readdir(pathOnServer);
         if (files && files.length > 0) {
-            return files.map(file => {
+            return files.map(async file => {
                 const filePath = fileUtil.pathOnServer(file);
-                return fileDetailService.getFastFileDetails(filePath);
+                return await fileDetailService.getFastFileDetails(filePath);
             });
         }
         else {

@@ -2,6 +2,7 @@
 
 const fs = require('fs').promises;
 
+const BaseFile = require('../models/baseFile');
 const fileUtil = require('../utils/fileUtil');
 const logger = require('../logger');
 

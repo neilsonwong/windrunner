@@ -14,8 +14,11 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "generic-pool": "^3.7.1",
     "koa": "^2.11.0",
     "koa-router": "^8.0.8",
+    "level": "^6.0.1",
+    "uuidv4": "^6.0.7",
     "winston": "^3.2.1"
   },
   "devDependencies": {

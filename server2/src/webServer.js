@@ -15,7 +15,7 @@ app
 
 function start() {
     app.listen(9876);
-    logger.info(`Windrunner API server (ver ${API_VERSION}) started on ${API_PORT}`);
+    logger.info(`Windrunner API server (ver ${API_VERSION}) started on port ${API_PORT}`);
 }
 
 module.exports = {

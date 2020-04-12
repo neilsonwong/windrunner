@@ -15,5 +15,6 @@ router.get('/hello', metaController.hello);
 router.get('/info', metaController.getServerInfo);
 
 router.get('/browse/:path', listingController.browse);
+router.get('/details/:filePath', listingController.details);
 
 module.exports = router;

@@ -1,6 +1,7 @@
 'use strict';
 
 const fileListService = require('../services/fileListService');
+const fileDetailService = require('../services/fileDetailService');
 
 async function browse(ctx) {
   const dir = ctx.params.path === '' ? '/' : decodeURIComponent(ctx.params.path);
@@ -8,6 +9,23 @@ async function browse(ctx) {
   ctx.body = files;
 }
 
+async function recent(ctx) {
+
+}
+
+async function favourites(ctx) {
+
+}
+
+async function details(ctx) {
+  const filePath = decodeURIComponent(ctx.params.filePath);
+  const details = await fileDetailService.getFileDetails(filePath);
+  ctx.body = details;
+}
+
 module.exports = {
-  browse
+  browse,
+  recent,
+  favourites,
+  details
 };

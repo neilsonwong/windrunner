@@ -1,0 +1,7 @@
+{
+    "API_VERSION": "2",
+    "API_PORT": 9876,
+
+    "SHARE_PATH": "/media/Seagate",
+    "LOG_DIR": "./logs"
+}

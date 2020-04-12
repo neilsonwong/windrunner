@@ -5,3 +5,5 @@ class BaseFile {
         this.name = name;
     }
 }
+
+module.exports = BaseFile;

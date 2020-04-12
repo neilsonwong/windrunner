@@ -2,6 +2,7 @@
 
 const fs = require('fs').promises;
 
+const BaseFile = require('../models/baseFile');
 const fileUtil = require('../utils/fileUtil');
 const logger = require('../logger');
 
@@ -11,7 +12,8 @@ async function getFastFileDetails(filePath) {
     if (file !== null) {
         return file;
     }
-    return new BaseFile(fileName, filePath);
+    const base = new BaseFile(fileName, filePath);
+    return base;
 }
 
 async function getCachedFileDetails(filename) {

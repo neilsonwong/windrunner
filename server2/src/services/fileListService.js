@@ -16,12 +16,15 @@ async function listDirectory(dir) {
 
     try {
         const pathOnServer = fileUtil.pathOnServer(dir);
-        const files = await fs.promises.readdir(pathOnServer);
+        const files = await fs.readdir(pathOnServer);
         if (files && files.length > 0) {
-            return files.map(file => {
-                const filePath = fileUtil.pathOnServer(file);
-                return fileDetailService.getFastFileDetails(filePath);
-            });
+            return Promise.all(files
+                .filter(fileName => (fileName.length > 0)) 
+                .filter(item => !(/(^|\/)\.[^/.]/g.test(item)))
+                .map(async file => {
+                    const filePath = path.join(pathOnServer, file);
+                    return await fileDetailService.getFastFileDetails(filePath);
+                }));
         }
         else {
             logger.verbose(`empty directory: ${dir}`);

@@ -3,5 +3,6 @@
     "API_PORT": 9876,
 
     "SHARE_PATH": "/media/Seagate",
-    "LOG_DIR": "./logs"
+    "LOG_DIR": "./logs",
+    "THUMBNAIL_BASE": "./thumbs"
 }

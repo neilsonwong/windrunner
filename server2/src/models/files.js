@@ -31,9 +31,10 @@ class BasicFile extends BaseFile {
 }
 
 class Directory extends BasicFile {
-  constructor(filePath, stats) {
+  constructor(filePath, stats, isSeriesLeafNode) {
     super(filePath, stats);
     this.type = FILETYPES.DIR;
+    this.series = isSeriesLeafNode ? this.name : undefined;
   }
 }
 

@@ -2,19 +2,25 @@
 
 const fileListService = require('../services/fileListService');
 const fileDetailService = require('../services/fileDetailService');
+const logger = require('../logger');
+const { SHARE_PATH } = require('../../config.json');
 
 async function browse(ctx) {
-  const dir = ctx.params.path === '' ? '/' : decodeURIComponent(ctx.params.path);
+  const dir = (ctx.params.path === '' || ctx.params.path === undefined) ? 
+    '/' : 
+    decodeURIComponent(ctx.params.path);
   const files = await fileListService.listDirectory(dir);
   ctx.body = files;
 }
 
 async function recent(ctx) {
-
+  const results = await fileListService.recentChangedFolders();
+  ctx.body = results;
 }
 
-async function favourites(ctx) {
-
+async function recent2(ctx) {
+  const results = await fileListService.oldRecent();
+  ctx.body = results;
 }
 
 async function details(ctx) {
@@ -26,6 +32,6 @@ async function details(ctx) {
 module.exports = {
   browse,
   recent,
-  favourites,
+  recent2,
   details
 };

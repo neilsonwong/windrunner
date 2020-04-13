@@ -47,7 +47,8 @@ async function getSpecializedFile(filePath, stats) {
     return new BaseFile(filePath);
   }
   else if (stats.isDirectory()) {
-    return new Directory(filePath, stats);
+    const isSeries = await isSeriesLeafNode(filePath);
+    return new Directory(filePath, stats, isSeries);
   }
   else if (videoDataService.isVideo(filePath)) {
     const videoMetadata = await videoDataService.getVideoMetadata(filePath);
@@ -56,6 +57,32 @@ async function getSpecializedFile(filePath, stats) {
   else {
     return new BasicFile(filePath, stats);
   }
+}
+
+async function isSeriesLeafNode(filePath) {
+  const files = await fs.readdir(filePath);
+  if (files && files.length > 0) {
+    const folderMakeup = {
+      video: 0,
+      other: 0,
+      total: 0
+    };
+    const finalMakeUp = files
+      .filter(fileName => (fileName.length > 0))
+      .filter(item => !(/(^|\/)\.[^/.]/g.test(item)))
+      .reduce((accumulator, fileName) => {
+        if (videoDataService.isVideo(fileName)) {
+          ++accumulator.video;
+        }
+        else {
+          ++accumulator.other;
+        }
+        ++accumulator.total;
+        return accumulator;
+      }, folderMakeup);
+    return finalMakeUp.video * 2 > finalMakeUp.total;
+  }
+  return false;
 }
 
 module.exports = {

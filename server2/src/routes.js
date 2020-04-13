@@ -19,7 +19,7 @@ router.get('/browse', listingController.browse);
 router.get('/browse/:path', listingController.browse);
 router.get('/details/:filePath', listingController.details);
 router.get('/recent', listingController.recent);
-router.get('/recent2', listingController.recent);
+router.get('/recent2', listingController.recent2);
 
 router.get('/favs', favouritesController.favourites);
 router.post('/fav', favouritesController.addFavourite);

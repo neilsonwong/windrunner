@@ -39,10 +39,11 @@ class Directory extends BasicFile {
 }
 
 class Video extends BasicFile {
-  constructor(filePath, stats, videoStats) {
+  constructor(filePath, stats, videoStats, thumbnails) {
     super(filePath, stats);
     this.type = FILETYPES.VID;
     this.duration = videoStats.duration;
+    this.thumbnail = thumbnails || [];
   }
 }
 

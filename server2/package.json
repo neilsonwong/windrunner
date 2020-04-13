@@ -14,8 +14,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "chokidar": "^3.3.1",
     "generic-pool": "^3.7.1",
+    "imagemin": "^7.0.1",
+    "imagemin-jpegtran": "^6.0.0",
     "koa": "^2.11.0",
     "koa-bodyparser": "^4.3.0",
     "koa-router": "^8.0.8",

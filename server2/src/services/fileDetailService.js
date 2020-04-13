@@ -7,6 +7,7 @@ const logger = require('../logger');
 const fileCache = require('./data/fileCache');
 const fileUtil = require('../utils/fileUtil');
 const videoDataService = require('./videoDataService');
+const thumbnailService = require('./thumbnailService');
 
 async function getFastFileDetails(filePath) {
   const file = await getCachedFileDetails(filePath);
@@ -52,7 +53,11 @@ async function getSpecializedFile(filePath, stats) {
   }
   else if (videoDataService.isVideo(filePath)) {
     const videoMetadata = await videoDataService.getVideoMetadata(filePath);
-    return new Video(filePath, stats, videoMetadata);
+
+    // start generating thumbnails
+    const thumbnails = thumbnailService.generateThumbnails(filePath, videoMetadata);
+    const videoFile = new Video(filePath, stats, videoMetadata, thumbnails);
+    return videoFile;
   }
   else {
     return new BasicFile(filePath, stats);

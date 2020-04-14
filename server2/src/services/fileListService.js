@@ -43,7 +43,8 @@ async function recentChangedFolders() {
   const folder = SHARE_PATH;
 
   try {
-    const changedDirString = await executor.run('find',
+    const changedDirString = await executor.runImmediately(
+      'find',
       [folder, '-mindepth', '1', '-maxdepth', '2',
         '-not', '-path', `'*/.*'`,
         '-type', 'd',
@@ -79,13 +80,15 @@ async function recentlyChangedInFolder(folder, days, depth) {
     let allChanges = [];
     const rootDirMaxDepth = depth === 0 ? '2' : '1';
 
-    const changedFiles = await executor.run('find',
+    const changedFiles = await executor.runImmediately(
+      'find',
       [folder, '-mindepth', '1', '-maxdepth', '1',
         '-not', '-path', `'*/.*'`,
         '-type', 'f',
         '-mtime', `-${days}`]);
 
-    const changedDirString = await executor.run('find',
+    const changedDirString = await executor.runImmediately(
+      'find',
       [folder, '-mindepth', '1', '-maxdepth', rootDirMaxDepth,
         '-not', '-path', `'*/.*'`,
         '-type', 'd',

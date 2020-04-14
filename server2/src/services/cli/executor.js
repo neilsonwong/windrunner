@@ -2,6 +2,7 @@
 
 const { exec, execFile } = require('child_process');
 const genericPool = require('generic-pool');
+const { MAX_CLI_PRIORITY_WORKERS, MAX_CLI_WORKERS } = require('../../../config.json');
 const logger = require('../../logger');
 const { Worker, Command } = require('../../models/cli');
 
@@ -12,21 +13,27 @@ const factory = {
   destroy: () => Promise.resolve()
 };
 
-const opts = {
-  max: 8
-};
+const pool = genericPool.createPool(factory, { max: MAX_CLI_WORKERS, priorityRange: 1 });
+const priorityPool = genericPool.createPool(factory, { max: MAX_CLI_PRIORITY_WORKERS });
 
-const pool = genericPool.createPool(factory, opts);
+function runImmediately(cmd, args, opts) {
+  return run(cmd, args, opts, true);
+}
 
-async function run(cmd, args, opts) {
-  // args can be null or undefined, that is OK.
+async function run(cmd, args, opts, now) {
+  // args can be null or undefined, thaut is OK.
   const command = new Command(cmd, args, opts);
   logger.debug(`pushing command into the queue with id ${command.id}`);
 
   try  {
-    const worker = await pool.acquire();
+    const { pool:poolToUse, priority } = acquirePoolAndPriority(now);
+
+    if (cmd.indexOf('ffmpeg') < 0) {
+      console.log(`cmd: ${cmd}\npriority: ${priority}`);
+    }
+    const worker = await poolToUse.acquire(priority);
     const output = await runCommand(command);
-    pool.release(worker);
+    poolToUse.release(worker);
     return output;
   }
   catch (err) {
@@ -34,6 +41,25 @@ async function run(cmd, args, opts) {
   }
 }
 
+function acquirePoolAndPriority(now) {
+  if (now) {
+    if (priorityPool.pending < 5) {
+      return {
+        pool: priorityPool,
+        priority: undefined
+      }
+    }
+    else {
+      return {
+        pool: pool,
+        priority: 0
+      }
+    }
+  }
+  else {
+    return { pool };
+  }
+}
 
 function runCommand(cmd) {
   return new Promise((res, rej) => {
@@ -75,20 +101,34 @@ function handleExecutionResult(res, rej, err, stdout, stderr) {
 }
 
 async function shutdown() {
-  await pool.drain();
+  await Promise.all([pool.drain(), priorityPool.drain()]);
   pool.clear();
+  priorityPool.clear();
 }
 
 function health() {
   return {
-    max: pool.max,
-    size: pool.size,
-    available: pool.available,
-    waiting: pool.pending
+    priority: {
+      max: priorityPool.max,
+      size: priorityPool.size,
+      available: priorityPool.available,
+      waiting: priorityPool.pending
+    },
+    regular: {
+      max: pool.max,
+      size: pool.size,
+      available: pool.available,
+      waiting: pool.pending
+    }
   };
 }
 
+setInterval(() => {
+  console.log(health());
+}, 5000)
+
 module.exports = {
+  runImmediately,
   run,
   shutdown,
   health

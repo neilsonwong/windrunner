@@ -14,6 +14,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "axios": "^0.19.2",
     "generic-pool": "^3.7.1",
     "imagemin": "^7.0.1",
     "imagemin-jpegtran": "^6.0.0",
@@ -22,6 +23,8 @@
     "koa-router": "^8.0.8",
     "koa-send": "^5.0.0",
     "level": "^6.0.1",
+    "limiter": "^1.1.5",
+    "string-similarity": "^4.0.1",
     "uuidv4": "^6.0.7",
     "winston": "^3.2.1"
   },

@@ -14,6 +14,12 @@ function pathOnServer(filePath) {
     path.join(SHARE_PATH, filePath);
 }
 
+function getPathRelativeToRoot(filePath) {
+  return filePath.startsWith(SHARE_PATH) ?
+    filePath.substring(SHARE_PATH.length) :
+    filePath;
+}
+
 function cleanDirPath(filePath) {
   return filePath.replace(/\/$/, '');
 }
@@ -21,5 +27,6 @@ function cleanDirPath(filePath) {
 module.exports = {
   getFileName,
   pathOnServer,
+  getPathRelativeToRoot,
   cleanDirPath
 };

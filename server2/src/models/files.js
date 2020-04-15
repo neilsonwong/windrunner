@@ -17,6 +17,7 @@ class BaseFile {
   constructor(filePath) {
     this.type = FILETYPES.BASE;
     this.filePath = filePath;
+    this.rel = fileUtil.getPathRelativeToRoot(filePath);
     this.name = fileUtil.getFileName(filePath);
   }
 }

@@ -108,7 +108,6 @@ async function tryToEvolveDir(dirFile, stats) {
     // download the banner images
     const downloadedImages = await aniListService.downloadSeriesImages(aniListData);
     seriesDir.aniListData.setLocalImages(...downloadedImages);
-    console.log(seriesDir);
     await fileCache.set(seriesDir);
   }
   else {

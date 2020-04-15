@@ -2,7 +2,7 @@
 
 const { exec, execFile } = require('child_process');
 const genericPool = require('generic-pool');
-const { MAX_CLI_PRIORITY_WORKERS, MAX_CLI_WORKERS } = require('../../../config.json');
+const { MAX_CLI_PRIORITY_WORKERS, MAX_CLI_WORKERS, HEALTH_MONITOR_INTERVAL } = require('../../../config.json');
 const logger = require('../../logger');
 const { Worker, Command } = require('../../models/cli');
 
@@ -27,10 +27,6 @@ async function run(cmd, args, opts, now) {
 
   try  {
     const { pool:poolToUse, priority } = acquirePoolAndPriority(now);
-
-    if (cmd.indexOf('ffmpeg') < 0) {
-      console.log(`cmd: ${cmd}\npriority: ${priority}`);
-    }
     const worker = await poolToUse.acquire(priority);
     const output = await runCommand(command);
     poolToUse.release(worker);
@@ -123,9 +119,13 @@ function health() {
   };
 }
 
-setInterval(() => {
-  console.log(health());
-}, 5000)
+function startHealthMonitor() {
+  if (HEALTH_MONITOR_INTERVAL > 0) {
+    setInterval(() => {
+      logger.verbose(health());
+    }, HEALTH_MONITOR_INTERVAL)
+  }
+}
 
 module.exports = {
   runImmediately,

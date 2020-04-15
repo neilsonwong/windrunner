@@ -12,8 +12,8 @@ async function getImage(ctx) {
     }
     catch (e) {
       // this usually means the file is not found, hide the error from the user
-      logger.warn('unable to find image in static assets');
-      logger.warn(e);
+      logger.verbose('unable to find image in static assets');
+      logger.verbose(e);
     }
   }
 }

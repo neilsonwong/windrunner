@@ -5,9 +5,14 @@
     "SHARE_PATH": "/media/Seagate",
     "LOG_DIR": "./logs",
 
-    "THUMBNAIL_BASE": "./thumbs",
+    "IMAGE_HOME": "./img",
+
+    "SERIES_IMAGE_BASE": "./img/series",
+
+    "THUMBNAIL_BASE": "./img/thumbs",
     "MAX_THUMBNAILS": 5,
 
     "MAX_CLI_PRIORITY_WORKERS": 1,
-    "MAX_CLI_WORKERS": 4
+    "MAX_CLI_WORKERS": 4,
+    "HEALTH_MONITOR_INTERVAL": -1 
 }

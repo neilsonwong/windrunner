@@ -59,7 +59,7 @@ function getThumbnailProgress(imageId) {
   if (inProgress.has(imageId)) {
     const thumbnailPromise = inProgress.get(imageId);
     if (typeof thumbnailPromise === 'number') {
-      return true;
+      return thumbnailPromise;
     }
     else {
       return false;

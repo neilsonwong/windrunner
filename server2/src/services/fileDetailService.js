@@ -2,12 +2,13 @@
 
 const fs = require('fs').promises;
 
-const { BaseFile, BasicFile, Directory, Video } = require('../models/files');
+const { BaseFile, InvalidFile, BasicFile, Directory, SeriesDirectory, Video } = require('../models/files');
 const logger = require('../logger');
 const fileCache = require('./data/fileCache');
 const fileUtil = require('../utils/fileUtil');
-const videoDataService = require('./videoDataService');
+const videoDataService = require('./dataGatherers/videoDataService');
 const thumbnailService = require('./thumbnailService');
+const aniListService = require('./dataGatherers/aniListService');
 
 async function getFastFileDetails(filePath) {
   const file = await getCachedFileDetails(filePath);
@@ -39,7 +40,7 @@ async function getFileDetails(filePath) {
   catch (e) {
     logger.error(`there was an error analyzing the file data for ${filePath}`);
     logger.error(e);
-    return new BasicFile(filePath);
+    return new InvalidFile(filePath);
   }
 }
 
@@ -49,7 +50,13 @@ async function getSpecializedFile(filePath, stats) {
   }
   else if (stats.isDirectory()) {
     const isSeries = await isSeriesLeafNode(filePath);
-    return new Directory(filePath, stats, isSeries);
+    const dirFile = new Directory(filePath, stats, isSeries);
+    if (isSeries) {
+      // don't wait for this promise, it will complete by itself and update the cache later
+      // we don't REALLY need to pass the stats, but i have it, so i will use it
+      tryToEvolveDir(dirFile, stats);
+    }
+    return dirFile;
   }
   else if (videoDataService.isVideo(filePath)) {
     const videoMetadata = await videoDataService.getVideoMetadata(filePath);
@@ -88,6 +95,25 @@ async function isSeriesLeafNode(filePath) {
     return finalMakeUp.video * 2 > finalMakeUp.total;
   }
   return false;
+}
+
+async function tryToEvolveDir(dirFile, stats) {
+  const series = dirFile.name;
+  const aniListData = await aniListService.smartSearch(series);
+  if (aniListData !== null) {
+    // we found a series match!
+    const seriesDir = new SeriesDirectory(dirFile.filePath, stats, dirFile.isSeriesLeafNode, aniListData);
+    await fileCache.set(seriesDir);
+    logger.verbose(`${series} has evolved into SeriesDirectory`);
+    // download the banner images
+    const downloadedImages = await aniListService.downloadSeriesImages(aniListData);
+    seriesDir.aniListData.setLocalImages(...downloadedImages);
+    console.log(seriesDir);
+    await fileCache.set(seriesDir);
+  }
+  else {
+    logger.verbose(`could not guess aniListDb Entry for ${series}`);
+  }
 }
 
 module.exports = {

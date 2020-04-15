@@ -1,10 +1,16 @@
 'use strict';
 
+const fs = require('fs');
+const path = require('path');
+
+const { v4: uuidv4 } = require('uuid');
 const axios = require('axios');
 const RateLimiter = require('limiter').RateLimiter;
 const stringSimilarity = require('string-similarity');
 
 const logger = require('../../logger');
+const { SERIES_IMAGE_BASE } = require('../../../config.json');
+const { getYear, getSeasonSynonyms } = require('../../utils/seriesUtil');
 const AniListData = require('../../models/aniListData');
 
 const aniListGraphQLEndpoint = 'https://graphql.anilist.co';
@@ -22,14 +28,15 @@ class GraphQLRequest {
 async function smartSearch(series) {
   const results = await searchForSeries(series);
   const bestMatch = findBestMatch(series, results);
-  return getAniListData(bestMatch);
+  const data = getAniListData(bestMatch);
+  return data;
 }
 
 async function searchForSeries(series) {
   if (series && series.length > 0) {
     const req = new GraphQLRequest(
       GRAPHQL_QUERIES.LOOKUP_ANIME_BY_NAME,
-      { search: series, page: 1, perPage: 20 });
+      { search: series, page: 1, perPage: 10 });
     const searchResults = await makeAniListRequest(req);
     if (searchResults &&
       searchResults.data &&
@@ -52,8 +59,8 @@ async function getAniListData(aniListId) {
       aniListDetails.data &&
       aniListDetails.data.data &&
       aniListDetails.data.data.Media) {
-        return new AniListData(aniListDetails.data.data.Media);
-      }
+      return new AniListData(aniListDetails.data.data.Media);
+    }
   }
   return null;
 }
@@ -63,36 +70,41 @@ function findBestMatch(series, results) {
     return null;
   }
 
+  // optimizations for season year
+  const yearFilter = getYear(series);
+
+  // optimizations for season number
+  // replace sX with season X as a dual property algorithm
+
   const seriesInLower = series.toLowerCase();
-  // const cache = new Map();
-  const candidates = [];
+  const seasonVariations = getSeasonSynonyms(seriesInLower);
+  let found = null;
 
-  // let us find this guy
+  // let aniList do the heavy lifting, it should be in a good order already!
   results.forEach(result => {
-    if (result && result.title && result.title.romaji) {
-      candidates.push(result.title.romaji.toLowerCase());
-      // cache.set(result.title.romaji, results.id);
-    }
-    else {
-      candidates.push('');
-    }
+    if (found === null &&
+      (yearFilter === null || Math.abs(yearFilter - result.seasonYear) < 2)) {
+      const candidates = [...result.synonyms,
+        (result.title.english || ''),
+        (result.title.romaji || '')].map(s => s.toLowerCase());
 
-    if (result && result.title && result.title.english) {
-      candidates.push(result.title.english.toLowerCase());
-      // cache.set(result.title.english, results.id);
-    }
-    else {
-      candidates.push('');
+      let { bestMatch } = stringSimilarity.findBestMatch(seriesInLower, candidates);
+
+      if (seasonVariations) {
+        bestMatch = seasonVariations.map(variation => {
+          return (stringSimilarity.findBestMatch(variation, candidates)).bestMatch;
+        }).reduce((acc, cur) => {
+          return (acc.rating > cur.rating) ? acc : cur;
+        }, bestMatch);
+      }
+
+      // check if it's good enough
+      if (bestMatch.rating > 0.7) {
+        found = result.id;
+      }
     }
   });
-
-  const { bestMatch, bestMatchIndex } = stringSimilarity.findBestMatch(seriesInLower, candidates);
-  
-  // check if it's good enough
-  if (bestMatch.rating > 0.7) {
-    const found = results[Math.floor(bestMatchIndex/2)];
-    return found.id;
-  }
+  return found;
 }
 
 async function makeAniListRequest(graphQLRequest) {
@@ -101,7 +113,7 @@ async function makeAniListRequest(graphQLRequest) {
   try {
     return await axios.post(aniListGraphQLEndpoint, graphQLRequest);
   }
-  catch(e) {
+  catch (e) {
     logger.error(e);
     return null;
   }
@@ -109,7 +121,7 @@ async function makeAniListRequest(graphQLRequest) {
 
 function throttle() {
   return new Promise((res, rej) => {
-    limiter.removeTokens(1, function(err, remainingRequests) {
+    limiter.removeTokens(1, function (err, remainingRequests) {
       if (err) {
         rej(err);
       }
@@ -120,15 +132,52 @@ function throttle() {
   });
 }
 
+async function downloadSeriesImages(aniListData) {
+  return Promise.all(
+    [aniListData.coverImage, aniListData.bannerImage]
+      .map(async (url) => {
+        if (url) {
+          const fileName = path.basename(url);
+          const saveTo = path.join(SERIES_IMAGE_BASE, fileName);
+          if (await downloadPic(url, saveTo) !== null) {
+            return fileName;
+          }
+        }
+      })
+  );
+}
+
+async function downloadPic(url, saveTo) {
+  try {
+    return await axios({
+      method: 'get',
+      url: url,
+      responseType: 'stream'
+    }).then(res => {
+      const writer = fs.createWriteStream(saveTo);
+      res.data.pipe(writer);
+      return new Promise((res, rej) => {
+        writer.on('finish', () => res(saveTo));
+        writer.on('error', () => rej());
+      });
+    });
+  }
+  catch (e) {
+    logger.error(e);
+    return null;
+  }
+}
+
 module.exports = {
   searchForSeries,
   getAniListData,
-  smartSearch
+  smartSearch,
+  downloadSeriesImages
 };
 
 const GRAPHQL_QUERIES = {
-  QUERY_ANIME_BY_ID: 
-`query ($id: Int) {
+  QUERY_ANIME_BY_ID:
+    `query ($id: Int) {
   Media(id: $id, type: ANIME) {
     id
     season
@@ -162,7 +211,7 @@ const GRAPHQL_QUERIES = {
 }`,
 
   LOOKUP_ANIME_BY_NAME:
-`query ($page: Int, $perPage: Int, $search: String) {
+    `query ($page: Int, $perPage: Int, $search: String) {
   Page (page: $page, perPage: $perPage) {
     pageInfo {
       total
@@ -174,10 +223,12 @@ const GRAPHQL_QUERIES = {
     media (search: $search, type:ANIME) {
       id
       format
+      seasonYear
       title {
         romaji
         english
       }
+      synonyms
     }
   }
 }

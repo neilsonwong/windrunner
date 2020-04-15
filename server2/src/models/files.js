@@ -7,7 +7,9 @@ const FILETYPES = {
   BASE: 'BASE',
   BASIC: 'BASIC',
   DIR: 'DIRECTORY',
-  VID: 'VIDEO'
+  SERIES: 'SERIES',
+  VID: 'VIDEO',
+  INVALID: 'INVALID'
 };
 
 // fast populated file for speed
@@ -16,6 +18,13 @@ class BaseFile {
     this.type = FILETYPES.BASE;
     this.filePath = filePath;
     this.name = fileUtil.getFileName(filePath);
+  }
+}
+
+class InvalidFile extends BaseFile {
+  constructor(filePath) {
+    super(filePath);
+    this.type = FILETYPES.INVALID;
   }
 }
 
@@ -34,7 +43,15 @@ class Directory extends BasicFile {
   constructor(filePath, stats, isSeriesLeafNode) {
     super(filePath, stats);
     this.type = FILETYPES.DIR;
-    this.series = isSeriesLeafNode ? this.name : undefined;
+    this.isSeriesLeafNode = isSeriesLeafNode;
+  }
+}
+
+class SeriesDirectory extends Directory {
+  constructor(filePath, stats, isSeriesLeafNode, aniListData) {
+    super(filePath, stats, isSeriesLeafNode);
+    this.type = FILETYPES.SERIES;
+    this.aniListData = aniListData;
   }
 }
 
@@ -50,8 +67,10 @@ class Video extends BasicFile {
 module.exports = {
   FILETYPES,
   BaseFile,
+  InvalidFile,
   BasicFile,
   Directory,
+  SeriesDirectory,
   Video
 };
 

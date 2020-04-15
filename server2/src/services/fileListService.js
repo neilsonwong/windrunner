@@ -58,7 +58,7 @@ async function recentChangedFolders() {
         
 
     return changedDirs
-      .filter(dir => dir.series !== undefined);
+      .filter(dir => (dir.isSeriesLeafNode));
   }
   catch (e) {
     logger.warn(`there was an error finding recently changed folders in ${folder}`);

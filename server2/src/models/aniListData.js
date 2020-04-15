@@ -22,6 +22,13 @@ class aniListData {
     }
     this.nextAiringEpisode = aniListObj.nextAiringEpisode;
     this.description = aniListObj.description;
+    this.localCoverImage = null;
+    this.localBannerImage = null;
+  }
+
+  setLocalImages(cover, banner) {
+    this.localCoverImage = cover;
+    this.localBannerImage = banner;
   }
 };
 

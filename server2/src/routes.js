@@ -5,7 +5,7 @@ const Router = require('koa-router');
 const { API_VERSION } = require('../config.json');
 const listingController = require('./controllers/listingController');
 const favouritesController = require('./controllers/favouritesController');
-const thumbnailController = require('./controllers/thumbnailController');
+const imagesController = require('./controllers/imagesController');
 const metaController = require('./controllers/metaController');
 
 const API_PREFIX = `/api/v${API_VERSION}/`;
@@ -26,6 +26,7 @@ router.get('/favs', favouritesController.favourites);
 router.post('/fav', favouritesController.addFavourite);
 router.del('/fav', favouritesController.removeFavourite);
 
-router.get('/img/:imageId', thumbnailController.getImage);
+router.get('/img/thumbs/:imageId', imagesController.getThumbnail);
+router.get('/img/series/:imageId', imagesController.getSeriesImage);
 
 module.exports = router;

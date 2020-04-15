@@ -2,6 +2,7 @@
 
 const Koa = require('koa');
 const bodyParser = require('koa-bodyparser');
+const cors = require('@koa/cors');
 
 const { API_PORT, API_VERSION } = require('../config.json');
 
@@ -11,6 +12,7 @@ const router = require('./routes');
 const app = new Koa();
 
 // middlewares
+app.use(cors());
 app.use(bodyParser({
   enableTypes: ['json'],
   jsonLimit: '10mb'

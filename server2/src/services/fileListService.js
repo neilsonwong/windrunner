@@ -55,10 +55,15 @@ async function recentChangedFolders() {
         .split('\n')
         .filter(e => (e.length > 0))
         .map(dir => fileDetailService.getFileDetails(dir)));
-        
 
-    return changedDirs
-      .filter(dir => (dir.isSeriesLeafNode));
+    const series = await Promise.all(changedDirs
+      .filter(dir => (dir.isSeriesLeafNode))
+      .map(async (dir) => {
+        const changed = await filesChangedInFolder(dir.filePath);
+        dir.newFiles = changed;
+        return dir;
+      }));
+    return series.filter(dir => (dir.newFiles && dir.newFiles.length > 0));
   }
   catch (e) {
     logger.warn(`there was an error finding recently changed folders in ${folder}`);
@@ -69,6 +74,21 @@ async function recentChangedFolders() {
 
 function oldRecent() {
   return recentlyChangedInFolder(SHARE_PATH, 7);
+}
+
+async function filesChangedInFolder(folder) {
+  const days = 7;
+
+  const changedFiles = await executor.runImmediately(
+    'find',
+    [folder, '-mindepth', '1', '-maxdepth', '1',
+      '-not', '-path', `'*/.*'`,
+      '-type', 'f',
+      '-mtime', `-${days}`]);
+  const changed = changedFiles
+    .split('\n').filter(e => (e.length > 0))
+    .map(file => (fileUtil.getPathRelativeToRoot(file)));
+  return changed;
 }
 
 async function recentlyChangedInFolder(folder, days, depth) {

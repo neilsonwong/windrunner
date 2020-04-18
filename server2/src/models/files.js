@@ -45,6 +45,7 @@ class Directory extends BasicFile {
     super(filePath, stats);
     this.type = FILETYPES.DIR;
     this.isSeriesLeafNode = isSeriesLeafNode;
+    this.newFiles = undefined;
   }
 }
 

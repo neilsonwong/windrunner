@@ -3,6 +3,7 @@
 const Koa = require('koa');
 const bodyParser = require('koa-bodyparser');
 const cors = require('@koa/cors');
+const compress = require('koa-compress')
 
 const { API_PORT, API_VERSION } = require('../config.json');
 
@@ -13,6 +14,13 @@ const app = new Koa();
 
 // middlewares
 app.use(cors());
+app.use(compress({
+  // filter: function (content_type) {
+  // 	return /text/i.test(content_type)
+  // },
+  threshold: 2048,
+  flush: require('zlib').Z_SYNC_FLUSH
+}))
 app.use(bodyParser({
   enableTypes: ['json'],
   jsonLimit: '10mb'

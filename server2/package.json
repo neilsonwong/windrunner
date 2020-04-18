@@ -21,6 +21,7 @@
     "imagemin-jpegtran": "^6.0.0",
     "koa": "^2.11.0",
     "koa-bodyparser": "^4.3.0",
+    "koa-compress": "^3.0.0",
     "koa-router": "^8.0.8",
     "koa-send": "^5.0.0",
     "level": "^6.0.1",

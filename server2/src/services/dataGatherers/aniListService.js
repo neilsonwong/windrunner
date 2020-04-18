@@ -183,6 +183,7 @@ const GRAPHQL_QUERIES = {
     season
     seasonYear
     episodes
+    source
     title {
       romaji
       english

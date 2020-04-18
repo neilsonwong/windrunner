@@ -8,6 +8,7 @@ class aniListData {
     this.englishTitle = aniListObj.title.english;
     this.nativeTitle = aniListObj.title.native;
     this.genres = aniListObj.genres;
+    this.source = aniListObj.source;
     if (aniListObj.coverImage) {
       this.coverImage = aniListObj.coverImage.large;
       this.color = aniListObj.coverImage.color;

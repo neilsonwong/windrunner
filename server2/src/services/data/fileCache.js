@@ -3,6 +3,7 @@
 const logger = require('../../logger');
 const fileLibraryDb = require('./levelDbService').instanceFor('fileLibrary');
 const fileIndexDb = require('./levelDbService').instanceFor('fileLibraryIndex');
+const pendingResourceService = require('../pendingResourceService');
 
 function getFile(filePath) {
   return fileLibraryDb.get(filePath);
@@ -10,18 +11,17 @@ function getFile(filePath) {
 
 async function setFile(fileObj) {
   if (fileObj.id) {
-    // never save promised
-    const savedPromised = fileObj.promised;
-    fileObj.promised = undefined;
+    // don't save the promise if it's done already
+    if (pendingResourceService.getStatus(fileObj.promised)) {
+      // console.log('clearing finished promise from fileObj');
+      fileObj.promised = undefined;
+    }
     
     // add id
     await Promise.all([
       fileLibraryDb.put(fileObj.filePath, fileObj), 
       fileIndexDb.put(fileObj.id, fileObj.filePath)
     ]);
-
-    // restore the promise object so we don't have to clone
-    fileObj.promised = savedPromised;
   }
   else {
     logger.error('attempt to setFile without fileId in fileObj');

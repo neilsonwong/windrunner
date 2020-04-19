@@ -3,7 +3,6 @@
 const fs = require('fs');
 const path = require('path');
 
-const { v4: uuidv4 } = require('uuid');
 const axios = require('axios');
 const RateLimiter = require('limiter').RateLimiter;
 const stringSimilarity = require('string-similarity');
@@ -14,7 +13,7 @@ const { getYear, getSeasonSynonyms } = require('../../utils/seriesUtil');
 const AniListData = require('../../models/aniListData');
 
 const aniListGraphQLEndpoint = 'https://graphql.anilist.co';
-const aniListMaxRequestsPerMinute = 80; // it is 90, but being safe here
+const aniListMaxRequestsPerMinute = 60; // it is 90, but being safe here
 
 const limiter = new RateLimiter(aniListMaxRequestsPerMinute, 'minute');
 
@@ -109,9 +108,19 @@ function findBestMatch(series, results) {
 
 async function makeAniListRequest(graphQLRequest) {
   // wait for rate limiter
-  await throttle();
   try {
-    return await axios.post(aniListGraphQLEndpoint, graphQLRequest);
+    await throttle();
+    const response = await axios.post(aniListGraphQLEndpoint, graphQLRequest);
+    if (response && response.headers && response.headers['x-ratelimit-remaining']) {
+      const remainingRequests = parseInt(response.headers['x-ratelimit-remaining']);
+      if (remainingRequests < 20) {
+        console.log(`DANGER ZONE: ${remainingRequests}`);
+      }
+      else {
+        // console.log(`we stil got ${remainingRequests} left! WOOT!`)
+      }
+    }
+    return response;
   }
   catch (e) {
     logger.error(e);
@@ -119,7 +128,7 @@ async function makeAniListRequest(graphQLRequest) {
   }
 }
 
-function throttle() {
+async function throttle() {
   return new Promise((res, rej) => {
     limiter.removeTokens(1, function (err, remainingRequests) {
       if (err) {

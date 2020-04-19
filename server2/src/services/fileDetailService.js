@@ -107,18 +107,22 @@ async function isSeriesLeafNode(filePath) {
 async function tryToEvolveDir(dirFile, stats) {
   const series = dirFile.name;
   const aniListData = await aniListService.smartSearch(series);
+
   if (aniListData !== null) {
     // we found a series match!
     const seriesDir = new SeriesDirectory(dirFile.filePath, stats, dirFile.isSeriesLeafNode, aniListData);
     await fileCache.set(seriesDir);
+    console.log(`${series} is now a series`);
     logger.verbose(`${series} has evolved into SeriesDirectory`);
     // download the banner images
     const downloadedImages = await aniListService.downloadSeriesImages(aniListData);
     seriesDir.aniListData.setLocalImages(...downloadedImages);
     await fileCache.set(seriesDir);
+    console.log(`${series} is now a series with pictures!`);
     return seriesDir;
   }
   else {
+    console.log(`could not guess aniListDb Entry for ${series}`);
     logger.verbose(`could not guess aniListDb Entry for ${series}`);
   }
 }

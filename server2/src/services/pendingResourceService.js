@@ -28,13 +28,13 @@ async function process(id, promise) {
   await promise;
 
   // promise is done, let us put a time stamp
-  const status = promise[id];
-  promises[id] = Date.now();
+  const status = Date.now();
+  promises[id] = status;
 
   // sleep 10 minutes then remove from promises
   await sleep(600000);
   delete promises[id];
-  console.log(`deleting old promise ${id} at ${(new Date(status)).toString()}`);
+  // console.log(`deleting old promise ${id} at ${(new Date(status)).toString()}`);
 }
 
 module.exports = {

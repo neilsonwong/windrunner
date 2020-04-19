@@ -19,6 +19,7 @@ class BaseFile {
     this.filePath = filePath;
     this.rel = fileUtil.getPathRelativeToRoot(filePath);
     this.name = fileUtil.getFileName(filePath);
+    this.promised = undefined;
   }
 }
 

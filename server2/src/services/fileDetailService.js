@@ -9,6 +9,7 @@ const fileUtil = require('../utils/fileUtil');
 const videoDataService = require('./dataGatherers/videoDataService');
 const thumbnailService = require('./thumbnailService');
 const aniListService = require('./dataGatherers/aniListService');
+const pendingResourceService = require('./pendingResourceService');
 
 async function getFastFileDetails(filePath) {
   const file = await getCachedFileDetails(filePath);
@@ -16,6 +17,10 @@ async function getFastFileDetails(filePath) {
     return file;
   }
   const base = new BaseFile(filePath);
+
+  // we want to load these file details in the background 
+  const promised = getFileDetails(filePath);
+  base.promised = pendingResourceService.add(promised);
   return base;
 }
 

@@ -1,4 +1,4 @@
-class aniListData {
+class AniListData {
   constructor(aniListObj) {
     this.id = aniListObj.id;
     this.season = aniListObj.season;
@@ -33,4 +33,4 @@ class aniListData {
   }
 };
 
-module.exports = aniListData;
+module.exports = AniListData;

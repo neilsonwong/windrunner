@@ -7,6 +7,7 @@ const listingController = require('./controllers/listingController');
 const favouritesController = require('./controllers/favouritesController');
 const imagesController = require('./controllers/imagesController');
 const metaController = require('./controllers/metaController');
+const waitingController = require('./controllers/waitingController');
 
 const API_PREFIX = `/api/v${API_VERSION}/`;
 
@@ -28,5 +29,7 @@ router.del('/fav', favouritesController.removeFavourite);
 
 router.get('/img/thumbs/:imageId', imagesController.getThumbnail);
 router.get('/img/series/:imageId', imagesController.getSeriesImage);
+
+router.get('/resource/:id', waitingController.getStatus);
 
 module.exports = router;

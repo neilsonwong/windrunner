@@ -69,8 +69,8 @@ async function getSpecializedFile(filePath, stats) {
 
     // start generating thumbnails
     const { thumbnails, promised } = thumbnailService.generateThumbnails(filePath, videoMetadata);
-    videoFile.promised = pendingResourceService.add(promised);
     const videoFile = new Video(filePath, stats, videoMetadata, thumbnails);
+    videoFile.promised = pendingResourceService.add(promised);
     return videoFile;
   }
   else {

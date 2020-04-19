@@ -30,9 +30,15 @@ function generateThumbnails(filePath, videoMetadata) {
   const thumbnailIds = Array(MAX_THUMBNAILS).fill().map(() => uuidv4());
 
   try {
-    const thumbnailPromises = thumbnailIds
-      .map((thumbnailId, i) => getThumbnailCreationPromise(thumbnailId, i, filePath, thumbnailTimeUnit));
-    return thumbnailIds;
+    const thumbnailPromises = Promise.all(
+      thumbnailIds.map((thumbnailId, i) => {
+        return getThumbnailCreationPromise(thumbnailId, i, filePath, thumbnailTimeUnit);
+      }));
+
+    return {
+      ids: thumbnailIds,
+      promised: thumbnailPromises
+    };
   }
   catch (e) {
     logger.error(`there was an error when generating thumbnails for ${filePath}`);
@@ -40,19 +46,14 @@ function generateThumbnails(filePath, videoMetadata) {
   }
 }
 
-function getThumbnailCreationPromise(thumbnailId, i, filePath, thumbnailTimeUnit) {
+async function getThumbnailCreationPromise(thumbnailId, i, filePath, thumbnailTimeUnit) {
   //calculate time splits
   const frameRipTime = msToHms(thumbnailTimeUnit * (i + 1));
   const outFileName = thumbnailId + '.jpg';
   const outputPath = path.join(THUMBNAIL_BASE, outFileName);
-  const thumbPromise = generateThumbnail(filePath, outputPath, frameRipTime)
-    .then(() => (minifyFile(outputPath)))
-    .then(() => {
-      inProgress.set(thumbnailId, Date.now());
-    });
-
-  inProgress.set(thumbnailId, thumbPromise);
-  return thumbPromise;
+  await generateThumbnail(filePath, outputPath, frameRipTime);
+  await minifyFile(outputPath);
+  return outputPath;
 }
 
 function getThumbnailProgress(imageId) {

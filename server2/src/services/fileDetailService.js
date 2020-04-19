@@ -59,7 +59,8 @@ async function getSpecializedFile(filePath, stats) {
     if (isSeries) {
       // don't wait for this promise, it will complete by itself and update the cache later
       // we don't REALLY need to pass the stats, but i have it, so i will use it
-      tryToEvolveDir(dirFile, stats);
+      const promised = tryToEvolveDir(dirFile, stats);
+      dirFile.promised = pendingResourceService.add(promised);
     }
     return dirFile;
   }
@@ -67,7 +68,8 @@ async function getSpecializedFile(filePath, stats) {
     const videoMetadata = await videoDataService.getVideoMetadata(filePath);
 
     // start generating thumbnails
-    const thumbnails = thumbnailService.generateThumbnails(filePath, videoMetadata);
+    const { thumbnails, promised } = thumbnailService.generateThumbnails(filePath, videoMetadata);
+    videoFile.promised = pendingResourceService.add(promised);
     const videoFile = new Video(filePath, stats, videoMetadata, thumbnails);
     return videoFile;
   }
@@ -114,6 +116,7 @@ async function tryToEvolveDir(dirFile, stats) {
     const downloadedImages = await aniListService.downloadSeriesImages(aniListData);
     seriesDir.aniListData.setLocalImages(...downloadedImages);
     await fileCache.set(seriesDir);
+    return seriesDir;
   }
   else {
     logger.verbose(`could not guess aniListDb Entry for ${series}`);

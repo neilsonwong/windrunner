@@ -8,13 +8,20 @@ function getFile(filePath) {
   return fileLibraryDb.get(filePath);
 }
 
-function setFile(fileObj) {
+async function setFile(fileObj) {
   if (fileObj.id) {
+    // never save promised
+    const savedPromised = fileObj.promised;
+    fileObj.promised = undefined;
+    
     // add id
-    return Promise.all([
+    await Promise.all([
       fileLibraryDb.put(fileObj.filePath, fileObj), 
       fileIndexDb.put(fileObj.id, fileObj.filePath)
     ]);
+
+    // restore the promise object so we don't have to clone
+    fileObj.promised = savedPromised;
   }
   else {
     logger.error('attempt to setFile without fileId in fileObj');

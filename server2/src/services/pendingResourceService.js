@@ -9,7 +9,6 @@ function getStatus(promiseId) {
   const status = promises[promiseId];
   if (status !== undefined) {
     if (typeof status === 'number') {
-      console.log('promise finished at ' + (new Date(status)).toString());
       return true;
     }
     return false;
@@ -29,11 +28,13 @@ async function process(id, promise) {
   await promise;
 
   // promise is done, let us put a time stamp
+  const status = promise[id];
   promises[id] = Date.now();
 
   // sleep 10 minutes then remove from promises
   await sleep(600000);
   delete promises[id];
+  console.log(`deleting old promise ${id} at ${(new Date(status)).toString()}`);
 }
 
 module.exports = {

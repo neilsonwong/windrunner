@@ -237,6 +237,7 @@ const GRAPHQL_QUERIES = {
       title {
         romaji
         english
+        native
       }
       synonyms
     }

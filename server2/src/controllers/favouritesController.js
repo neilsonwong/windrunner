@@ -7,6 +7,12 @@ async function favourites(ctx) {
   ctx.body = favList;
 }
 
+async function isFavourite(ctx) {
+  const folderPath = decodeURIComponent(ctx.params.folderPath);
+  const result = await favouritesService.isFavourite(folderPath);
+  ctx.body = { result };
+}
+
 async function addFavourite(ctx) {
   const reqBody = ctx.request.body;
   let result = false;
@@ -17,16 +23,14 @@ async function addFavourite(ctx) {
 }
 
 async function removeFavourite(ctx) {
-  const reqBody = ctx.request.body;
-  let result = false;
-  if (reqBody && reqBody.folder) {
-    result = await favouritesService.removeFavourite(reqBody.folder);
-  }
+  const folderPath = decodeURIComponent(ctx.params.folderPath);
+  const result = await favouritesService.removeFavourite(folderPath);
   ctx.body = { result };
 }
 
 module.exports = {
   favourites,
   addFavourite,
-  removeFavourite
+  removeFavourite,
+  isFavourite
 };

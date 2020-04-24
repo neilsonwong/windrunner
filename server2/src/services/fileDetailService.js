@@ -105,20 +105,29 @@ async function isSeriesLeafNode(filePath) {
 }
 
 async function tryToEvolveDir(dirFile, stats) {
+  const aniListData = await aniListService.smartSearch(dirFile.name);
+  return addAniListDataToDir(aniListData, dirFile, stats);
+}
+
+async function addAniListDataToDir(aniListData, dirFile, stats) {
   const series = dirFile.name;
-  const aniListData = await aniListService.smartSearch(series);
+  if (!stats) {
+    stats = await fs.stat(dirFile.filePath);
+  }
 
   if (aniListData !== null) {
     // we found a series match!
     const seriesDir = new SeriesDirectory(dirFile.filePath, stats, dirFile.isSeriesLeafNode, aniListData);
     await fileCache.set(seriesDir);
-    console.log(`${series} is now a series`);
     logger.verbose(`${series} has evolved into SeriesDirectory`);
+
     // download the banner images
     const downloadedImages = await aniListService.downloadSeriesImages(aniListData);
     seriesDir.aniListData.setLocalImages(...downloadedImages);
+
+    // update the cache again
     await fileCache.set(seriesDir);
-    console.log(`${series} is now a series with pictures!`);
+    logger.verbose(`${series} is now a series with pictures!`);
     return seriesDir;
   }
   else {
@@ -129,5 +138,6 @@ async function tryToEvolveDir(dirFile, stats) {
 
 module.exports = {
   getFastFileDetails,
-  getFileDetails
+  getFileDetails,
+  addAniListDataToDir
 };

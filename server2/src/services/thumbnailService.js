@@ -1,9 +1,12 @@
 'use strict';
 
 const path = require('path');
+const fs = require('fs').promises;
 const { v4: uuidv4 } = require('uuid');
 const imagemin = require('imagemin');
-const imageminJpegtran = require('imagemin-jpegtran');
+// const imageminJpegtran = require('imagemin-jpegtran');
+const imageminWebp = require('imagemin-webp');
+const webp = require('webp-converter');
 
 const logger = require('../logger');
 const { THUMBNAIL_BASE, MAX_THUMBNAILS } = require('../../config.json');
@@ -36,7 +39,7 @@ function generateThumbnails(filePath, videoMetadata) {
       }));
 
     return {
-      ids: thumbnailIds,
+      thumbnails: thumbnailIds,
       promised: thumbnailPromises
     };
   }
@@ -51,9 +54,11 @@ async function getThumbnailCreationPromise(thumbnailId, i, filePath, thumbnailTi
   const frameRipTime = msToHms(thumbnailTimeUnit * (i + 1));
   const outFileName = thumbnailId + '.jpg';
   const outputPath = path.join(THUMBNAIL_BASE, outFileName);
+  const finalOutFileName = thumbnailId + '.webp';
+  // const finalOutputPath = path.join(THUMBNAIL_BASE, finalOutFileName);
   await generateThumbnail(filePath, outputPath, frameRipTime);
-  await minifyFile(outputPath);
-  return outputPath;
+  await minifyFile(outputPath, true);
+  return finalOutFileName;
 }
 
 function getThumbnailProgress(imageId) {
@@ -78,7 +83,7 @@ async function minifyFolder(folder) {
   try {
     await imagemin([jpgWildCard], {
       destination: folder,
-      plugins: [imageminJpegtran()]
+      plugins: [imageminWebp()]
     });
     logger.verbose(`image compression complete for ${folder}`);
   }
@@ -88,13 +93,17 @@ async function minifyFolder(folder) {
   }
 }
 
-async function minifyFile(filePath) {
+async function minifyFile(filePath, deleteAfter) {
   const folder = path.dirname(filePath);
   try {
     await imagemin([filePath], {
       destination: folder,
-      plugins: [imageminJpegtran()]
+      plugins: [imageminWebp()]
     });
+    // delete the file
+    if (deleteAfter) {
+      await fs.unlink(filePath);
+    }
     logger.verbose(`image compression complete for ${filePath}`);
   }
   catch (e) {

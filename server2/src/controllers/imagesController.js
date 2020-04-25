@@ -6,7 +6,9 @@ const logger = require('../logger');
 
 async function getThumbnail(ctx) {
   const imageId = decodeURIComponent(ctx.params.imageId);
-  return getImage(ctx, imageId, THUMBNAIL_BASE);
+  // thumbnails are webp
+  const imageFile = `${imageId}.webp`;
+  return getImage(ctx, imageFile, THUMBNAIL_BASE);
 }
 
 async function getSeriesImage(ctx) {

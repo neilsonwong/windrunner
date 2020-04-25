@@ -9,6 +9,7 @@ const imagesController = require('./controllers/imagesController');
 const metaController = require('./controllers/metaController');
 const waitingController = require('./controllers/waitingController');
 const seriesDataController = require('./controllers/seriesDataController');
+const videoListController = require('./controllers/videoListController');
 
 const API_PREFIX = `/api/v${API_VERSION}/`;
 
@@ -29,6 +30,11 @@ router.get('/favs', favouritesController.favourites);
 router.post('/fav', favouritesController.addFavourite);
 router.del('/fav/:folderPath', favouritesController.removeFavourite);
 router.get('/fav/:folderPath', favouritesController.isFavourite);
+
+router.get('/vlist/:listName', videoListController.getAll);
+router.post('/vlist/:listName', videoListController.add);
+router.del('/vlist/:listName/:folderPath', videoListController.remove);
+router.get('/vlist/:listName/:folderPath', videoListController.isPartOf);
 
 router.get('/img/thumbs/:imageId', imagesController.getThumbnail);
 router.get('/img/series/:imageId', imagesController.getSeriesImage);

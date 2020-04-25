@@ -5,8 +5,14 @@ const fileLibraryDb = require('./levelDbService').instanceFor('fileLibrary');
 const fileIndexDb = require('./levelDbService').instanceFor('fileLibraryIndex');
 const pendingResourceService = require('../pendingResourceService');
 
-function getFile(filePath) {
-  return fileLibraryDb.get(filePath);
+async function getFile(filePath) {
+  const file = await fileLibraryDb.get(filePath);
+  if (file.promised && pendingResourceService.getStatus(file.promised)) {
+    // console.log('clearing finished promise from fileObj');
+    file.promised = undefined;
+    setFile(file);
+  }
+  return file;
 }
 
 async function setFile(fileObj) {

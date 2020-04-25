@@ -2,6 +2,8 @@
 
 const config = require('../../config.json');
 
+const executor = require('../services/cli/executor');
+
 function hello(ctx) {
   ctx.body = 'Sylvanas says hello';
 }
@@ -14,7 +16,12 @@ function getServerInfo(ctx) {
   };
 }
 
+function getExecLoad(ctx) {
+  ctx.body = executor.health();
+}
+
 module.exports = {
   hello,
-  getServerInfo
+  getServerInfo,
+  getExecLoad,
 };

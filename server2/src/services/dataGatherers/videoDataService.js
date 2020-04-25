@@ -6,7 +6,7 @@ const executor = require('../cli/executor');
 async function getDuration(filePath) {
   const cmd = `ffprobe -v fatal -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "${filePath}"`;
   try {
-    const duration = await executor.runImmediately(cmd);
+    const duration = await executor.run(cmd, undefined, undefined, 1);
     return Math.floor(duration * 1000);
   }
   catch (e) {

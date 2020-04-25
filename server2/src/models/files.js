@@ -62,7 +62,7 @@ class Video extends BasicFile {
   constructor(filePath, stats, videoStats, thumbnails) {
     super(filePath, stats);
     this.type = FILETYPES.VID;
-    this.duration = videoStats.duration;
+    this.duration = videoStats ? videoStats.duration : 0;
     this.thumbnail = thumbnails || [];
   }
 }

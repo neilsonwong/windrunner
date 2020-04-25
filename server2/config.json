@@ -10,9 +10,11 @@
     "SERIES_IMAGE_BASE": "./img/series",
 
     "THUMBNAIL_BASE": "./img/thumbs",
-    "MAX_THUMBNAILS": 5,
+    "MAX_THUMBNAILS": 10,
 
-    "MAX_CLI_PRIORITY_WORKERS": 1,
+    "MAX_CLI_PRIORITY_WORKERS": 5,
     "MAX_CLI_WORKERS": 4,
-    "HEALTH_MONITOR_INTERVAL": -1 
+    "HEALTH_MONITOR_INTERVAL": -1,
+
+    "ANI_LIST_RESTORE_FILE": "./rawBrowseDump.json"
 }

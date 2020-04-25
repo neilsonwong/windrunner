@@ -13,47 +13,29 @@ const factory = {
   destroy: () => Promise.resolve()
 };
 
-const pool = genericPool.createPool(factory, { max: MAX_CLI_WORKERS, priorityRange: 1 });
-const priorityPool = genericPool.createPool(factory, { max: MAX_CLI_PRIORITY_WORKERS });
+const pool = genericPool.createPool(factory, { max: MAX_CLI_WORKERS, priorityRange: 3 });
 
 function runImmediately(cmd, args, opts) {
-  return run(cmd, args, opts, true);
+  return run(cmd, args, opts, 0);
 }
 
-async function run(cmd, args, opts, now) {
+async function run(cmd, args, opts, priority) {
   // args can be null or undefined, thaut is OK.
+  if (priority === undefined) {
+    priority = 2;
+  }
+
   const command = new Command(cmd, args, opts);
   logger.debug(`pushing command into the queue with id ${command.id}`);
 
   try  {
-    const { pool:poolToUse, priority } = acquirePoolAndPriority(now);
-    const worker = await poolToUse.acquire(priority);
+    const worker = await pool.acquire(priority);
     const output = await runCommand(command);
-    poolToUse.release(worker);
+    pool.release(worker);
     return output;
   }
   catch (err) {
     logger.error(err);
-  }
-}
-
-function acquirePoolAndPriority(now) {
-  if (now) {
-    if (priorityPool.pending < 5) {
-      return {
-        pool: priorityPool,
-        priority: undefined
-      }
-    }
-    else {
-      return {
-        pool: pool,
-        priority: 0
-      }
-    }
-  }
-  else {
-    return { pool };
   }
 }
 
@@ -97,25 +79,16 @@ function handleExecutionResult(res, rej, err, stdout, stderr) {
 }
 
 async function shutdown() {
-  await Promise.all([pool.drain(), priorityPool.drain()]);
+  await pool.drain();
   pool.clear();
-  priorityPool.clear();
 }
 
 function health() {
   return {
-    priority: {
-      max: priorityPool.max,
-      size: priorityPool.size,
-      available: priorityPool.available,
-      waiting: priorityPool.pending
-    },
-    regular: {
-      max: pool.max,
-      size: pool.size,
-      available: pool.available,
-      waiting: pool.pending
-    }
+    max: pool.max,
+    size: pool.size,
+    available: pool.available,
+    waiting: pool.pending
   };
 }
 

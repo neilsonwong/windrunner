@@ -7,7 +7,7 @@ const pendingResourceService = require('../pendingResourceService');
 
 async function getFile(filePath) {
   const file = await fileLibraryDb.get(filePath);
-  if (file.promised && pendingResourceService.getStatus(file.promised)) {
+  if (file && file.promised && pendingResourceService.getStatus(file.promised)) {
     // console.log('clearing finished promise from fileObj');
     file.promised = undefined;
     setFile(file);

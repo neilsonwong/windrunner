@@ -131,7 +131,7 @@ async function addAniListDataToDir(aniListData, dirFile, stats) {
     return seriesDir;
   }
   else {
-    console.log(`could not guess aniListDb Entry for ${series}`);
+    // console.log(`could not guess aniListDb Entry for ${series}`);
     logger.verbose(`could not guess aniListDb Entry for ${series}`);
   }
 }

@@ -12,10 +12,14 @@ const { SERIES_IMAGE_BASE } = require('../../../config.json');
 const { getYear, getSeasonSynonyms } = require('../../utils/seriesUtil');
 const AniListData = require('../../models/aniListData');
 
+const cachedService = require('./aniListRestoreService');
+
 const aniListGraphQLEndpoint = 'https://graphql.anilist.co';
 const aniListMaxRequestsPerMinute = 60; // it is 90, but being safe here
 
 const limiter = new RateLimiter(aniListMaxRequestsPerMinute, 'minute');
+
+const cached = cachedService.getRestoreMappings();
 
 class GraphQLRequest {
   constructor(query, variables) {
@@ -25,6 +29,10 @@ class GraphQLRequest {
 }
 
 async function smartSearch(series) {
+  if (cached[series]) {
+    return AniListData.fromCache(cached[series]);
+  }
+
   const results = await searchForSeries(series);
   const bestMatch = findBestMatch(series, results);
   const data = getAniListData(bestMatch);
@@ -114,7 +122,7 @@ async function makeAniListRequest(graphQLRequest) {
     if (response && response.headers && response.headers['x-ratelimit-remaining']) {
       const remainingRequests = parseInt(response.headers['x-ratelimit-remaining']);
       if (remainingRequests < 20) {
-        console.log(`DANGER ZONE: ${remainingRequests}`);
+        logger.warn(`DANGER ZONE!! ANILIST REQS LEFT: ${remainingRequests}`);
       }
       else {
         // console.log(`we stil got ${remainingRequests} left! WOOT!`)

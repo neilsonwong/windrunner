@@ -27,15 +27,17 @@ async function run(cmd, args, opts, priority) {
 
   const command = new Command(cmd, args, opts);
   logger.debug(`pushing command into the queue with id ${command.id}`);
+  let worker;
 
   try  {
-    const worker = await pool.acquire(priority);
+    worker = await pool.acquire(priority);
     const output = await runCommand(command);
     pool.release(worker);
     return output;
   }
   catch (err) {
     logger.error(err);
+    pool.release(worker);
   }
 }
 

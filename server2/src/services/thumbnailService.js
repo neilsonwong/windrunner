@@ -6,7 +6,6 @@ const { v4: uuidv4 } = require('uuid');
 const imagemin = require('imagemin');
 // const imageminJpegtran = require('imagemin-jpegtran');
 const imageminWebp = require('imagemin-webp');
-const webp = require('webp-converter');
 
 const logger = require('../logger');
 const { THUMBNAIL_BASE, MAX_THUMBNAILS } = require('../../config.json');

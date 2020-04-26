@@ -16,5 +16,7 @@
     "MAX_CLI_WORKERS": 4,
     "HEALTH_MONITOR_INTERVAL": -1,
 
-    "ANI_LIST_RESTORE_FILE": "./rawBrowseDump.json"
+    "ANI_LIST_RESTORE_FILE": "./rawBrowseDump.json",
+
+    "NG_ROOT": ""
 }

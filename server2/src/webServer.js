@@ -3,9 +3,10 @@
 const Koa = require('koa');
 const bodyParser = require('koa-bodyparser');
 const cors = require('@koa/cors');
-const compress = require('koa-compress')
+const compress = require('koa-compress');
+const serve = require("koa-static");
 
-const { API_PORT, API_VERSION } = require('../config.json');
+const { API_PORT, API_VERSION, NG_ROOT } = require('../config.json');
 
 const logger = require('./logger');
 const router = require('./routes');
@@ -25,6 +26,12 @@ app.use(bodyParser({
   enableTypes: ['json'],
   jsonLimit: '10mb'
 }));
+
+// serve our website if it provides ngRoot
+if (NG_ROOT) {
+  console.log(NG_ROOT);
+  app.use(serve(NG_ROOT));
+}
 
 // routes
 app

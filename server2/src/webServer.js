@@ -29,7 +29,7 @@ app.use(bodyParser({
 
 // serve our website if it provides ngRoot
 if (NG_ROOT) {
-  app.use(serve(NG_ROOT, { spa: true }));
+  app.use(serve(NG_ROOT, { spa: true, defer: true }));
 }
 
 // routes

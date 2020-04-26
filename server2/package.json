@@ -26,6 +26,7 @@
     "koa-router": "^8.0.8",
     "koa-send": "^5.0.0",
     "koa-static": "^5.0.0",
+    "koa-static-with-spa": "^5.0.0",
     "level": "^6.0.1",
     "limiter": "^1.1.5",
     "string-similarity": "^4.0.1",

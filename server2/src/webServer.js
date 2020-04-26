@@ -4,7 +4,7 @@ const Koa = require('koa');
 const bodyParser = require('koa-bodyparser');
 const cors = require('@koa/cors');
 const compress = require('koa-compress');
-const serve = require("koa-static");
+const serve = require('koa-static-with-spa');
 
 const { API_PORT, API_VERSION, NG_ROOT } = require('../config.json');
 
@@ -29,8 +29,7 @@ app.use(bodyParser({
 
 // serve our website if it provides ngRoot
 if (NG_ROOT) {
-  console.log(NG_ROOT);
-  app.use(serve(NG_ROOT));
+  app.use(serve(NG_ROOT, { spa: true }));
 }
 
 // routes

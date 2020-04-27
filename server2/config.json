@@ -1,0 +1,22 @@
+{
+    "API_VERSION": "2",
+    "API_PORT": 9876,
+
+    "SHARE_PATH": "/media/Seagate",
+    "LOG_DIR": "./logs",
+
+    "IMAGE_HOME": "./img",
+
+    "SERIES_IMAGE_BASE": "./img/series",
+
+    "THUMBNAIL_BASE": "./img/thumbs",
+    "MAX_THUMBNAILS": 10,
+
+    "MAX_CLI_PRIORITY_WORKERS": 5,
+    "MAX_CLI_WORKERS": 4,
+    "HEALTH_MONITOR_INTERVAL": -1,
+
+    "ANI_LIST_RESTORE_FILE": "./rawBrowseDump.json",
+
+    "NG_ROOT": ""
+}

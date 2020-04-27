@@ -1,0 +1,40 @@
+{
+  "name": "windrunner-server",
+  "version": "2.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha  index.test.js",
+    "start": "node index.js windrunner-server",
+    "stop": "killall -SIGINT windrunner-server",
+    "debug": "NODE_LOGLEVEL=debug node index.js windrunner-server",
+    "verbose": "NODE_LOGLEVEL=verbose node index.js windrunner-server"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@koa/cors": "^2.2.3",
+    "axios": "^0.19.2",
+    "generic-pool": "^3.7.1",
+    "imagemin": "^7.0.1",
+    "imagemin-jpegtran": "^6.0.0",
+    "imagemin-webp": "^5.1.0",
+    "koa": "^2.11.0",
+    "koa-bodyparser": "^4.3.0",
+    "koa-compress": "^3.0.0",
+    "koa-router": "^8.0.8",
+    "koa-send": "^5.0.0",
+    "koa-static": "^5.0.0",
+    "koa-static-with-spa": "^5.0.0",
+    "level": "^6.0.1",
+    "limiter": "^1.1.5",
+    "string-similarity": "^4.0.1",
+    "uuidv4": "^6.0.7",
+    "winston": "^3.2.1"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "mocha": "^7.1.1"
+  }
+}

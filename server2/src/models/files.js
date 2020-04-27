@@ -37,7 +37,9 @@ class BasicFile extends BaseFile {
     this.id = uuidv4();
     this.type = FILETYPES.BASIC;
     this.size = stats ? stats.size : undefined;
-    this.created = stats ? stats.birthtime : undefined;
+    this.created = stats ?
+      (stats.birthtime || stats.mtime) :
+      undefined;
   }
 }
 

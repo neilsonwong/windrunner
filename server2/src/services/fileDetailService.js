@@ -28,12 +28,16 @@ async function getCachedFileDetails(filePath) {
   return await fileCache.get(filePath);
 }
 
-async function getFileDetails(filePath) {
+async function getFileDetails(filePath, forceRefresh) {
   // ensure we have the right path
   filePath = fileUtil.pathOnServer(filePath);
-  const file = await getCachedFileDetails(filePath);
-  if (file !== undefined) {
-    return file;
+
+  // if forceRefresh, we don't get from cache
+  if (!forceRefresh) {
+    const file = await getCachedFileDetails(filePath);
+    if (file !== undefined) {
+      return file;
+    }
   }
 
   try {

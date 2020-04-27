@@ -38,6 +38,7 @@ router.get('/vlist/:listName/:folderPath', videoListController.isPartOf);
 
 router.get('/img/thumbs/:imageId', imagesController.getThumbnail);
 router.get('/img/series/:imageId', imagesController.getSeriesImage);
+router.post('/img/prune', imagesController.pruneThumbnails);
 
 router.get('/resource/:id', waitingController.getStatus);
 

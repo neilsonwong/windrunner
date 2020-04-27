@@ -3,6 +3,7 @@
 const koaSend = require('koa-send');
 const { THUMBNAIL_BASE, SERIES_IMAGE_BASE } = require('../../config.json');
 const logger = require('../logger');
+const thumbnailService = require('../services/thumbnailService');
 
 async function getThumbnail(ctx) {
   const imageId = decodeURIComponent(ctx.params.imageId);
@@ -29,7 +30,15 @@ async function getImage(ctx, imageId, baseDir) {
   }
 }
 
+async function pruneThumbnails(ctx) {
+  thumbnailService.pruneThumbnails();
+  ctx.body = {
+    text: 'Sylvanas is cleaning the house'
+  };
+}
+
 module.exports = {
   getThumbnail,
-  getSeriesImage
+  getSeriesImage,
+  pruneThumbnails
 }

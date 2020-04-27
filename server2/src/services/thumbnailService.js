@@ -10,8 +10,7 @@ const imageminWebp = require('imagemin-webp');
 const logger = require('../logger');
 const { THUMBNAIL_BASE, MAX_THUMBNAILS } = require('../../config.json');
 const executor = require('./cli/executor');
-
-const inProgress = new Map();
+const fileCache = require('./data/fileCache');
 
 function generateThumbnail(filePath, outputPath, frameRipTime) {
   const cmd = 'ffmpeg';
@@ -60,21 +59,27 @@ async function getThumbnailCreationPromise(thumbnailId, i, filePath, thumbnailTi
   return finalOutFileName;
 }
 
-function getThumbnailProgress(imageId) {
-  if (inProgress.has(imageId)) {
-    const thumbnailPromise = inProgress.get(imageId);
-    if (typeof thumbnailPromise === 'number') {
-      return thumbnailPromise;
-    }
-    else {
-      return false;
+async function pruneThumbnails() {
+  const allImages = await fs.readdir(THUMBNAIL_BASE);
+  const allCachedFiles = await fileCache.all();
+  const allThumbnails = [];
+
+  for (let [key, fileDetail] of Object.entries(allCachedFiles)) {
+    if (fileDetail.thumbnail) {
+      allThumbnails.push(...fileDetail.thumbnail.map(tb => `${tb}.webp`));
     }
   }
-  return true;
-}
 
-function pruneInProgress() {
+  const deleteThese = new Set(allImages);
+  allThumbnails.forEach(thumbnail => {
+    deleteThese.delete(thumbnail);
+  });
 
+  await Promise.all(Array.from(deleteThese).map(d => {
+    return fs.unlink(path.join(THUMBNAIL_BASE, d));
+  }));
+
+  logger.info(deleteThese.size + ' thumbnails pruned');
 }
 
 async function minifyFolder(folder) {
@@ -128,5 +133,5 @@ function zeroPad(n) {
 
 module.exports = {
   generateThumbnails,
-  getThumbnailProgress
+  pruneThumbnails
 };

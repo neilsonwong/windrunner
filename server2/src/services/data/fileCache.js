@@ -48,10 +48,17 @@ async function getById(fileId) {
   return getFile(filePath);
 }
 
+async function getAll() {
+  const allFiles = await fileLibraryDb.all();
+  return (allFiles === undefined) ? [] : allFiles;
+}
+
+
 module.exports = {
   get: getFile,
   set: setFile,
   evict: evictFile,
   getById: getById,
   getPathFromId, getPathFromId,
+  all: getAll
 };

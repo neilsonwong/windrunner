@@ -8,6 +8,9 @@ const logger = require('../logger');
 const fileDetailService = require('./fileDetailService');
 const fileUtil = require('../utils/fileUtil');
 const executor = require('./cli/executor');
+const pendingResourceService = require('./pendingResourceService');
+
+let cached = null;
 
 async function listDirectory(dir) {
   if (!dir) {
@@ -36,6 +39,24 @@ async function listDirectory(dir) {
     logger.error(e);
   }
   return [];
+}
+
+async function fastRecentChangedFolders() {
+  // doesn't change that much, so we can use the cached one for instant results
+  if (cached) {
+    const promised = recentChangedFolders();
+    const promisedId = pendingResourceService.add(promised);
+    return {
+      changed: cached,
+      promised: promisedId
+    };
+  }
+
+  // update the cache
+  cached = await recentChangedFolders();
+  return {
+    changed: cached
+  };
 }
 
 async function recentChangedFolders() {
@@ -136,6 +157,8 @@ async function recentlyChangedInFolder(folder, days, depth) {
 
 module.exports = {
   listDirectory,
+  fastRecentChangedFolders,
   recentChangedFolders,
+  recentlyChangedInFolder,
   oldRecent
 };

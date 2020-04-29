@@ -44,8 +44,10 @@ async function listDirectory(dir) {
 async function fastRecentChangedFolders() {
   // doesn't change that much, so we can use the cached one for instant results
   if (cached) {
-    const promised = recentChangedFolders();
-    const promisedId = pendingResourceService.add(promised);
+    const promised = recentChangedFolders().then((changed) => {
+      cached = changed;
+    });
+    const promisedId = pendingResourceService.add(promised)
     return {
       changed: cached,
       promised: promisedId

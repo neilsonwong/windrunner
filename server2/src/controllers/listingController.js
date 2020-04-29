@@ -17,8 +17,9 @@ async function recent(ctx) {
   ctx.body = results;
 }
 
-async function recent2(ctx) {
-  const results = await fileListService.oldRecent();
+async function recentlyChanged(ctx) {
+  const folderPath = decodeURIComponent(ctx.params.folderPath);
+  const results = await fileListService.recentlyChangedinFolder(folderPath);
   ctx.body = results;
 }
 
@@ -33,6 +34,6 @@ async function details(ctx) {
 module.exports = {
   browse,
   recent,
-  recent2,
-  details
+  recentlyChanged,
+  details,
 };

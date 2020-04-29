@@ -7,8 +7,7 @@ class Command {
     this.id = uuidv4();
     this.cmd = cmd;
     this.args = args;
-    this.runRemotely = opts && opts.remote === true;
-    this.stream = opts && opts.stream;
+    this.opts = opts;
   }
 
   toStringCmd() {

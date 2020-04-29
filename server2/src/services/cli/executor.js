@@ -49,7 +49,7 @@ function runCommand(cmd) {
     }
     else {
       logger.debug(`executing using execFile ${cmd.cmd} ${cmd.args}`);
-      execFile(cmd.cmd, cmd.args, execOptions, handleExecutionResult.bind(cmd, res, rej));
+      execFile(cmd.cmd, cmd.args, { ...execOptions, ...cmd.opts }, handleExecutionResult.bind(cmd, res, rej));
     }
   });
 }

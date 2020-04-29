@@ -66,10 +66,11 @@ async function recentChangedFolders() {
   try {
     const changedDirString = await executor.runImmediately(
       'find',
-      [folder, '-mindepth', '1', '-maxdepth', '2',
+      [`'${folder}'`, '-mindepth', '1', '-maxdepth', '2',
         '-not', '-path', `'*/.*'`,
         '-type', 'd',
-        '-mtime', `-${days}`]);
+        '-mtime', `-${days}`],
+        { shell: true });
 
     const changedDirs = await Promise.all(
       changedDirString
@@ -93,72 +94,35 @@ async function recentChangedFolders() {
   }
 }
 
-function oldRecent() {
-  return recentlyChangedInFolder(SHARE_PATH, 7);
+async function recentlyChangedinFolder(folder) {
+  const fullPath = fileUtil.pathOnServer(folder);
+  const changed = await filesChangedInFolder(fullPath, 14);
+  const details = await Promise.all(
+    changed.map(dir => fileDetailService.getFileDetails(dir)));
+  return details;
 }
 
-async function filesChangedInFolder(folder) {
-  const days = 7;
+async function filesChangedInFolder(folder, days) {
+  if (!days) {
+    days = 7
+  }
 
   const changedFiles = await executor.runImmediately(
     'find',
-    [folder, '-mindepth', '1', '-maxdepth', '1',
+    [`'${folder}'`, '-mindepth', '1', '-maxdepth', '1',
       '-not', '-path', `'*/.*'`,
       '-type', 'f',
-      '-mtime', `-${days}`]);
+      '-mtime', `-${days}`],
+      { shell: true });
   const changed = changedFiles
     .split('\n').filter(e => (e.length > 0))
     .map(file => (fileUtil.getPathRelativeToRoot(file)));
   return changed;
 }
 
-async function recentlyChangedInFolder(folder, days, depth) {
-  if (!depth) {
-    depth = 0;
-  }
-
-  try {
-    let allChanges = [];
-    const rootDirMaxDepth = depth === 0 ? '2' : '1';
-
-    const changedFiles = await executor.runImmediately(
-      'find',
-      [folder, '-mindepth', '1', '-maxdepth', '1',
-        '-not', '-path', `'*/.*'`,
-        '-type', 'f',
-        '-mtime', `-${days}`]);
-
-    const changedDirString = await executor.runImmediately(
-      'find',
-      [folder, '-mindepth', '1', '-maxdepth', rootDirMaxDepth,
-        '-not', '-path', `'*/.*'`,
-        '-type', 'd',
-        '-mtime', `-${days}`]);
-
-    const changedDirs = changedDirString.split('\n')
-      .filter(e => (e.length > 0));
-
-    allChanges.push(...(changedFiles.split('\n')
-      .filter(e => (e.length > 0))));
-
-    const subChanges = await Promise.all(changedDirs.map(e => recentlyChangedInFolder(e, days, depth + 1)));
-    for (let change of subChanges) {
-      allChanges.push(...change);
-    }
-
-    return allChanges;
-  }
-  catch (e) {
-    logger.warn(`there was an error finding changed files in ${folder}`);
-    logger.warn(e);
-    return [];
-  }
-}
-
 module.exports = {
   listDirectory,
   fastRecentChangedFolders,
   recentChangedFolders,
-  recentlyChangedInFolder,
-  oldRecent
+  recentlyChangedinFolder
 };

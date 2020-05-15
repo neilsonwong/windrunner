@@ -26,7 +26,7 @@ async function getFastFileDetails(filePath) {
 
 async function getCachedFileDetails(filePath) {
   const cached = await fileCache.get(filePath);
-  if (cached.type === FILETYPES.SERIES) {
+  if (cached && cached.type === FILETYPES.SERIES) {
     return populateNextAiringEp(cached);
   }
   return cached;

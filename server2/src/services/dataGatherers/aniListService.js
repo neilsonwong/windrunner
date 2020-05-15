@@ -13,6 +13,7 @@ const { getYear, getSeasonSynonyms } = require('../../utils/seriesUtil');
 const AniListData = require('../../models/aniListData');
 
 const cachedService = require('./aniListRestoreService');
+const Cache = require('../../utils/cache');
 
 const aniListGraphQLEndpoint = 'https://graphql.anilist.co';
 const aniListMaxRequestsPerMinute = 60; // it is 90, but being safe here
@@ -20,6 +21,8 @@ const aniListMaxRequestsPerMinute = 60; // it is 90, but being safe here
 const limiter = new RateLimiter(aniListMaxRequestsPerMinute, 'minute');
 
 const cached = cachedService.getRestoreMappings();
+const nextEpCache = new Cache();
+const ONE_DAY = 24 * 60 * 60 * 1000;
 
 class GraphQLRequest {
   constructor(query, variables) {
@@ -67,6 +70,32 @@ async function getAniListData(aniListId) {
       aniListDetails.data.data &&
       aniListDetails.data.data.Media) {
       return new AniListData(aniListDetails.data.data.Media);
+    }
+  }
+  return null;
+}
+
+
+async function getNextAiringEp(aniListId) {
+  if (aniListId) {
+    // check cache first
+    const cachedNextEp = nextEpCache.get(aniListId);
+    if (cachedNextEp !== undefined) {
+      return cachedNextEp;
+    }
+
+    const req = new GraphQLRequest(
+      GRAPHQL_QUERIES.QUERY_NEXT_AIRING_EP_BY_ANIME_ID,
+      { id: aniListId });
+    const aniListDetails = await makeAniListRequest(req);
+    if (aniListDetails &&
+      aniListDetails.data &&
+      aniListDetails.data.data &&
+      aniListDetails.data.data.Media &&
+      aniListDetails.data.data.Media.nextAiringEpisode) {
+      
+      nextEpCache.set(aniListId, aniListDetails.data.data.Media.nextAiringEpisode, ONE_DAY);
+      return aniListDetails.data.data.Media.nextAiringEpisode;
     }
   }
   return null;
@@ -189,7 +218,8 @@ module.exports = {
   searchForSeries,
   getAniListData,
   smartSearch,
-  downloadSeriesImages
+  downloadSeriesImages,
+  getNextAiringEp
 };
 
 const GRAPHQL_QUERIES = {
@@ -251,5 +281,15 @@ const GRAPHQL_QUERIES = {
     }
   }
 }
-`
+`,
+  QUERY_NEXT_AIRING_EP_BY_ANIME_ID:
+  `query ($id: Int) {
+  Media(id: $id, type: ANIME) {
+    nextAiringEpisode {
+      id
+      airingAt
+      episode
+    }
+  }
+}`,
 };

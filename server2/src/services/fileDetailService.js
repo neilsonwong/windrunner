@@ -2,7 +2,7 @@
 
 const fs = require('fs').promises;
 
-const { BaseFile, InvalidFile, BasicFile, Directory, SeriesDirectory, Video } = require('../models/files');
+const { BaseFile, InvalidFile, BasicFile, Directory, SeriesDirectory, Video, FILETYPES } = require('../models/files');
 const logger = require('../logger');
 const fileCache = require('./data/fileCache');
 const fileUtil = require('../utils/fileUtil');
@@ -25,7 +25,11 @@ async function getFastFileDetails(filePath) {
 }
 
 async function getCachedFileDetails(filePath) {
-  return await fileCache.get(filePath);
+  const cached = await fileCache.get(filePath);
+  if (cached.type === FILETYPES.SERIES) {
+    return populateNextAiringEp(cached);
+  }
+  return cached;
 }
 
 async function getFileDetails(filePath, forceRefresh) {
@@ -138,6 +142,13 @@ async function addAniListDataToDir(aniListData, dirFile, stats) {
     // console.log(`could not guess aniListDb Entry for ${series}`);
     logger.verbose(`could not guess aniListDb Entry for ${series}`);
   }
+}
+
+async function populateNextAiringEp(cached) {
+  if (cached.aniListData && cached.aniListData.nextAiringEpisode) {
+    cached.aniListData.nextAiringEpisode = await aniListService.getNextAiringEp(cached.aniListData.id);
+  }
+  return cached;
 }
 
 module.exports = {

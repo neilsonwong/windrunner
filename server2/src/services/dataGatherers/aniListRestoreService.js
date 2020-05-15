@@ -11,7 +11,12 @@ function getRestoreMappings() {
     const cache = {};
     const raw = require(path.join(rootDir, ANI_LIST_RESTORE_FILE));
     raw.forEach(entry => {
-      cache[entry.name] = entry.aniListData;
+      if (entry && entry.aniListData && !entry.aniListData.nextAiringEpisode) {
+        cache[entry.name] = entry.aniListData;
+      }
+      else {
+        // console.log('not restoring ' + entry.name);
+      }
     });
     logger.info('Ani Restore File Loaded');
     return cache;

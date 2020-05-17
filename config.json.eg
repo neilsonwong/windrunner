@@ -18,5 +18,5 @@
 
     "ANI_LIST_RESTORE_FILE": "./rawBrowseDump.json",
 
-    "NG_ROOT": ""
+    "NG_ROOT": "/path/to/ui/dist"
 }

@@ -5,6 +5,8 @@
     "SHARE_PATH": "/media/Seagate",
     "LOG_DIR": "./logs",
 
+    "DB_PATH": "./windrunner-db",
+
     "IMAGE_HOME": "./img",
 
     "SERIES_IMAGE_BASE": "./img/series",
@@ -12,7 +14,6 @@
     "THUMBNAIL_BASE": "./img/thumbs",
     "MAX_THUMBNAILS": 10,
 
-    "MAX_CLI_PRIORITY_WORKERS": 5,
     "MAX_CLI_WORKERS": 4,
     "HEALTH_MONITOR_INTERVAL": -1,
 

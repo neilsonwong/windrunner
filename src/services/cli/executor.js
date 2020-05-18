@@ -2,7 +2,7 @@
 
 const { exec, execFile } = require('child_process');
 const genericPool = require('generic-pool');
-const { MAX_CLI_PRIORITY_WORKERS, MAX_CLI_WORKERS, HEALTH_MONITOR_INTERVAL } = require('../../../config.json');
+const { MAX_CLI_WORKERS, HEALTH_MONITOR_INTERVAL } = require('../../../config.json');
 const logger = require('../../logger');
 const { Worker, Command } = require('../../models/cli');
 

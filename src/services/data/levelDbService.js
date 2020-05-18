@@ -2,8 +2,9 @@
 
 const level = require('level');
 const logger = require('../../logger');
+const { DB_PATH } = require('../../../config');
 
-const db = level('windrunner-db', { valueEncoding: 'json' });
+const db = level(DB_PATH, { valueEncoding: 'json' });
 
 class LevelDbInterface {
   constructor(prefix) {

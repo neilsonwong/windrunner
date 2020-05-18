@@ -71,14 +71,32 @@ async function recentChangedFolders() {
       [`'${folder}'`, '-mindepth', '1', '-maxdepth', '2',
         '-not', '-path', `'*/.*'`,
         '-type', 'd',
-        '-mtime', `-${days}`],
+        '-mtime', `-${days}`,
+        '-printf', `'%T@ %p\n'`],
         { shell: true });
 
     const changedDirs = await Promise.all(
       changedDirString
         .split('\n')
         .filter(e => (e.length > 0))
-        .map(dir => fileDetailService.getFileDetails(dir)));
+        .map(e => {
+          const firstSpace = e.indexOf(' ');
+          const time = parseFloat(e.substr(0, firstSpace));
+          const dir = e.substr(firstSpace + 1);
+          return { time, dir };
+        })
+        .sort((a, b) => {
+          if (isNaN(a.time)) {
+            return 1;
+          }
+          else if (isNaN(b.time)) {
+            return -1;
+          }
+          else {
+            return a.time > b.time ? -1 : 1;
+          }
+        })
+        .map(changedDir => fileDetailService.getFileDetails(changedDir.dir)));
 
     const series = await Promise.all(changedDirs
       .filter(dir => (dir.isSeriesLeafNode))

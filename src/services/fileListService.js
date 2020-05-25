@@ -7,6 +7,7 @@ const { SHARE_PATH } = require('../../config.json');
 const logger = require('../logger');
 const fileDetailService = require('./fileDetailService');
 const fileUtil = require('../utils/fileUtil');
+const textUtil = require('../utils/textUtil');
 const executor = require('./cli/executor');
 const pendingResourceService = require('./pendingResourceService');
 
@@ -64,11 +65,12 @@ async function fastRecentChangedFolders() {
 async function recentChangedFolders() {
   const days = 7;
   const folder = SHARE_PATH;
+  const wrappedFolder = textUtil.wrap(folder, `'`);
 
   try {
     const changedDirString = await executor.runImmediately(
       'find',
-      [`'${folder}'`, '-mindepth', '1', '-maxdepth', '2',
+      [wrappedFolder, '-mindepth', '1', '-maxdepth', '2',
         '-not', '-path', `'*/.*'`,
         '-type', 'd',
         '-mtime', `-${days}`,
@@ -127,9 +129,11 @@ async function filesChangedInFolder(folder, days) {
     days = 7
   }
 
+  const wrappeddFolder = textUtil.wrap(folder, `'`);
+
   const changedFiles = await executor.runImmediately(
     'find',
-    [`'${folder}'`, '-mindepth', '1', '-maxdepth', '1',
+    [wrappeddFolder, '-mindepth', '1', '-maxdepth', '1',
       '-not', '-path', `'*/.*'`,
       '-type', 'f',
       '-mtime', `-${days}`],

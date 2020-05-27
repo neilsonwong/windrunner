@@ -65,14 +65,22 @@ async function fastRecentChangedFolders() {
 async function recentChangedFolders() {
   const days = 7;
   const folder = SHARE_PATH;
-  const wrappedFolder = textUtil.wrap(folder, `'`);
+  const endingSlash = (!folder.endsWith('/')) ? '/' : '';
+
+  // appending a slash forces symlinks to resolve as folders
+  const wrappedFolder = textUtil.wrap(folder, `'`) + endingSlash;
 
   try {
     const changedDirString = await executor.runImmediately(
       'find',
       [wrappedFolder, '-mindepth', '1', '-maxdepth', '2',
         '-not', '-path', `'*/.*'`,
-        '-type', 'd',
+        // look for dirs AND symlinks now
+        '\\(',
+          '-type', 'd',
+          '-o', // join operator 
+          '-type', 'l',
+        '\\)',
         '-mtime', `-${days}`,
         '-printf', `'%T@ %p\n'`],
         { shell: true });
@@ -129,11 +137,14 @@ async function filesChangedInFolder(folder, days) {
     days = 7
   }
 
-  const wrappeddFolder = textUtil.wrap(folder, `'`);
+  const endingSlash = (!folder.endsWith('/')) ? '/' : '';
+
+  // appending a slash forces symlinks to resolve as folders
+  const wrappedFolder = textUtil.wrap(folder, `'`) + endingSlash;
 
   const changedFiles = await executor.runImmediately(
     'find',
-    [wrappeddFolder, '-mindepth', '1', '-maxdepth', '1',
+    [wrappedFolder, '-mindepth', '1', '-maxdepth', '1',
       '-not', '-path', `'*/.*'`,
       '-type', 'f',
       '-mtime', `-${days}`],

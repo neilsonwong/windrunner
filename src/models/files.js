@@ -38,7 +38,7 @@ class BasicFile extends BaseFile {
     this.type = FILETYPES.BASIC;
     this.size = stats ? stats.size : undefined;
     this.created = stats ?
-      ((stats.birthtimeMs > 0) ? stats.birthTime : stats.mtime) :
+      ((stats.birthtimeMs > 0) ? stats.birthtime : stats.mtime) :
       undefined;
   }
 }

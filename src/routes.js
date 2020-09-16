@@ -18,7 +18,8 @@ router.prefix(API_PREFIX);
 
 router.get('/hello', metaController.hello);
 router.get('/info', metaController.getServerInfo);
-router.get('/load', metaController.getExecLoad);
+router.get('/load', metaController.getLoadStream);
+router.get('/console', metaController.getConsoleStream);
 
 router.get('/browse', listingController.browse);
 router.get('/browse/:path', listingController.browse);

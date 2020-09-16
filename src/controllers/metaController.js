@@ -1,8 +1,8 @@
 'use strict';
 
 const config = require('../../config.json');
-
 const executor = require('../services/cli/executor');
+const maintenanceService = require('../services/maintenanceService');
 
 function hello(ctx) {
   ctx.body = 'Sylvanas says hello';
@@ -16,12 +16,19 @@ function getServerInfo(ctx) {
   };
 }
 
-function getExecLoad(ctx) {
-  ctx.body = executor.health();
+// streaming apis for maintenance
+
+function getConsoleStream(ctx) {
+  maintenanceService.streamLogsToBody(ctx);
+}
+
+function getLoadStream(ctx) {
+  maintenanceService.streamLoadToBody(ctx);
 }
 
 module.exports = {
   hello,
   getServerInfo,
-  getExecLoad,
+  getLoadStream,
+  getConsoleStream
 };

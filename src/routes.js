@@ -13,37 +13,44 @@ const videoListController = require('./controllers/videoListController');
 
 const API_PREFIX = `/api/v${API_VERSION}/`;
 
-const router = new Router();
-router.prefix(API_PREFIX);
+const publicRouter = new Router();
+publicRouter.prefix(API_PREFIX);
 
-router.get('/hello', metaController.hello);
-router.get('/info', metaController.getServerInfo);
-router.get('/load', metaController.getLoadStream);
-router.get('/console', metaController.getConsoleStream);
+publicRouter.get('/hello', metaController.hello);
 
-router.get('/browse', listingController.browse);
-router.get('/browse/:path', listingController.browse);
-router.get('/details/:filePath', listingController.details);
-router.get('/recent', listingController.recent);
-router.get('/recent/:folderPath', listingController.recentlyChanged);
+publicRouter.get('/browse', listingController.browse);
+publicRouter.get('/browse/:path', listingController.browse);
+publicRouter.get('/details/:filePath', listingController.details);
+publicRouter.get('/recent', listingController.recent);
+publicRouter.get('/recent/:folderPath', listingController.recentlyChanged);
 
-router.get('/favs', favouritesController.favourites);
-router.post('/fav', favouritesController.addFavourite);
-router.del('/fav/:folderPath', favouritesController.removeFavourite);
-router.get('/fav/:folderPath', favouritesController.isFavourite);
+publicRouter.get('/favs', favouritesController.favourites);
+publicRouter.post('/fav', favouritesController.addFavourite);
+publicRouter.del('/fav/:folderPath', favouritesController.removeFavourite);
+publicRouter.get('/fav/:folderPath', favouritesController.isFavourite);
 
-router.get('/vlist/:listName', videoListController.getAll);
-router.post('/vlist/:listName', videoListController.add);
-router.del('/vlist/:listName/:folderPath', videoListController.remove);
-router.get('/vlist/:listName/:folderPath', videoListController.isPartOf);
+publicRouter.get('/vlist/:listName', videoListController.getAll);
+publicRouter.post('/vlist/:listName', videoListController.add);
+publicRouter.del('/vlist/:listName/:folderPath', videoListController.remove);
+publicRouter.get('/vlist/:listName/:folderPath', videoListController.isPartOf);
 
-router.get('/img/thumbs/:imageId', imagesController.getThumbnail);
-router.get('/img/series/:imageId', imagesController.getSeriesImage);
-router.post('/img/prune', imagesController.pruneThumbnails);
+publicRouter.get('/img/thumbs/:imageId', imagesController.getThumbnail);
+publicRouter.get('/img/series/:imageId', imagesController.getSeriesImage);
+publicRouter.post('/img/prune', imagesController.pruneThumbnails);
 
-router.get('/resource/:id', waitingController.getStatus);
+publicRouter.get('/resource/:id', waitingController.getStatus);
 
-router.get('/series/options/:folderPath', seriesDataController.listSeriesOptions);
-router.put('/series', seriesDataController.updateSeriesOption);
+publicRouter.get('/series/options/:folderPath', seriesDataController.listSeriesOptions);
+publicRouter.put('/series', seriesDataController.updateSeriesOption);
 
-module.exports = router;
+const adminRouter = new Router();
+adminRouter.prefix(API_PREFIX);
+adminRouter.get('/info', metaController.getServerInfo);
+adminRouter.get('/load', metaController.getLoadStream);
+adminRouter.get('/console', metaController.getConsoleStream);
+
+module.exports = {
+  publicRouter: publicRouter,
+  // user,
+  adminRouter: adminRouter,
+};

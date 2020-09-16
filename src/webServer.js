@@ -5,11 +5,15 @@ const bodyParser = require('koa-bodyparser');
 const cors = require('@koa/cors');
 const compress = require('koa-compress');
 const serve = require('koa-static-with-spa');
+const bearerToken = require('koa-bearer-token');
 
 const { API_PORT, API_VERSION, NG_ROOT } = require('../config.json');
 
 const logger = require('./logger');
-const router = require('./routes');
+const { publicRouter, adminRouter } = require('./routes');
+
+const authenticateGoogleAccessToken = require('./middleware/googleAuthMiddleware');
+const isAdmin = require('./middleware/isAdminMiddleware');
 
 const app = new Koa();
 
@@ -32,10 +36,20 @@ if (NG_ROOT) {
   app.use(serve(NG_ROOT, { spa: true, defer: true }));
 }
 
-// routes
+// public routes
 app
-  .use(router.routes())
-  .use(router.allowedMethods());
+  .use(publicRouter.routes())
+  .use(publicRouter.allowedMethods());
+
+// admin/oauth middleware
+app.use(bearerToken());
+app.use(authenticateGoogleAccessToken);
+app.use(isAdmin);
+
+// admin/oauth middleware
+app
+  .use(adminRouter.routes())
+  .use(adminRouter.allowedMethods());
 
 function start() {
   app.listen(9876);

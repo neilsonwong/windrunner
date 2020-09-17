@@ -1,4 +1,6 @@
 const axios = require('axios');
+const logger = require('../logger');
+const config = require('../../config.json');
 
 const GOOGLE_TOKEN_AUTH_URL = 'https://www.googleapis.com/oauth2/v3/tokeninfo';
 
@@ -6,28 +8,39 @@ async function authenticateGoogleAccessToken(ctx, next) {
   const accessToken = ctx.request.token;
 
   try {
-    const { data } = await axios.get(GOOGLE_TOKEN_AUTH_URL, {
-      params: { access_token: accessToken }
-    });
+    const idToken = await retrieveIdToken(accessToken);
 
     // ensure token not expired
-    if (data.expires_in <= 0) {
-      throw new 'access token expired';
+    if (idToken.expires_in <= 0) {
+      throw 'access token expired';
     }
-    // else {
-    //   console.log('token expires in ' + data.expires_in);
-    // }
 
-    ctx.state.user = data.email;
-    console.log('authenticated ' + ctx.state.user);
+    if (idToken.aud !== config.GOOGLE_CLIENT_ID) {
+      throw 'incorrect audience';
+    }
+
+    ctx.state.user = idToken.email;
 
     await next();
   }
   catch (e) {
     // if google returns bad request, this catches it
     // this seems to handle expired tokens automatically
+    logger.info(`Rejected token auth due to: ${e}`);
     ctx.throw(401, 'Unauthorized');
   }
 };
+
+async function retrieveIdToken(accessToken) {
+  try {
+    const { data } = await axios.get(GOOGLE_TOKEN_AUTH_URL, {
+      params: { access_token: accessToken }
+    });
+    return data;
+  }
+  catch(e) {
+    throw 'Error retrieving ID Token from Google' + e;
+  }
+}
 
 module.exports = authenticateGoogleAccessToken;

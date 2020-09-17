@@ -42,10 +42,7 @@ function devFormat() {
 const logger = winston.createLogger({
   levels: loglevels.levels,
   level: 'info',
-  format: winston.format.combine(
-    devFormat(),
-    winston.format.colorize({all: true})
-  ),
+  format: devFormat(),
   transports: [
     //
     // - Write to all logs with level `info` and below to `combined.log` 
@@ -56,18 +53,21 @@ const logger = winston.createLogger({
   ]
 });
 
-winston.addColors(loglevels.colors);
-
 //
 // If we're not in production then log to the `console` with the format:
 // `${info.level}: ${info.message} JSON.stringify({ ...rest }) `
 // 
 if (process.env.NODE_ENV !== 'production') {
   logger.add(new winston.transports.Console({
-    format: winston.format.simple(),
+    format: winston.format.combine(
+      winston.format.simple(),
+      winston.format.colorize(),
+    ),
     level: process.env.NODE_LOGLEVEL || 'info',
   }));
 }
+
+winston.addColors(loglevels.colors);
 
 // add log aliases
 module.exports = logger;

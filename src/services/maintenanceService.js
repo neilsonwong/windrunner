@@ -5,7 +5,7 @@ const executor = require('./cli/executor');
 
 function streamLogsToBody(ctx) {
   const s = getNewStream();
-  const tempStreamTransport = new CustomStreamTransport(s);
+  const tempStreamTransport = new CustomStreamTransport(s, { level: 'debug' });
   logger.add(tempStreamTransport);
   ctx.body = s;
   ctx.req.on('close', () => {
@@ -13,7 +13,7 @@ function streamLogsToBody(ctx) {
   });
 }
 
-function streamLoadToBody(ctx){
+function streamLoadToBody(ctx) {
   const s = getNewStream();
   const temp = setInterval(() => {
     s.push(JSON.stringify(executor.health()));

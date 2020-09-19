@@ -20,15 +20,15 @@ async function authenticateGoogleAccessToken(ctx, next) {
     }
 
     ctx.state.user = idToken.email;
-
-    await next();
+    logger.verbose(`Authenticated ${ctx.state.user}`);
   }
   catch (e) {
     // if google returns bad request, this catches it
     // this seems to handle expired tokens automatically
-    logger.info(`Rejected token auth due to: ${e}`);
-    ctx.throw(401, 'Unauthorized');
+    logger.verbose(`Rejected token auth due to: ${e}`);
   }
+
+  await next();
 };
 
 async function retrieveIdToken(accessToken) {

@@ -10,18 +10,19 @@ class VideoListItem {
   }
 }
 
-function getDbFor(listName) {
-  if (videoListDbs[listName]) {
-    return videoListDbs[listName];
+function getDbFor(listName, user) {
+  const key = `${listName}:${user}`;
+  if (videoListDbs[key]) {
+    return videoListDbs[key];
   }
 
   // need a new DbInterface for this
-  videoListDbs[listName] = require('./levelDbService').instanceFor(`${videoListPrefix}:${listName}`);
-  return videoListDbs[listName];
+  videoListDbs[key] = require('./levelDbService').instanceFor(`${videoListPrefix}:${key}`);
+  return videoListDbs[key];
 }
 
-async function get(listName) {
-  const db = getDbFor(listName);
+async function get(listName, user) {
+  const db = getDbFor(listName, user);
   const videoList = await db.all();
   const favs = (videoList === undefined) ?
     [] : 
@@ -31,13 +32,13 @@ async function get(listName) {
   return favs;
 }
 
-function set(listName, folderPath) {
-  const db = getDbFor(listName);
+function set(listName, user, folderPath) {
+  const db = getDbFor(listName, user);
   return db.put(folderPath, new VideoListItem(folderPath));
 }
 
-function remove(listName, folderPath) {
-  const db = getDbFor(listName);
+function remove(listName, user, folderPath) {
+  const db = getDbFor(listName, user);
   return db.del(folderPath);
 }
 

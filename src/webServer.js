@@ -10,10 +10,11 @@ const bearerToken = require('koa-bearer-token');
 const { API_PORT, API_VERSION, NG_ROOT } = require('../config.json');
 
 const logger = require('./logger');
-const { publicRouter, adminRouter } = require('./routes');
+const { publicRouter, semiPublicRouter, userRouter, adminRouter } = require('./routes');
 
 const authenticateGoogleAccessToken = require('./middleware/googleAuthMiddleware');
 const isAdmin = require('./middleware/isAdminMiddleware');
+const isUser = require('./middleware/isUserMiddleware');
 
 const app = new Koa();
 
@@ -41,12 +42,26 @@ app
   .use(publicRouter.routes())
   .use(publicRouter.allowedMethods());
 
-// admin/oauth middleware
+// ONLY Populates ctx.state.user if valid
+// oauth middleware
 app.use(bearerToken());
 app.use(authenticateGoogleAccessToken);
-app.use(isAdmin);
 
-// admin/oauth middleware
+// semi public routes
+// routes WORK publicly but have different behaviour when logged in
+app
+  .use(semiPublicRouter.routes())
+  .use(semiPublicRouter.allowedMethods());
+
+// requires valid bearer token
+app.use(isUser);
+app
+  .use(userRouter.routes())
+  .use(userRouter.allowedMethods())
+
+// admins ONLY
+// requires bearer token with email of admin
+app.use(isAdmin);
 app
   .use(adminRouter.routes())
   .use(adminRouter.allowedMethods());

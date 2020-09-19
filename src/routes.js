@@ -11,7 +11,9 @@ const waitingController = require('./controllers/waitingController');
 const seriesDataController = require('./controllers/seriesDataController');
 const videoListController = require('./controllers/videoListController');
 
-const API_PREFIX = `/api/v${API_VERSION}/`;
+const API_MAJOR_VERSION = Math.floor(API_VERSION);
+
+const API_PREFIX = `/api/v${API_MAJOR_VERSION}/`;
 
 const publicRouter = new Router();
 publicRouter.prefix(API_PREFIX);

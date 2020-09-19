@@ -1,8 +1,9 @@
 'use strict';
 
 const config = require('../../config.json');
-const executor = require('../services/cli/executor');
 const maintenanceService = require('../services/maintenanceService');
+
+const API_MAJOR_VERSION = Math.floor(config.API_VERSION);
 
 function hello(ctx) {
   ctx.body = 'Sylvanas says hello';
@@ -11,7 +12,7 @@ function hello(ctx) {
 function getServerInfo(ctx) {
   ctx.body = {
     version: config.API_VERSION,
-    apiPrefix: `/api/v${config.API_VERSION}/`,
+    apiPrefix: `/api/v${API_MAJOR_VERSION}/`,
     port: config.API_PORT
   };
 }

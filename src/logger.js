@@ -26,8 +26,8 @@ const loglevels = {
 };
 
 function devFormat() {
-  const formatMessage = info => `${info.level} ${info.message}`;
-  const formatError = info => `${info.level} ${info.message}\n\n${info.stack}\n`;
+  const formatMessage = info => `${info.timestamp} ${info.level} ${info.message}`;
+  const formatError = info => `${info.timestamp} ${info.level} ${info.message}\n\n${info.stack}\n`;
   const format = (info => {
     if (info instanceof Error || 
       (info.level === 'error' && info.message === undefined)) {
@@ -42,7 +42,12 @@ function devFormat() {
 const logger = winston.createLogger({
   levels: loglevels.levels,
   level: 'info',
-  format: devFormat(),
+  format: winston.format.combine(
+    winston.format.timestamp({
+        format: 'YYYY-MM-DD HH:mm:ss'
+    }),
+    devFormat()
+  ),
   transports: [
     //
     // - Write to all logs with level `info` and below to `combined.log` 
@@ -60,7 +65,7 @@ const logger = winston.createLogger({
 if (process.env.NODE_ENV !== 'production') {
   logger.add(new winston.transports.Console({
     format: winston.format.combine(
-      winston.format.simple(),
+      devFormat(),
       winston.format.colorize(),
     ),
     level: process.env.NODE_LOGLEVEL || 'info',

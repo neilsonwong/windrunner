@@ -1,5 +1,5 @@
 {
-    "API_VERSION": "2",
+    "API_VERSION": "2.1",
     "API_PORT": 9876,
 
     "SHARE_PATH": "/media/Seagate",
@@ -19,5 +19,9 @@
 
     "ANI_LIST_RESTORE_FILE": "./rawBrowseDump.json",
 
-    "NG_ROOT": "/path/to/ui/dist"
+    "NG_ROOT": "/path/to/ui/dist",
+
+    "ADMINS": [],
+
+    "GOOGLE_CLIENT_ID": ""
 }

@@ -139,9 +139,16 @@ async function addAniListDataToDir(aniListData, dirFile, stats) {
     return seriesDir;
   }
   else {
-    // console.log(`could not guess aniListDb Entry for ${series}`);
     logger.verbose(`could not guess aniListDb Entry for ${series}`);
   }
+}
+
+async function clearAniListData(dirFile) {
+  const dirFilePath = dirFile.filePath;
+  let stats = await fs.stat(dirFilePath);
+  const dir = new Directory(dirFilePath, stats, false);
+  await fileCache.set(dir);
+  logger.verbose(`${dirFilePath} is no longer a series!`);
 }
 
 async function populateNextAiringEp(cached) {
@@ -154,5 +161,6 @@ async function populateNextAiringEp(cached) {
 module.exports = {
   getFastFileDetails,
   getFileDetails,
-  addAniListDataToDir
+  addAniListDataToDir,
+  clearAniListData
 };

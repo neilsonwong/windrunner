@@ -26,8 +26,8 @@ const loglevels = {
 };
 
 function devFormat() {
-  const formatMessage = info => `${info.level} ${info.message}`;
-  const formatError = info => `${info.level} ${info.message}\n\n${info.stack}\n`;
+  const formatMessage = info => `${info.timestamp} ${info.level} ${info.message}`;
+  const formatError = info => `${info.timestamp} ${info.level} ${info.message}\n\n${info.stack}\n`;
   const format = (info => {
     if (info instanceof Error || 
       (info.level === 'error' && info.message === undefined)) {
@@ -43,8 +43,10 @@ const logger = winston.createLogger({
   levels: loglevels.levels,
   level: 'info',
   format: winston.format.combine(
-    devFormat(),
-    winston.format.colorize({all: true})
+    winston.format.timestamp({
+        format: 'YYYY-MM-DD HH:mm:ss'
+    }),
+    devFormat()
   ),
   transports: [
     //
@@ -56,18 +58,21 @@ const logger = winston.createLogger({
   ]
 });
 
-winston.addColors(loglevels.colors);
-
 //
 // If we're not in production then log to the `console` with the format:
 // `${info.level}: ${info.message} JSON.stringify({ ...rest }) `
 // 
 if (process.env.NODE_ENV !== 'production') {
   logger.add(new winston.transports.Console({
-    format: winston.format.simple(),
+    format: winston.format.combine(
+      devFormat(),
+      winston.format.colorize(),
+    ),
     level: process.env.NODE_LOGLEVEL || 'info',
   }));
 }
+
+winston.addColors(loglevels.colors);
 
 // add log aliases
 module.exports = logger;

@@ -13,9 +13,16 @@ async function listSeriesOptions(folderPath) {
 
 async function updateSeriesOption(folderPath, aniListId) {
   const dirFile = await fileDetailService.getFileDetails(folderPath);
-  const aniListData = await aniListService.getAniListData(aniListId);
-  const updatedSeries = await fileDetailService.addAniListDataToDir(aniListData, dirFile, null);
-  return updatedSeries; 
+  if (aniListId >= 0) {
+    const aniListData = await aniListService.getAniListData(aniListId);
+    const updatedSeries = await fileDetailService.addAniListDataToDir(aniListData, dirFile, null);
+    return updatedSeries;
+  }
+  else {
+    // if aniListId is null, it is a removal
+    const folder = await fileDetailService.clearAniListData(dirFile);
+    return folder;
+  }
 }
 
 module.exports = {

@@ -11,7 +11,7 @@ async function getAll(ctx) {
 }
 
 async function isPartOf(ctx) {
-  const user = ctx.state.user;
+  const user = ctx.state.user || config.ADMINS[0];
   const listName = decodeURIComponent(ctx.params.listName);
   const folderPath = decodeURIComponent(ctx.params.folderPath);
   const result = await videoListService.listContains(listName, user, folderPath);

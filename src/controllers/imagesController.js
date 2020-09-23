@@ -41,4 +41,4 @@ module.exports = {
   getThumbnail,
   getSeriesImage,
   pruneThumbnails
-}
+};

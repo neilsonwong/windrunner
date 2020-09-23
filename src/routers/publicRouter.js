@@ -3,15 +3,16 @@
 const Router = require('koa-router');
 
 const { API_VERSION } = require('../../config.json');
-const listingController = require('../controllers/listingController');
-const imagesController = require('../controllers/imagesController');
-const metaController = require('../controllers/metaController');
-const waitingController = require('../controllers/waitingController');
-const seriesDataController = require('../controllers/seriesDataController');
-const streamingController = require('../controllers/streamingController');
+const {
+  listingController, 
+  imagesController, 
+  metaController, 
+  waitingController, 
+  seriesDataController, 
+  streamingController
+} = require('../controllers');
 
 const API_MAJOR_VERSION = Math.floor(API_VERSION);
-
 const API_PREFIX = `/api/v${API_MAJOR_VERSION}/`;
 
 const publicRouter = new Router();

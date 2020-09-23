@@ -20,4 +20,4 @@ async function updateSeriesOption(ctx) {
 module.exports = {
   listSeriesOptions,
   updateSeriesOption
-}
+};

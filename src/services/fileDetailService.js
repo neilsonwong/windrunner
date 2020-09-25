@@ -151,6 +151,10 @@ async function clearAniListData(dirFile) {
   logger.verbose(`${dirFilePath} is no longer a series!`);
 }
 
+async function getFileDetailsById(fileId) {
+  return await fileCache.getById(fileId);
+}
+
 async function populateNextAiringEp(cached) {
   if (cached.aniListData && cached.aniListData.nextAiringEpisode) {
     cached.aniListData.nextAiringEpisode = await aniListService.getNextAiringEp(cached.aniListData.id);
@@ -161,6 +165,7 @@ async function populateNextAiringEp(cached) {
 module.exports = {
   getFastFileDetails,
   getFileDetails,
+  getFileDetailsById,
   addAniListDataToDir,
   clearAniListData
 };

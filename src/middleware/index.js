@@ -6,8 +6,8 @@ const isUserMiddleware = require('./isUserMiddleware');
 const rangeMiddlware = require('./rangeMiddleware');
 
 module.exports = {
-  googleAuthMiddleware,
-  isAdminMiddlewaare,
-  isUserMiddleware,
-  rangeMiddlware,
+  authenticateGoogleAccessToken: googleAuthMiddleware,
+  isAdmin: isAdminMiddlewaare,
+  isUser: isUserMiddleware,
+  parseRange: rangeMiddlware,
 };

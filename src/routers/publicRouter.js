@@ -23,6 +23,7 @@ publicRouter.get('/hello', metaController.hello);
 publicRouter.get('/browse', listingController.browse);
 publicRouter.get('/browse/:path', listingController.browse);
 publicRouter.get('/details/:filePath', listingController.details);
+publicRouter.get('/detailz/:fileId', listingController.detailsById);
 publicRouter.get('/recent', listingController.recent);
 publicRouter.get('/recent/:folderPath', listingController.recentlyChanged);
 
@@ -34,9 +35,6 @@ publicRouter.get('/resource/:id', waitingController.getStatus);
 publicRouter.get('/series/options/:folderPath', seriesDataController.listSeriesOptions);
 publicRouter.put('/series', seriesDataController.updateSeriesOption);
 
-publicRouter.get('/vidTest', streamingController.testPage);
-publicRouter.get('/stream', streamingController.testStream);
-publicRouter.get('/subtitle', streamingController.testSub);
 publicRouter.get('/subtitle/:fileId', streamingController.getSubtitle);
 publicRouter.get('/stream/:fileId', streamingController.getStream);
 

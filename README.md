@@ -44,6 +44,7 @@ You will likely have to modify the config.json to set the application up properl
 - **SHARE_PATH**: Which folder to share (absolute path preferred)
 - **LOG_DIR**: Log directory
 - **DB_PATH**: Database Directory (for LevelDb)
+- **TRANSCODE_DIR**: Where to store movie transcodes and subtitles
 - **IMAGE_HOME**: Where to store our images,
 - **SERIES_IMAGE_BASE**: Where to store our images relating to series metadata, should be a sub directory of the images dir
 - **THUMBNAIL_BASE**: Where to store our video thumbnails, should be a sub directory of the images dir
@@ -59,11 +60,18 @@ Run `npm start` to start everything up.
 You can manage your node processes with a manager such as pm2 if you wish.
 
 ## Points of Interest
-### Thumbnail Generation
-Thumbnail Generation is done via `ffmpeg` and spawned by node through `child_process.exec` or `child_process.execFile`. The generated files are minified into `.webp` using the `imagemin` package.
+### Thumbnail Generation & Transcoding on the fly!
+Thumbnail Generation is done via `ffmpeg` and spawned by node through `child_process.exec` or `child_process.execFile`. The generated files are minified into `.webp` using the `imagemin` package.  
+`ffmpeg` is also used to transcode files into mp4's playable by most web browsers. I would have transcoded them into webp v9 formats, however the trancoding process would take WAYYYY to long with my hardware since I'm not youtube.
 
 ### Metadata Retrieval
 The AniList GraphQL API has been leveraged to retrieve most information regarding the various series. The application will try to guess the series based on the folder name. While not perfect, any mistakes can be corrected and manually set. The data retrieved is used to significantly enhance user experience by providing for airing times, series images, descriptions, studio etc etc.
+
+### Streaming API's
+Several API's expose streams via http to the client. This allows the consumer to recieve near real time updates without polling. I decided not to use web sockeets just to try something different and because the client never actually sends any data back to the server beyond the initial request. I primarily use these for streaming logs and dashboard style stats. Video streaming is also implemented (handling ranges) within the requests.
+
+### Semi Public/Private API via OIDC
+Google OAuth has been implemented and token verification is performed on certain paths to control authorization. Authentication is OPEN, as I don't really care who is using this. As long as google gives you a token, you can be a user!
 
 ### Search
 The search is run via the *nix `find` command. Originally used for actually searching, this use case was quite rare in real world usage. Instead, it can be used to search through many files and folders and try to find the most recently changed files.

@@ -7,14 +7,11 @@ const compress = require('koa-compress');
 const serve = require('koa-static-with-spa');
 const bearerToken = require('koa-bearer-token');
 
+const logger = require('./logger');
 const { API_PORT, API_VERSION, NG_ROOT } = require('../config.json');
 
-const logger = require('./logger');
-const { publicRouter, semiPublicRouter, userRouter, adminRouter } = require('./routes');
-
-const authenticateGoogleAccessToken = require('./middleware/googleAuthMiddleware');
-const isAdmin = require('./middleware/isAdminMiddleware');
-const isUser = require('./middleware/isUserMiddleware');
+const { publicRouter, semiPublicRouter, userRouter, adminRouter } = require('./routers');
+const { authenticateGoogleAccessToken, isAdmin, isUser, parseRange } = require('./middleware');
 
 const app = new Koa();
 
@@ -36,6 +33,8 @@ app.use(bodyParser({
 if (NG_ROOT) {
   app.use(serve(NG_ROOT, { spa: true, defer: true }));
 }
+
+app.use(parseRange);
 
 // public routes
 app
@@ -65,6 +64,14 @@ app.use(isAdmin);
 app
   .use(adminRouter.routes())
   .use(adminRouter.allowedMethods());
+
+// centralized error handler
+app.on('error', async (err, ctx) => {
+  if (err && err.code === 'EPIPE') {
+    logger.verbose('stream epipe error, ignore');
+    return;
+  }
+});
 
 function start() {
   app.listen(9876);

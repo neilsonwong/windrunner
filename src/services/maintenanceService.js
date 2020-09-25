@@ -1,5 +1,5 @@
 const Readable = require('stream').Readable;
-const CustomStreamTransport = require('../customStreamTransport');
+const CustomStreamTransport = require('../logging/customStreamTransport');
 const logger = require('../logger');
 const executor = require('./cli/executor');
 

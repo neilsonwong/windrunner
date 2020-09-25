@@ -1,3 +1,5 @@
+'use strict';
+
 async function isUser(ctx, next) {
   const email = ctx.state.user;
   if (email) {

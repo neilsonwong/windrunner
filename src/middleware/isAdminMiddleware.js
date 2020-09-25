@@ -1,3 +1,5 @@
+'use strict';
+
 const config = require('../../config.json');
 
 async function isAdmin(ctx, next) {

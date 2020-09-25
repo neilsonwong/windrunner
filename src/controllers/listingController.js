@@ -30,10 +30,17 @@ async function details(ctx) {
   ctx.body = details;
 }
 
+async function detailsById(ctx) {
+  const fileId = decodeURIComponent(ctx.params.fileId);
+  const details = await fileDetailService.getFileDetailsById(fileId);
+  ctx.body = details;
+}
+
 
 module.exports = {
   browse,
   recent,
   recentlyChanged,
   details,
+  detailsById,
 };

@@ -5,6 +5,8 @@
     "SHARE_PATH": "/media/Seagate",
     "LOG_DIR": "./logs",
 
+    "TRANSCODE_DIR": "./transcodes",
+
     "DB_PATH": "./windrunner-db",
 
     "IMAGE_HOME": "./img",

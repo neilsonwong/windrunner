@@ -1,3 +1,5 @@
+'use strict';
+
 const axios = require('axios');
 const logger = require('../logger');
 const config = require('../../config.json');

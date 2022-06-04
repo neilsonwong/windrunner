@@ -22,6 +22,9 @@ async function setFile(fileObj) {
       // console.log('clearing finished promise from fileObj');
       fileObj.promised = undefined;
     }
+
+    // add date
+    fileObj.cachedAt = Date.now();
     
     // add id
     await Promise.all([

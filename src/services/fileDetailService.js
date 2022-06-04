@@ -10,6 +10,7 @@ const videoDataService = require('./dataGatherers/videoDataService');
 const thumbnailService = require('./thumbnailService');
 const aniListService = require('./dataGatherers/aniListService');
 const pendingResourceService = require('./pendingResourceService');
+const ONE_DAY = 1000 * 60 * 60 * 24;
 
 async function getFastFileDetails(filePath) {
   const file = await getCachedFileDetails(filePath);
@@ -156,8 +157,13 @@ async function getFileDetailsById(fileId) {
 }
 
 async function populateNextAiringEp(cached) {
+  let cachedFor = cached.cachedAt ? Date.now() - cached.cachedAt : ONE_DAY + 1;
   if (cached.aniListData && cached.aniListData.nextAiringEpisode) {
-    cached.aniListData.nextAiringEpisode = await aniListService.getNextAiringEp(cached.aniListData.id);
+    if (cachedFor > ONE_DAY) {
+      logger.info(`getting next ep time for ${cached.aniListData.title}`);
+      cached.aniListData.nextAiringEpisode = await aniListService.getNextAiringEp(cached.aniListData.id);
+      fileCache.set(cached);
+    }
   }
   return cached;
 }

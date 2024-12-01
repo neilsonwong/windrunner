@@ -15,7 +15,7 @@
   "license": "ISC",
   "dependencies": {
     "@koa/cors": "^2.2.3",
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "generic-pool": "^3.7.1",
     "imagemin": "^7.0.1",
     "imagemin-jpegtran": "^6.0.0",
